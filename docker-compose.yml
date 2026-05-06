@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:15
+    container_name: emagiz_db
+    restart: always
+    environment:
+      POSTGRES_USER: emagiz4
+      POSTGRES_PASSWORD: emagiz4pass
+      POSTGRES_DB: emagiz_ticketing
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
