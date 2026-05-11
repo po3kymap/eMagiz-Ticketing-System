@@ -23,9 +23,9 @@ public class TicketingApplication {
         try {
             System.out.println("Checking DB connection...");
             jakarta.persistence.Persistence.createEntityManagerFactory("emagiz-pu").createEntityManager();
-            System.out.println("✅ Database connection is SUCCESSFUL!");
+            System.out.println("Database connection is SUCCESSFUL!");
         } catch (Exception e) {
-            System.err.println("❌ Database connection FAILED!");
+            System.err.println("Database connection FAILED!");
             e.printStackTrace();
         }
 
