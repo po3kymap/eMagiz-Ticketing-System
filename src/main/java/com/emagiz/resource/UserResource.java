@@ -17,6 +17,7 @@ public class UserResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response createUser(User user){
         EntityManager em = emf.createEntityManager();
     try {
