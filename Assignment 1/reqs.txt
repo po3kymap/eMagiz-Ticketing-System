@@ -13,8 +13,24 @@ As a System, I want to prevent duplicate usernames so that data remains consiste
 Every POST/GET action is recorded. -
 As an Auditor, I want to see a log of all actions so that I can ensure security compliance.
 
-Should-have:
-
-1. Role-Based Access
+4. Role-Based Access
 Admin can select a role from a predefined list. -
 As an Admin, I want to assign roles (Admin/User) to control system permissions.
+
+5. Ticket Validation
+As a Support Agent, I want to accept or deny a new ticket so that I can filter out invalid requests.
+
+6.Ticket Assignment System
+As a Support Agent, I want to assign a ticket to a specific consultant so that the right expert can handle the issue.
+
+
+Should-have:
+
+1. Management Dashboard
+As a Support Manager, I want an overview of all open and closed tickets so that I can monitor the team's workload.
+
+Could-have:
+
+1. Internal Consultant Logs
+As a Consultant, I want to create internal tickets for my own actions so that my work is documented and transparent.
+
