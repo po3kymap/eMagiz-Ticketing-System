@@ -1,0 +1,5 @@
+com/emagiz/model/User.class
+com/emagiz/resource/UserResource.class
+com/emagiz/dao/UserDAO.class
+com/emagiz/config/JerseyConfig.class
+com/emagiz/config/DatabaseConfig.class
