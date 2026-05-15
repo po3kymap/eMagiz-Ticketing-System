@@ -3,9 +3,6 @@ package com.emagiz.resource;
 
 import com.emagiz.dao.UserDAO;
 import com.emagiz.model.User;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -13,7 +10,7 @@ import jakarta.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.List;
 
-@Path("/api/users")
+@Path("users")
 public class UserResource {
     UserDAO userDAO = new UserDAO();
 
@@ -21,13 +18,8 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createUser(User user){
-        try {
-            User savedUser = userDAO.save(user);
-            return Response.status(Response.Status.CREATED).entity(savedUser).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Error while saving: " + e.getMessage()).build();
-        }
+        User savedUser = userDAO.save(user);
+        return Response.status(Response.Status.CREATED).entity(savedUser).build();
     }
 
     @GET

@@ -8,22 +8,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
-    public User save(User user) throws SQLException {
-        String sql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?) RETURNING id";
+    public User save(User user) {
+        String sql = "INSERT INTO users (username, email, password, role, company) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getPassword());
             pstmt.setString(4, user.getRole());
+            pstmt.setString(5, user.getCompany());
 
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                user.setId(rs.getLong("id"));
+            pstmt.executeUpdate();
+
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    user.setId(generatedKeys.getLong(1));
+                }
             }
+
             return user;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error while saving: " + e.getMessage());
         }
     }
 
@@ -41,6 +49,7 @@ public class UserDAO {
                 u.setUsername(rs.getString("username"));
                 u.setEmail(rs.getString("email"));
                 u.setRole(rs.getString("role"));
+                u.setCompany(rs.getString("company"));
                 users.add(u);
             }
         }
