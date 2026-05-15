@@ -1,3 +1,7 @@
+<<<<<<< .gitignore
+.DS_Store
+target/
+=======
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,java
 
@@ -11,6 +15,8 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.DS_Store
+target/
 
 # AWS User-specific
 .idea/**/aws.xml
@@ -141,3 +147,4 @@ hs_err_pid*
 replay_pid*
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,java
+>>>>>>> .gitignore
