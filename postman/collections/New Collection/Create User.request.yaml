@@ -1,0 +1,16 @@
+$kind: http-request
+name: Create User
+url: http://localhost:8080/di26-04/api/api/api/users
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "username": "ruslan_dev",
+      "email": "ruslan@java.com",
+      "password": "hashed_password_here",
+      "role": "ADMIN"
+    }
+order: 1778624726486
