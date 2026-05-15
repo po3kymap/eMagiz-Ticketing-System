@@ -2,6 +2,7 @@ package com.emagiz.dao;
 
 import com.emagiz.config.DatabaseConfig;
 import com.emagiz.model.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,7 +17,8 @@ public class UserDAO {
 
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getEmail());
-            pstmt.setString(3, user.getPassword());
+            String hashedEntry = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+            pstmt.setString(3, hashedEntry);
             pstmt.setString(4, user.getRole());
             pstmt.setString(5, user.getCompany());
 
@@ -27,6 +29,7 @@ public class UserDAO {
                     user.setId(generatedKeys.getLong(1));
                 }
             }
+            user.setPassword(null);
 
             return user;
 
