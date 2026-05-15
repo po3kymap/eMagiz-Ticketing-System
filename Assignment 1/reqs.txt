@@ -1,0 +1,20 @@
+Must-have:
+
+1. User Creation:
+Form accepts username, email, and role. -
+As an Admin, I want to register new users so that they can access the system.
+
+
+2. Unique Identity
+If username exists, return an error. -
+As a System, I want to prevent duplicate usernames so that data remains consistent.
+
+3. Action Logging
+Every POST/GET action is recorded. -
+As an Auditor, I want to see a log of all actions so that I can ensure security compliance.
+
+Should-have:
+
+1. Role-Based Access
+Admin can select a role from a predefined list. -
+As an Admin, I want to assign roles (Admin/User) to control system permissions.
