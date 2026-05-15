@@ -1,0 +1,31 @@
+
+CREATE TABLE IF NOT EXISTS users (
+                                     id SERIAL PRIMARY KEY,
+                                     username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    company VARCHAR(100)
+    );
+
+
+CREATE TABLE IF NOT EXISTS tickets (
+                                       id SERIAL PRIMARY KEY,
+                                       title VARCHAR(255) NOT NULL,
+    description TEXT,
+    status VARCHAR(50) DEFAULT 'OPEN',
+    priority VARCHAR(50) DEFAULT 'MEDIUM',
+    creator_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    assignee_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+                                          id SERIAL PRIMARY KEY,
+                                          ticket_id INTEGER REFERENCES tickets(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES users(id),
+    action VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );

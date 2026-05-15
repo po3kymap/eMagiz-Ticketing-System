@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConfig {
-    private static final String URL = "jdbc:postgresql://localhost:5434/emagiz_ticketing";
+    private static final String URL = "jdbc:postgresql://db:5432/emagiz_ticketing";
     private static final String USER = "emagiz4";
     private static final String PASSWORD = "emagiz4pass";
 
