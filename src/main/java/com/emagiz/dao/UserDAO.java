@@ -3,10 +3,9 @@ package com.emagiz.dao;
 import com.emagiz.config.DatabaseConfig;
 import com.emagiz.model.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
     public User save(User user) throws SQLException {
@@ -26,5 +25,25 @@ public class UserDAO {
             }
             return user;
         }
+    }
+
+    public List<User> findAll() throws SQLException {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM users";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getLong("id"));
+                u.setUsername(rs.getString("username"));
+                u.setEmail(rs.getString("email"));
+                u.setRole(rs.getString("role"));
+                users.add(u);
+            }
+        }
+        return users;
     }
 }
