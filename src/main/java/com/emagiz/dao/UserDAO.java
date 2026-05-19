@@ -2,6 +2,7 @@ package com.emagiz.dao;
 
 import com.emagiz.config.DatabaseConfig;
 import com.emagiz.model.User;
+import jakarta.ws.rs.core.Response;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
@@ -57,5 +58,9 @@ public class UserDAO {
             }
         }
         return users;
+    }
+
+    public Response loginUser(User user, String password){
+        if ((user != null) && (BCrypt.checkpw(password, user.getPassword())))
     }
 }
