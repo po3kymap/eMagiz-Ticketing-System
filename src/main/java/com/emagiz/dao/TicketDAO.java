@@ -2,6 +2,7 @@ package com.emagiz.dao;
 
 import com.emagiz.config.DatabaseConfig;
 import com.emagiz.model.Ticket;
+import com.emagiz.model.TicketStatus;
 import com.emagiz.model.User;
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class TicketDAO {
         try(Connection conn = DatabaseConfig.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)){
             pstmt.setString(1, ticket.getTitle());
             pstmt.setString(2, ticket.getDescription());
-            pstmt.setString(3, ticket.getStatus());
+            pstmt.setString(3, ticket.getStatus().name());
             pstmt.setString(4, ticket.getPriority());
 
             pstmt.executeUpdate();
@@ -44,7 +45,7 @@ public class TicketDAO {
                 t.setId(rs.getLong("id"));
                 t.setTitle(rs.getString("title"));
                 t.setDescription(rs.getString("description"));
-                t.setStatus(rs.getString("status"));
+                t.setStatus(TicketStatus.valueOf(rs.getString("status")));
                 t.setPriority(rs.getString("priority"));
                 t.setCreatorId(rs.getLong("creator_id"));
                 t.setAssigneeId(rs.getLong("assignee_id"));
@@ -54,5 +55,21 @@ public class TicketDAO {
             }
         }
         return tickets;
+    }
+
+    public void updateStatus(Long ticketId, TicketStatus newStatus) {
+        String sql = "UPDATE tickets SET status = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, newStatus.name());
+            pstmt.setLong(2, ticketId);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -7,7 +7,7 @@ public class Ticket {
     private Long id;
     private String title;
     private String description;
-    private String status;
+    private TicketStatus status;
     private String priority;
 
     private Long creatorId;
@@ -19,13 +19,12 @@ public class Ticket {
     public Ticket() {
     }
 
-    public Ticket(String title, String description,
-                  String status, String priority,
+    public Ticket(String title, String description, String priority,
                   Long creatorId, Long assigneeId) {
 
         this.title = title;
         this.description = description;
-        this.status = status;
+        this.status = TicketStatus.OPEN;
         this.priority = priority;
         this.creatorId = creatorId;
         this.assigneeId = assigneeId;
@@ -55,11 +54,11 @@ public class Ticket {
         this.description = description;
     }
 
-    public String getStatus() {
+    public TicketStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TicketStatus status) {
         this.status = status;
     }
 

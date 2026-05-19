@@ -2,6 +2,7 @@ package com.emagiz.resource;
 
 import com.emagiz.dao.TicketDAO;
 import com.emagiz.model.Ticket;
+import com.emagiz.model.TicketStatus;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -33,4 +34,28 @@ public class TicketResource {
         }
 
     }
+
+    @PATCH
+    @Path("/{id}/status")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response updateTicketStatus(
+            @PathParam("id") Long id,
+            String status) {
+
+        try {
+            TicketStatus newStatus = TicketStatus.valueOf(status);
+
+            ticketDAO.updateStatus(id, newStatus);
+
+            return Response.ok("Status updated").build();
+
+        } catch (IllegalArgumentException e) {
+
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Invalid status")
+                    .build();
+
+        }
+    }
+
 }
