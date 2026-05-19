@@ -59,8 +59,4 @@ public class UserDAO {
         }
         return users;
     }
-
-    public Response loginUser(User user, String password){
-        if ((user != null) && (BCrypt.checkpw(password, user.getPassword())))
-    }
 }
