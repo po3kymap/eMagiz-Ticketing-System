@@ -1,0 +1,18 @@
+:root {
+    --bg-canvas: #f8fafc;
+    --bg-surface: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-subtle: #e2e8f0;
+    --emerald-primary: #10b981;
+    --emerald-accent: #43978d;
+    --sidebar-bg: #0f172a;
+    --radius-md: 0.75rem;
+}
+
+body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
