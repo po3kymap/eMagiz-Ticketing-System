@@ -6,10 +6,6 @@ import { getCurrentUser } from './api/auth.js'
 import router from './router.js';
 
 const AppLayout = {
-    components: {
-        Sidebar,
-        TopNavigation
-    },
     data() {
         return {
             currentUser: {
