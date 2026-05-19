@@ -2,6 +2,7 @@ package com.emagiz.dao;
 
 import com.emagiz.config.DatabaseConfig;
 import com.emagiz.model.Ticket;
+import com.emagiz.model.TicketNotFoundException;
 import com.emagiz.model.TicketStatus;
 import com.emagiz.model.User;
 import java.sql.*;
@@ -57,10 +58,36 @@ public class TicketDAO {
         return tickets;
     }
 
+    public Ticket findById(Long id){
+        String sql = "SELECT * FROM tickets WHERE id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setLong(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()){
+                Ticket t = new Ticket();
+                t.setId(rs.getLong("id"));
+                t.setTitle(rs.getString("title"));
+                t.setDescription(rs.getString("description"));
+                t.setStatus(TicketStatus.valueOf(rs.getString("status")));
+                t.setPriority(rs.getString("priority"));
+                t.setCreatorId(rs.getLong("creator_id"));
+                t.setAssigneeId(rs.getLong("assignee_id"));
+                t.setCreatedAt(rs.getTimestamp("created_at"));
+                t.setUpdatedAt(rs.getTimestamp("updated_at"));
+                return t;
+            }
+            throw new TicketNotFoundException("Ticket with id " + id + " not found");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void updateStatus(Long ticketId, TicketStatus newStatus) {
         String sql = "UPDATE tickets SET status = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
+
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, newStatus.name());

@@ -2,6 +2,7 @@ package com.emagiz.resource;
 
 import com.emagiz.dao.TicketDAO;
 import com.emagiz.model.Ticket;
+import com.emagiz.model.TicketNotFoundException;
 import com.emagiz.model.TicketStatus;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -58,4 +59,21 @@ public class TicketResource {
         }
     }
 
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findById(
+            @PathParam("id") Long id) {
+
+        try {
+            Ticket t = ticketDAO.findById(id);
+            return Response.ok(t).build();
+
+        } catch (TicketNotFoundException e) {
+
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(e.getMessage())
+                    .build();
+        }
+    }
 }
