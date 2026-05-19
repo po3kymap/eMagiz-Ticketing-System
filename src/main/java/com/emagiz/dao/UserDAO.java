@@ -60,4 +60,30 @@ public class UserDAO {
         return users;
     }
 
+    public User validateUserLogin(String username, String password){
+        String sql = "SELECT * FROM users WHERE username = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setString(1, username);
+            ResultSet resultSet =  pstmt.executeQuery();
+
+            if (resultSet.next()){
+                String hashedPassword = resultSet.getString("password");
+                if (BCrypt.checkpw(password, hashedPassword)){
+                    User user = new User();
+                    user.setId(resultSet.getLong("id"));
+                    user.setUsername(resultSet.getString("username"));
+                    user.setEmail(resultSet.getString("email"));
+                    user.setRole(resultSet.getString("role"));
+                    return user;
+
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
