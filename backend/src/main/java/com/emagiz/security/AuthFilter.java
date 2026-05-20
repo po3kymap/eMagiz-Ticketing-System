@@ -1,7 +1,7 @@
-package com.emagiz.security;
+package main.java.com.emagiz.security;
 
 
-import com.emagiz.dao.UserDAO;
+import main.java.com.emagiz.dao.UserDAO;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MediaType;

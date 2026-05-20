@@ -1,4 +1,4 @@
-package com.emagiz.model;
+package main.java.com.emagiz.model;
 
 public enum TicketStatus {
     OPEN,

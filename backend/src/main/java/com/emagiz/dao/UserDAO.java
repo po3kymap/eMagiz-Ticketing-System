@@ -1,10 +1,12 @@
-package com.emagiz.dao;
+package main.java.com.emagiz.dao;
 
-import com.emagiz.config.DatabaseConfig;
-import com.emagiz.model.User;
+import main.java.com.emagiz.config.DatabaseConfig;
+import main.java.com.emagiz.model.User;
 import jakarta.ws.rs.core.Response;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.xml.crypto.Data;
+import java.net.ConnectException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,4 +61,62 @@ public class UserDAO {
         }
         return users;
     }
+
+    public User validateUserLogin(String username, String password){
+        String sql = "SELECT * FROM users WHERE username = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setString(1, username);
+            ResultSet resultSet =  pstmt.executeQuery();
+
+            if (resultSet.next()){
+                String hashedPassword = resultSet.getString("password");
+                if (BCrypt.checkpw(password, hashedPassword)){
+                    User user = new User();
+                    user.setId(resultSet.getLong("id"));
+                    user.setUsername(resultSet.getString("username"));
+                    user.setEmail(resultSet.getString("email"));
+                    user.setRole(resultSet.getString("role"));
+                    return user;
+
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void saveToken(String token, Long id){
+        String sql = "INSERT INTO user_tokens (token, user_id) VALUES (?, ?)";
+        try(Connection connection = DatabaseConfig.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, token);
+            preparedStatement.setLong(2, id);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Long getUserIdByToken(String token){
+        String sql = "SELECT user_id FROM user_tokens WHERE token = ?";
+        try(Connection conn = DatabaseConfig.getConnection()) {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, token);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+
+
+            if (resultSet.next()){
+                return resultSet.getLong("user_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.emagiz.model;
+package main.java.com.emagiz.model;
 
 import java.sql.Timestamp;
 
@@ -7,7 +7,7 @@ public class Ticket {
     private Long id;
     private String title;
     private String description;
-    private TicketStatus status;
+    private main.java.com.emagiz.model.TicketStatus status = main.java.com.emagiz.model.TicketStatus.OPEN;
     private String priority;
 
     private Long creatorId;
@@ -24,7 +24,6 @@ public class Ticket {
 
         this.title = title;
         this.description = description;
-        this.status = TicketStatus.OPEN;
         this.priority = priority;
         this.creatorId = creatorId;
         this.assigneeId = assigneeId;

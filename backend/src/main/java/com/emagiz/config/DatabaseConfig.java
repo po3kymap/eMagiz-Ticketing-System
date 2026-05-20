@@ -1,4 +1,4 @@
-package com.emagiz.config;
+package main.java.com.emagiz.config;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
