@@ -2,14 +2,23 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
-  root: fileURLToPath(new URL('.', import.meta.url)),
+  root: '.',
+  resolve: {
+    extensions: ['.js', '.json', '.vue'],
+    alias: {
+      '@'        : fileURLToPath(new URL('./src', import.meta.url)),
+      '@js'      : fileURLToPath(new URL('./src/js', import.meta.url)),
+      '@css'     : fileURLToPath(new URL('./src/css', import.meta.url)),
+      '@views'   : fileURLToPath(new URL('./src/js/views', import.meta.url)),
+      '@api'     : fileURLToPath(new URL('./src/js/api', import.meta.url)),
+      '@assets'  : fileURLToPath(new URL('./public', import.meta.url)),
+    }
+  },
   build: {
-    
-    outDir: fileURLToPath(new URL('../src/main/webapp', import.meta.url)),
-    emptyOutDir: false,
+    outDir: 'dist',
+    emptyOutDir: true,
   },
   server: {
     port: 5173,
