@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.Response;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 @Path("users")
 public class UserResource {
@@ -34,6 +35,25 @@ public class UserResource {
                     .entity("Error in db: " + e.getMessage()).build();
         }
 
+    }
+
+    @POST
+    @Path("login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response loginUser(User loginData){
+        User authinticatedUser = userDAO.validateUserLogin(loginData.getUsername(), loginData.getPassword());
+
+        if (authinticatedUser == null){
+            Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("{\"error\": \"Invalid username or password\"}")
+                    .build();
+        }
+
+        String token = UUID.randomUUID().toString();
+        userDAO.saveToken(token, authinticatedUser.getId());
+        String jsonResponse = "Login successful! Token: " + token + " role: " + authinticatedUser.getRole() + " userId: " + authinticatedUser.getId();
+        return Response.ok(jsonResponse).build();
     }
 
 }

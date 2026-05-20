@@ -21,6 +21,7 @@ services:
 
   app:
     build: .
+    image: openjdk:17-jdk-slim
     container_name: emagiz_app
     ports:
       - "8080:8080"
