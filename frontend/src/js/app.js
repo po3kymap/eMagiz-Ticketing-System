@@ -1,18 +1,14 @@
 import { createApp } from 'vue'
-import '../css/main.css'
-import '../css/global.css'
-import '../css/theme.css'
-import { getCurrentUser } from './api/auth.js'
-import router from './router.js';
+import '@css/main.css'
+import '@css/global.css'
+import '@css/theme.css'
+import { getCurrentUser } from '@api/auth'
+import router from '@js/router';
 
 const AppLayout = {
     data() {
         return {
-            currentUser: {
-                name: 'Sarah Mitchell',
-                email: 's.mitchell@acmecorp.com',
-                role: 'Customer'
-            }
+            currentUser: null
         };
     },
     computed: {
@@ -26,6 +22,7 @@ const AppLayout = {
     },
     async mounted() {
         const user = await getCurrentUser();
+
         this.currentUser = {
             name: user.name,
             email: user.email,

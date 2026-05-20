@@ -93,3 +93,8 @@ http-client.private.env.json
 
 # Github Copilot persisted session migrations, see: https://github.com/microsoft/copilot-intellij-feedback/issues/712#issuecomment-3322062215
 .idea/**/copilot.data.migration.*.xml
+
+# Frontend (npm / Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
