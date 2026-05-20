@@ -5,6 +5,8 @@ import com.emagiz.model.Ticket;
 import com.emagiz.model.TicketNotFoundException;
 import com.emagiz.model.TicketStatus;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.sql.SQLException;
@@ -14,10 +16,17 @@ import java.util.List;
 public class TicketResource {
     TicketDAO ticketDAO = new TicketDAO();
 
+
+    @Context
+    private ContainerRequestContext requestContext;
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createTicket(Ticket ticket){
+        Long userId =
+                (Long) requestContext.getProperty("userId");
+
+        ticket.setCreatorId(userId);
         Ticket savedTicket = ticketDAO.save(ticket);
         return Response.status(Response.Status.CREATED).entity(savedTicket).build();
     }

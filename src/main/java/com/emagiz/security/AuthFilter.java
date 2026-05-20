@@ -29,10 +29,13 @@ public class AuthFilter implements ContainerRequestFilter {
 
         String token = authHeader.substring(7);
         UserDAO userDAO = new UserDAO();
-        if (userDAO.getUserIdByToken(token) == null){
+        Long userId = userDAO.getUserIdByToken(token);
+        if (userId == null){
             containerRequestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).
                     entity("{\"error\": \"Missing or invalid token\"}")
                     .type(MediaType.APPLICATION_JSON).build());
         }
+
+        containerRequestContext.setProperty("userId", userId);
     }
 }
