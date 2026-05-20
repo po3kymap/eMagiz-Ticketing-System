@@ -29,3 +29,10 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     action VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+
+CREATE TABLE IF NOT EXISTS user_tokens (
+                             token VARCHAR(36) PRIMARY KEY,
+                             user_id INT NOT NULL,
+                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

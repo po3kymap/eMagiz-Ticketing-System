@@ -5,6 +5,8 @@ import com.emagiz.model.User;
 import jakarta.ws.rs.core.Response;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.xml.crypto.Data;
+import java.net.ConnectException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +81,35 @@ public class UserDAO {
                     return user;
 
                 }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void saveToken(String token, Long id){
+        String sql = "INSERT INTO user_tokens (token, user_id) VALUES (?, ?)";
+        try(Connection connection = DatabaseConfig.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, token);
+            preparedStatement.setLong(2, id);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Long getUserIdByToken(String token){
+        String sql = "SELECT user_id FROM user_tokens WHERE token = ?";
+        try(Connection conn = DatabaseConfig.getConnection()) {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+
+            if (resultSet.next()){
+                return resultSet.getLong("user_id");
             }
         } catch (SQLException e) {
             e.printStackTrace();
