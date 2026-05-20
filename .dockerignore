@@ -1,0 +1,30 @@
+# Dependencies
+**/node_modules/
+
+# Build outputs
+**/dist/
+**/target/
+
+# IDE
+.idea/
+*.iml
+*.iws
+
+# OS
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Docs & design (not needed in Docker context)
+Assignment 1/
+design/
+documents/
+meetings/
+postman/
+README.md
+
+# Environment files
+.env
+.env.*

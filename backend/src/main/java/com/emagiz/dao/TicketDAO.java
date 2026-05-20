@@ -1,0 +1,127 @@
+package com.emagiz.dao;
+
+import com.emagiz.config.DatabaseConfig;
+import com.emagiz.model.Ticket;
+import com.emagiz.model.TicketNotFoundException;
+import com.emagiz.model.TicketStatus;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TicketDAO {
+    public Ticket save(Ticket ticket){
+        String sql = "INSERT INTO tickets (title, description, status, priority ) VALUES (?, ?, ?, ?)";
+        try(Connection conn = DatabaseConfig.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)){
+            pstmt.setString(1, ticket.getTitle());
+            pstmt.setString(2, ticket.getDescription());
+            pstmt.setString(3, ticket.getStatus().name());
+            pstmt.setString(4, ticket.getPriority());
+
+            pstmt.executeUpdate();
+
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    ticket.setId(generatedKeys.getLong(1));
+                }
+            }
+
+            return ticket;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Ticket> findAll() throws SQLException {
+        List<Ticket> tickets = new ArrayList<>();
+        String sql = "SELECT * FROM tickets";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Ticket t = new Ticket();
+                t.setId(rs.getLong("id"));
+                t.setTitle(rs.getString("title"));
+                t.setDescription(rs.getString("description"));
+                t.setStatus(TicketStatus.valueOf(rs.getString("status")));
+                t.setPriority(rs.getString("priority"));
+                t.setCreatorId(rs.getLong("creator_id"));
+                t.setAssigneeId(rs.getLong("assignee_id"));
+                t.setCreatedAt(rs.getTimestamp("created_at"));
+                t.setUpdatedAt(rs.getTimestamp("updated_at"));
+                tickets.add(t);
+            }
+        }
+        return tickets;
+    }
+
+    public Ticket findById(Long id){
+        String sql = "SELECT * FROM tickets WHERE id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setLong(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()){
+                Ticket t = new Ticket();
+                t.setId(rs.getLong("id"));
+                t.setTitle(rs.getString("title"));
+                t.setDescription(rs.getString("description"));
+                t.setStatus(TicketStatus.valueOf(rs.getString("status")));
+                t.setPriority(rs.getString("priority"));
+                t.setCreatorId(rs.getLong("creator_id"));
+                t.setAssigneeId(rs.getLong("assignee_id"));
+                t.setCreatedAt(rs.getTimestamp("created_at"));
+                t.setUpdatedAt(rs.getTimestamp("updated_at"));
+                return t;
+            }
+            throw new TicketNotFoundException("Ticket with id " + id + " not found");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateStatus(Long ticketId, TicketStatus newStatus) {
+        String sql = "UPDATE tickets SET status = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, newStatus.name());
+            pstmt.setLong(2, ticketId);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Ticket> findTicketsByClientId(Long clientID){
+        List<Ticket> tickets = new ArrayList<>();
+        String sql = "SELECT * FROM tickets WHERE creator_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);) {
+
+            pstmt.setLong(1, clientID);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Ticket t = new Ticket();
+                t.setId(rs.getLong("id"));
+                t.setTitle(rs.getString("title"));
+                t.setDescription(rs.getString("description"));
+                t.setStatus(TicketStatus.valueOf(rs.getString("status")));
+                t.setPriority(rs.getString("priority"));
+                t.setCreatorId(rs.getLong("creator_id"));
+                t.setAssigneeId(rs.getLong("assignee_id"));
+                t.setCreatedAt(rs.getTimestamp("created_at"));
+                t.setUpdatedAt(rs.getTimestamp("updated_at"));
+                tickets.add(t);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return tickets;
+    }
+}
