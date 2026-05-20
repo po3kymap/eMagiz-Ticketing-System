@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TicketDAO {
-    public Ticket save(Ticket ticket){
+    public Ticket save(Ticket ticket) {
         String sql = "INSERT INTO tickets (title, description, status, priority, creator_id ) VALUES (?, ?, ?, ?, ?)";
         try(Connection conn = DatabaseConfig.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)){
             pstmt.setString(1, ticket.getTitle());
@@ -41,19 +41,7 @@ public class TicketDAO {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            while (rs.next()) {
-                Ticket t = new Ticket();
-                t.setId(rs.getLong("id"));
-                t.setTitle(rs.getString("title"));
-                t.setDescription(rs.getString("description"));
-                t.setStatus(TicketStatus.valueOf(rs.getString("status")));
-                t.setPriority(rs.getString("priority"));
-                t.setCreatorId(rs.getLong("creator_id"));
-                t.setAssigneeId(rs.getLong("assignee_id"));
-                t.setCreatedAt(rs.getTimestamp("created_at"));
-                t.setUpdatedAt(rs.getTimestamp("updated_at"));
-                tickets.add(t);
-            }
+            formTicket(tickets, rs);
         }
         return tickets;
     }
@@ -107,22 +95,26 @@ public class TicketDAO {
 
             pstmt.setLong(1, clientID);
             ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                Ticket t = new Ticket();
-                t.setId(rs.getLong("id"));
-                t.setTitle(rs.getString("title"));
-                t.setDescription(rs.getString("description"));
-                t.setStatus(TicketStatus.valueOf(rs.getString("status")));
-                t.setPriority(rs.getString("priority"));
-                t.setCreatorId(rs.getLong("creator_id"));
-                t.setAssigneeId(rs.getLong("assignee_id"));
-                t.setCreatedAt(rs.getTimestamp("created_at"));
-                t.setUpdatedAt(rs.getTimestamp("updated_at"));
-                tickets.add(t);
-            }
+            formTicket(tickets, rs);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return tickets;
+    }
+
+    private void formTicket(List<Ticket> tickets, ResultSet rs) throws SQLException {
+        while (rs.next()) {
+            Ticket t = new Ticket();
+            t.setId(rs.getLong("id"));
+            t.setTitle(rs.getString("title"));
+            t.setDescription(rs.getString("description"));
+            t.setStatus(TicketStatus.valueOf(rs.getString("status")));
+            t.setPriority(rs.getString("priority"));
+            t.setCreatorId(rs.getLong("creator_id"));
+            t.setAssigneeId(rs.getLong("assignee_id"));
+            t.setCreatedAt(rs.getTimestamp("created_at"));
+            t.setUpdatedAt(rs.getTimestamp("updated_at"));
+            tickets.add(t);
+        }
     }
 }
