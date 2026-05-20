@@ -7,7 +7,7 @@ public class Ticket {
     private Long id;
     private String title;
     private String description;
-    private TicketStatus status;
+    private TicketStatus status = TicketStatus.OPEN;
     private String priority;
 
     private Long creatorId;
@@ -24,7 +24,6 @@ public class Ticket {
 
         this.title = title;
         this.description = description;
-        this.status = TicketStatus.OPEN;
         this.priority = priority;
         this.creatorId = creatorId;
         this.assigneeId = assigneeId;

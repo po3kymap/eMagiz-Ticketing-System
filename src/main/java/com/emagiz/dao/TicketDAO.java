@@ -10,12 +10,13 @@ import java.util.List;
 
 public class TicketDAO {
     public Ticket save(Ticket ticket){
-        String sql = "INSERT INTO tickets (title, description, status, priority ) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO tickets (title, description, status, priority, creator_id ) VALUES (?, ?, ?, ?, ?)";
         try(Connection conn = DatabaseConfig.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)){
             pstmt.setString(1, ticket.getTitle());
             pstmt.setString(2, ticket.getDescription());
             pstmt.setString(3, ticket.getStatus().name());
             pstmt.setString(4, ticket.getPriority());
+            pstmt.setLong(5, ticket.getCreatorId());
 
             pstmt.executeUpdate();
 
