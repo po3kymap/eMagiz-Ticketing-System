@@ -30,21 +30,6 @@ public class Ticket {
         this.assigneeId = assigneeId;
     }
 
-    public boolean isValidStatusChange(
-            TicketStatus oldStatus,
-            TicketStatus newStatus) {
-
-        return switch (oldStatus) {
-            case OPEN -> newStatus == TicketStatus.IN_REVIEW;
-            case IN_REVIEW ->
-                    newStatus == TicketStatus.ASSIGNED || newStatus == TicketStatus.DENIED;
-            case ASSIGNED -> newStatus == TicketStatus.ACCEPTED;
-            case ACCEPTED -> newStatus == TicketStatus.CLOSED;
-            case CLOSED, DENIED -> false;
-            default -> false;
-        };
-    }
-
     public Long getId() {
         return id;
     }

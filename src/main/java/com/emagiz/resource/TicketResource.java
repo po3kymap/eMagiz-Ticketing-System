@@ -76,4 +76,13 @@ public class TicketResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/client/{clientId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findTicketsByClientId(@PathParam("clientId") Long id){
+        List<Ticket> ticketList = ticketDAO.findTicketsByClientId(id);
+        return Response.ok(ticketList).build();
+    }
+
 }

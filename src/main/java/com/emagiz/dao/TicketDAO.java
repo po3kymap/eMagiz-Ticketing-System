@@ -4,7 +4,6 @@ import com.emagiz.config.DatabaseConfig;
 import com.emagiz.model.Ticket;
 import com.emagiz.model.TicketNotFoundException;
 import com.emagiz.model.TicketStatus;
-import com.emagiz.model.User;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +86,6 @@ public class TicketDAO {
         String sql = "UPDATE tickets SET status = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
-
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, newStatus.name());
@@ -98,5 +96,32 @@ public class TicketDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<Ticket> findTicketsByClientId(Long clientID){
+        List<Ticket> tickets = new ArrayList<>();
+        String sql = "SELECT * FROM tickets WHERE creator_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);) {
+
+            pstmt.setLong(1, clientID);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Ticket t = new Ticket();
+                t.setId(rs.getLong("id"));
+                t.setTitle(rs.getString("title"));
+                t.setDescription(rs.getString("description"));
+                t.setStatus(TicketStatus.valueOf(rs.getString("status")));
+                t.setPriority(rs.getString("priority"));
+                t.setCreatorId(rs.getLong("creator_id"));
+                t.setAssigneeId(rs.getLong("assignee_id"));
+                t.setCreatedAt(rs.getTimestamp("created_at"));
+                t.setUpdatedAt(rs.getTimestamp("updated_at"));
+                tickets.add(t);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return tickets;
     }
 }
