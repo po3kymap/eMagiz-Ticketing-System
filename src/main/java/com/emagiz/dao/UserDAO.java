@@ -105,7 +105,9 @@ public class UserDAO {
         String sql = "SELECT user_id FROM user_tokens WHERE token = ?";
         try(Connection conn = DatabaseConfig.getConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, token);
             ResultSet resultSet = preparedStatement.executeQuery();
+
 
 
             if (resultSet.next()){

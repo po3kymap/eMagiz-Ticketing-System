@@ -51,7 +51,7 @@ public class UserResource {
         }
 
         String token = UUID.randomUUID().toString();
-        userDAO.saveToken(token, loginData.getId());
+        userDAO.saveToken(token, authinticatedUser.getId());
         String jsonResponse = "Login successful! Token: " + token + " role: " + authinticatedUser.getRole() + " userId: " + authinticatedUser.getId();
         return Response.ok(jsonResponse).build();
     }
