@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { isAuthenticated } from '@api/auth';
-import Login from '@views/login/LoginPage.vue';
-import CustomerDashboard from '@views/customer/Dashboard.js';
+import Login from '@/views/login/LoginPage.vue';
+import CustomerDashboard from '@/views/customer/Dashboard.js';
 
 const routes = [
     {

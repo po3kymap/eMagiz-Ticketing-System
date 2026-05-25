@@ -17,7 +17,7 @@ import { Eye, Lock } from 'lucide-vue-next'
 
       <div>
         <h2 class="mb-2 text-3xl font-bold text-slate-900">
-          Sign in
+          Sign in to your account
         </h2>
 
         <p class="mb-8 text-base text-slate-500">

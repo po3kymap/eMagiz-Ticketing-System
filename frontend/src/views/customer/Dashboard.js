@@ -1,4 +1,4 @@
-import { getCurrentUser, logout } from '@api/auth';
+import { getCurrentUser, logout } from '@api/auth.js';
 
 export default {
     name: 'CustomerDashboard',
