@@ -1,52 +1,42 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-
-// import CustomerDashboard from '@views/customer/Dashboard.js'
-// import CustomerTickets from '@views/customer/Tickets.js'
-// import SubmitTicket from '@views/customer/SubmitTicket.js'
-// import KnowledgeBase from '@views/customer/KnowledgeBase.js'
+import { createRouter, createWebHashHistory } from 'vue-router';
+import { isAuthenticated } from '@api/auth';
+import Login from '@views/auth/Login.js';
+import CustomerDashboard from '@views/customer/Dashboard.js';
 
 const routes = [
-  {
-    path: '/',
-    redirect: '/customer',
-  },
-  // {
-  //   path: '/customer',
-  //   component: CustomerDashboard,
-  //   meta: {
-  //     section: 'Customer Portal',
-  //     title: 'Dashboard',
-  //   },
-  // },
-  // {
-  //   path: '/customer/tickets',
-  //   component: CustomerTickets,
-  //   meta: {
-  //     section: 'Customer Portal',
-  //     title: 'My Tickets',
-  //   },
-  // },
-  // {
-  //   path: '/customer/submit',
-  //   component: SubmitTicket,
-  //   meta: {
-  //     section: 'Customer Portal',
-  //     title: 'Submit Ticket',
-  //   },
-  // },
-  // {
-  //   path: '/customer/knowledge',
-  //   component: KnowledgeBase,
-  //   meta: {
-  //     section: 'Customer Portal',
-  //     title: 'Knowledge Base',
-  //   },
-  // },
-]
+    {
+        path: '/',
+        redirect: '/login',
+    },
+    {
+        path: '/login',
+        name: 'login',
+        component: Login,
+        meta: { public: true },
+    },
+    {
+        path: '/customer',
+        name: 'customer',
+        component: CustomerDashboard,
+        meta: { requiresAuth: true },
+    },
+];
 
 const router = createRouter({
-  history: createWebHashHistory(),
-  routes,
-})
+    history: createWebHashHistory(),
+    routes,
+});
 
-export default router
+router.beforeEach((to) => {
+    if (to.meta.requiresAuth && !isAuthenticated()) {
+        return { name: 'login' };
+    }
+
+    if (to.name === 'login' && isAuthenticated()) {
+        return { name: 'customer' };
+    }
+
+    return true;
+});
+
+export default router;

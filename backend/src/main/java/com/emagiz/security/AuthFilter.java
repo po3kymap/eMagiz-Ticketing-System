@@ -1,7 +1,7 @@
 package main.java.com.emagiz.security;
 
-
 import main.java.com.emagiz.dao.UserDAO;
+import main.java.com.emagiz.model.ApiError;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MediaType;
@@ -12,30 +12,50 @@ import java.io.IOException;
 
 @Provider
 public class AuthFilter implements ContainerRequestFilter {
+
     @Override
-    public void filter(ContainerRequestContext containerRequestContext) throws IOException {
-        String path = containerRequestContext.getUriInfo().getPath();
-        if (path.contains("login")){
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+        if (isPublicRoute(requestContext)) {
             return;
         }
 
-        String authHeader = containerRequestContext.getHeaderString("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")){
-            containerRequestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).
-                    entity("{\"error\": \"Missing or invalid token\"}")
-                    .type(MediaType.APPLICATION_JSON).build());
+        String authHeader = requestContext.getHeaderString("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            abortUnauthorized(requestContext, "Missing or invalid token");
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7).trim();
         UserDAO userDAO = new UserDAO();
         Long userId = userDAO.getUserIdByToken(token);
-        if (userId == null){
-            containerRequestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).
-                    entity("{\"error\": \"Missing or invalid token\"}")
-                    .type(MediaType.APPLICATION_JSON).build());
+        if (userId == null) {
+            abortUnauthorized(requestContext, "Missing or invalid token");
+            return;
         }
 
-        containerRequestContext.setProperty("userId", userId);
+        requestContext.setProperty("userId", userId);
+    }
+
+    private boolean isPublicRoute(ContainerRequestContext requestContext) {
+        String path = normalizePath(requestContext.getUriInfo().getPath());
+
+        // Единственный публичный endpoint — POST /api/users/login
+        return path.endsWith("/login") || "login".equals(path);
+    }
+
+    private String normalizePath(String path) {
+        if (path == null) {
+            return "";
+        }
+        return path.startsWith("/") ? path.substring(1) : path;
+    }
+
+    private void abortUnauthorized(ContainerRequestContext requestContext, String message) {
+        requestContext.abortWith(
+                Response.status(Response.Status.UNAUTHORIZED)
+                        .entity(new ApiError(message))
+                        .type(MediaType.APPLICATION_JSON)
+                        .build()
+        );
     }
 }

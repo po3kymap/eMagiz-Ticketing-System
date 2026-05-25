@@ -9,7 +9,7 @@
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>jakarta.ws.rs.Application</param-name>
-            <param-value>com.emagiz.config.JerseyConfig</param-value>
+            <param-value>main.java.com.emagiz.config.JerseyConfig</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

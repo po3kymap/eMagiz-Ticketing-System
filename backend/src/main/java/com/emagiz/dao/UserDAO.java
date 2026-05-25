@@ -2,11 +2,8 @@ package main.java.com.emagiz.dao;
 
 import main.java.com.emagiz.config.DatabaseConfig;
 import main.java.com.emagiz.model.User;
-import jakarta.ws.rs.core.Response;
 import org.mindrot.jbcrypt.BCrypt;
 
-import javax.xml.crypto.Data;
-import java.net.ConnectException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

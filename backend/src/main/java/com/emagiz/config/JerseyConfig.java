@@ -8,7 +8,7 @@ import java.sql.Connection;
 public class JerseyConfig extends ResourceConfig {
 
     public JerseyConfig() {
-        packages("com.emagiz.resource", "com.emagiz.security");
+        packages("main.java.com.emagiz.resource", "main.java.com.emagiz.security");
         register(JacksonFeature.class);
         checkDatabaseConnection();
 

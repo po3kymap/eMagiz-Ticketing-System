@@ -36,3 +36,17 @@ CREATE TABLE IF NOT EXISTS user_tokens (
                              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- Demo user: username "demo", password "password"
+INSERT INTO users (username, email, password, role, company)
+VALUES (
+    'demo',
+    'demo@emagiz.com',
+    '$2a$10$LswrA0IrfO0VLfJsTI63xumj9VJNcmv4D9ApPIw75cs8ziA8SHi.K',
+    'Customer',
+    'eMagiz'
+) ON CONFLICT (username) DO UPDATE SET
+    password = EXCLUDED.password,
+    email = EXCLUDED.email,
+    role = EXCLUDED.role,
+    company = EXCLUDED.company;
