@@ -6,6 +6,7 @@ import CustomerDashboard from '@/views/dashboard/DashboardView.vue'
 import TicketQueueView from '@/views/tickets/TicketQueueView.vue'
 import TriageBoardView from "@views/triage/TriageBoardView.vue";
 import AuditLogView from "@views/audit/AuditLogView.vue";
+import SettingsView from '@/views/settings/SettingsView.vue'
 
 const routes = [
     {
@@ -45,7 +46,7 @@ const routes = [
             {
                 path: 'settings',
                 name: 'settings',
-                component: TicketQueueView,
+                component: SettingsView,
             },
         ],
     },
