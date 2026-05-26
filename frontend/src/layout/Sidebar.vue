@@ -56,15 +56,13 @@ const sidebarClasses = computed(() => [
 
 <template>
   <aside :class="sidebarClasses">
-    <div class="flex h-[52px] items-center justify-between border-b border-[#17305B] px-4">
-      <div class="flex items-center gap-2.5">
-        <div class="flex h-7 w-7 items-center justify-center rounded-md bg-[#19C2BB] text-[11px] font-bold text-white">
-          T3
-        </div>
-
-        <div class="text-[15px] font-semibold leading-none tracking-[-0.01em] text-white">
-          eMagiz <span class="text-[#1CC8C0]">Tickets</span>
-        </div>
+    <div class="flex h-[58px] items-center justify-between border-b border-[#17305B] px-4">
+      <div class="flex items-center">
+        <img
+            src="/img/loginLogo.png"
+            alt="eMagiz Tickets logo"
+            class="h-12 w-auto object-contain"
+        />
       </div>
 
       <button

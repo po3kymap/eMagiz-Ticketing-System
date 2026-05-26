@@ -8,7 +8,7 @@ import {
 </script>
 
 <template>
-  <header class="flex h-[58px] items-center justify-between border-b border-[#E7EDF5] bg-white px-[18px]">
+  <header class="flex h-[58px] items-center justify-between border-b border-[#E7EDF5] bg-white px-[21px]">
     <div class="flex min-w-0 items-center gap-3">
       <div class="relative w-[314px]">
         <Search class="pointer-events-none absolute left-4 top-1/2 h-[15px] w-[15px] -translate-y-1/2 text-[#A4AEC0]" />
