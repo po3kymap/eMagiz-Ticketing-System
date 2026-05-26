@@ -1,18 +1,31 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { isAuthenticated } from '@api/auth';
 import Login from '@/views/login/LoginPage.vue';
-import CustomerDashboard from '@/views/customer/Dashboard.js';
+import MenuLayout from '@/layout/MenuLayout.vue';
+import CustomerDashboard from '@views/dashboard/DashboardView.vue';
 
 const routes = [
     {
         path: '/',
-        redirect: '/login',
+        redirect: '/dashboard',
     },
     {
         path: '/login',
         name: 'login',
         component: Login,
         meta: { public: true },
+    },
+    {
+        path: '/dashboard',
+        component: MenuLayout,
+        meta: { requiresAuth: false },
+        children: [
+            {
+                path: '',
+                name: 'dashboard',
+                component: CustomerDashboard,
+            },
+        ],
     },
     {
         path: '/customer',
@@ -33,7 +46,7 @@ router.beforeEach((to) => {
     }
 
     if (to.name === 'login' && isAuthenticated()) {
-        return { name: 'customer' };
+        return { name: 'dashboard' };
     }
 
     return true;
