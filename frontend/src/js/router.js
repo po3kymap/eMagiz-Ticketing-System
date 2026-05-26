@@ -33,23 +33,28 @@ const routes = [
             {
                 path: 'triage-board',
                 name: 'triage-board',
-                component: TicketQueueView,
+                component: TriageBoardView,
             },
             {
                 path: 'users',
                 name: 'users',
-                component: TicketQueueView,
+                component: UsersView,
             },
             {
                 path: 'audit-log',
                 name: 'audit-log',
-                component: TicketQueueView,
+                component: AuditLogView,
             },
             {
                 path: 'settings',
                 name: 'settings',
-                component: TicketQueueView,
+                component: SettingsView,
             },
+            {
+                path: 'submit',
+                name: 'submit',
+                component: SubmitView
+            }
         ],
     },
     {
