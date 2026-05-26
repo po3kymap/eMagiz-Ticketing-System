@@ -50,7 +50,7 @@ const navItems = [
 const isActive = (to) => route.path === to
 
 const sidebarClasses = computed(() => [
-  'flex h-screen w-[184px] flex-col overflow-hidden border-r border-[#17305B] bg-[#071633] text-white'
+  'flex h-screen w-[240px] flex-col overflow-hidden border-r border-[#17305B] bg-[#071633] text-white'
 ])
 </script>
 
