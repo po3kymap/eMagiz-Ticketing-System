@@ -30,7 +30,7 @@ const routes = [
             {
                 path: 'triage-board',
                 name: 'triage-board',
-                component: TicketQueueView,
+                component: TriageBoardView,
             },
             {
                 path: 'users',
@@ -40,7 +40,7 @@ const routes = [
             {
                 path: 'audit-log',
                 name: 'audit-log',
-                component: TicketQueueView,
+                component: AuditLogView,
             },
             {
                 path: 'settings',
