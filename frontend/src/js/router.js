@@ -8,6 +8,7 @@ import TriageBoardView from "@views/triage/TriageBoardView.vue";
 import AuditLogView from "@views/audit/AuditLogView.vue";
 import UsersView from "@views/users/UsersView.vue";
 import SubmitView from "@views/submit/SubmitView.vue";
+import SettingsView from '@/views/settings/SettingsView.vue'
 
 const routes = [
     {
@@ -32,28 +33,23 @@ const routes = [
             {
                 path: 'triage-board',
                 name: 'triage-board',
-                component: TriageBoardView,
+                component: TicketQueueView,
             },
             {
                 path: 'users',
                 name: 'users',
-                component: UsersView,
+                component: TicketQueueView,
             },
             {
                 path: 'audit-log',
                 name: 'audit-log',
-                component: AuditLogView,
+                component: TicketQueueView,
             },
             {
                 path: 'settings',
                 name: 'settings',
                 component: TicketQueueView,
             },
-            {
-                path: 'submit',
-                name: 'submit',
-                component: SubmitView,
-            }
         ],
     },
     {

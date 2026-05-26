@@ -10,7 +10,8 @@ import {
   UserPlus,
   Check,
   CircleX,
-  ChevronUp
+  ChevronUp,
+  ChevronDown
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -306,40 +307,58 @@ const filteredTickets = computed(() => {
           class="border-b border-[#EDF2F7] px-4 py-2.5"
       >
         <div class="flex flex-wrap items-center gap-2">
-          <select
-              v-model="filters.status"
-              class="h-8 min-w-[128px] rounded-[9px] border border-[#DDE5EF] bg-white px-3 text-[12px] font-medium text-[#6C7B90] outline-none"
-          >
-            <option value="">All Statuses</option>
-            <option value="Open">Open</option>
-            <option value="In Review">In Review</option>
-            <option value="Accepted">Accepted</option>
-            <option value="Denied">Denied</option>
-            <option value="Assigned">Assigned</option>
-            <option value="Resolved">Resolved</option>
-            <option value="Closed">Closed</option>
-          </select>
+          <div class="relative">
+            <select
+                v-model="filters.status"
+                class="h-8 min-w-[128px] appearance-none rounded-[9px] border border-[#DDE5EF] bg-white pl-3 pr-8 text-[12px] font-medium text-[#6C7B90] outline-none"
+            >
+              <option value="">All Statuses</option>
+              <option value="Open">Open</option>
+              <option value="In Review">In Review</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Denied">Denied</option>
+              <option value="Assigned">Assigned</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Closed">Closed</option>
+            </select>
 
-          <select
-              v-model="filters.priority"
-              class="h-8 min-w-[128px] rounded-[9px] border border-[#DDE5EF] bg-white px-3 text-[12px] font-medium text-[#6C7B90] outline-none"
-          >
-            <option value="">All Priorities</option>
-            <option value="Critical">Critical</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
+            <ChevronDown
+                class="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9AA7B8]"
+            />
+          </div>
 
-          <select
-              v-model="filters.type"
-              class="h-8 min-w-[128px] rounded-[9px] border border-[#DDE5EF] bg-white px-3 text-[12px] font-medium text-[#6C7B90] outline-none"
-          >
-            <option value="">All Types</option>
-            <option value="Incident">Incident</option>
-            <option value="RFC">RFC</option>
-            <option value="Internal">Internal</option>
-          </select>
+          <div class="relative">
+            <select
+                v-model="filters.priority"
+                class="h-8 min-w-[128px] appearance-none rounded-[9px] border border-[#DDE5EF] bg-white pl-3 pr-8 text-[12px] font-medium text-[#6C7B90] outline-none"
+            >
+              <option value="">All Priorities</option>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+
+            <ChevronDown
+                class="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9AA7B8]"
+            />
+          </div>
+
+          <div class="relative">
+            <select
+                v-model="filters.type"
+                class="h-8 min-w-[128px] appearance-none rounded-[9px] border border-[#DDE5EF] bg-white pl-3 pr-8 text-[12px] font-medium text-[#6C7B90] outline-none"
+            >
+              <option value="">All Types</option>
+              <option value="Incident">Incident</option>
+              <option value="RFC">RFC</option>
+              <option value="Internal">Internal</option>
+            </select>
+
+            <ChevronDown
+                class="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9AA7B8]"
+            />
+          </div>
         </div>
       </div>
 
