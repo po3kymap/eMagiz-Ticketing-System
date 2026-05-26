@@ -59,7 +59,7 @@ const sidebarClasses = computed(() => [
     <div class="flex h-[58px] items-center justify-between border-b border-[#17305B] px-4">
       <div class="flex items-center">
         <img
-            src="/img/loginLogo.png"
+            src="/img/MenuLogo.png"
             alt="eMagiz Tickets logo"
             class="h-12 w-auto object-contain"
         />
