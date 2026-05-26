@@ -1,5 +1,6 @@
 <script setup>
 import { computed, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   Search,
   SlidersHorizontal,
@@ -12,6 +13,7 @@ import {
   ChevronUp
 } from 'lucide-vue-next'
 
+const router = useRouter()
 const activeTab = ref('All')
 const searchQuery = ref('')
 const showFilters = ref(false)
@@ -123,7 +125,7 @@ const tickets = [
   },
   {
     id: 'TKT-2042',
-    title: 'Data mapping error in order sy...',
+    title: 'Data mapping error in order system...',
     customer: 'Acme Corp',
     type: 'Incident',
     priority: 'High',
@@ -204,6 +206,10 @@ const toggleFilters = () => {
   showFilters.value = !showFilters.value
 }
 
+const navigateToSubmit = () => {
+  router.push('/submit')
+}
+
 const filteredTickets = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
@@ -258,6 +264,7 @@ const filteredTickets = computed(() => {
 
         <button
             type="button"
+            @click="navigateToSubmit"
             class="inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[12px] bg-[#0FA99D] px-4 text-[13px] font-semibold text-white shadow-[0_8px_18px_rgba(15,169,157,0.16)] transition hover:bg-[#0C9A8F]"
         >
           <Plus class="h-4 w-4 shrink-0" />
