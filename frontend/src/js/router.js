@@ -4,6 +4,7 @@ import Login from '@/views/login/LoginPage.vue'
 import MenuLayout from '@/layout/MenuLayout.vue'
 import CustomerDashboard from '@/views/dashboard/DashboardView.vue'
 import TicketQueueView from '@/views/tickets/TicketQueueView.vue'
+import TriageBoardView from "@views/triage/TriageBoardView.vue";
 import AuditLogView from "@views/audit/AuditLogView.vue";
 
 const routes = [
@@ -39,7 +40,7 @@ const routes = [
             {
                 path: 'audit-log',
                 name: 'audit-log',
-                component: AuditLogView,
+                component: TicketQueueView,
             },
             {
                 path: 'settings',
