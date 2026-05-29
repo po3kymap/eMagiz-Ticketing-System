@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS user_tokens (
                              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Demo user: username "demo", password "password"
 INSERT INTO users (username, email, password, role, company)
 VALUES (
     'demo',

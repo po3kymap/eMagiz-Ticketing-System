@@ -38,8 +38,6 @@ public class AuthFilter implements ContainerRequestFilter {
 
     private boolean isPublicRoute(ContainerRequestContext requestContext) {
         String path = normalizePath(requestContext.getUriInfo().getPath());
-
-        // Единственный публичный endpoint — POST /api/users/login
         return path.endsWith("/login") || "login".equals(path);
     }
 
