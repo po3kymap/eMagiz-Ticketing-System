@@ -1,27 +1,6 @@
 version: '3.8'
 
 services:
-  db:
-    build:
-      context: ./db
-      dockerfile: Dockerfile
-    container_name: emagiz_db
-    environment:
-      POSTGRES_DB: emagiz_ticketing
-      POSTGRES_USER: emagiz4
-      POSTGRES_PASSWORD: emagiz4pass
-    ports:
-      - "5434:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U emagiz4 -d emagiz_ticketing"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - emagiz_network
-
   backend:
     build:
       context: ./backend
@@ -29,9 +8,6 @@ services:
     container_name: emagiz_backend
     ports:
       - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - emagiz_network
 

@@ -1,9 +1,9 @@
-package main.java.com.emagiz.resource;
+package com.emagiz.resource;
 
-import main.java.com.emagiz.dao.UserDAO;
-import main.java.com.emagiz.model.ApiError;
-import main.java.com.emagiz.model.LoginResponse;
-import main.java.com.emagiz.model.User;
+import com.emagiz.dao.UserDAO;
+import com.emagiz.model.ApiError;
+import com.emagiz.model.LoginResponse;
+import com.emagiz.model.User;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;

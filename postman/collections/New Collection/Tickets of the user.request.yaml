@@ -1,0 +1,5 @@
+$kind: http-request
+name: Tickets of the user
+url: ""
+method: GET
+order: 3862586696948781

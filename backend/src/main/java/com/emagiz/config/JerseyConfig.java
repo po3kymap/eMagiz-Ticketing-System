@@ -1,4 +1,4 @@
-package main.java.com.emagiz.config;
+package com.emagiz.config;
 
 import jakarta.ws.rs.ApplicationPath;
 import org.glassfish.jersey.jackson.JacksonFeature;

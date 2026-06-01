@@ -1,9 +1,9 @@
-package main.java.com.emagiz.resource;
+package com.emagiz.resource;
 
-import main.java.com.emagiz.dao.TicketDAO;
-import main.java.com.emagiz.model.Ticket;
-import main.java.com.emagiz.model.TicketNotFoundException;
-import main.java.com.emagiz.model.TicketStatus;
+import com.emagiz.dao.TicketDAO;
+import com.emagiz.model.Ticket;
+import com.emagiz.model.TicketNotFoundException;
+import com.emagiz.model.TicketStatus;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;

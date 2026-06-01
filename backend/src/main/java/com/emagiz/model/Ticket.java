@@ -1,4 +1,4 @@
-package main.java.com.emagiz.model;
+package com.emagiz.model;
 
 import java.sql.Timestamp;
 

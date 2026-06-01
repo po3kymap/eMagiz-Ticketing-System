@@ -1,13 +1,13 @@
-package main.java.com.emagiz.config;
+package com.emagiz.config;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConfig {
-    private static final String URL = "jdbc:postgresql://db:5432/emagiz_ticketing";
-    private static final String USER = "emagiz4";
-    private static final String PASSWORD = "emagiz4pass";
+    private static final String URL = "jdbc:postgresql://bronto.ewi.utwente.nl:5432/dab_di2526-2b_101";
+    private static final String USER = "dab_di2526-2b_101";
+    private static final String PASSWORD = "1+cENrDvbWo9NBZl";
 
     public static Connection getConnection() throws SQLException {
         try {
