@@ -1,9 +1,9 @@
-package main.java.com.emagiz.dao;
+package com.emagiz.dao;
 
-import main.java.com.emagiz.config.DatabaseConfig;
-import main.java.com.emagiz.model.Ticket;
-import main.java.com.emagiz.model.TicketNotFoundException;
-import main.java.com.emagiz.model.TicketStatus;
+import com.emagiz.config.DatabaseConfig;
+import com.emagiz.model.Ticket;
+import com.emagiz.model.TicketNotFoundException;
+import com.emagiz.model.TicketStatus;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

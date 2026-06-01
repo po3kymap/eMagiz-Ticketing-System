@@ -1,4 +1,4 @@
-package main.java.com.emagiz.model;
+package com.emagiz.model;
 
 public class ApiError {
     private String error;

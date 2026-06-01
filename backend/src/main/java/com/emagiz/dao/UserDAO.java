@@ -1,7 +1,7 @@
-package main.java.com.emagiz.dao;
+package com.emagiz.dao;
 
-import main.java.com.emagiz.config.DatabaseConfig;
-import main.java.com.emagiz.model.User;
+import com.emagiz.config.DatabaseConfig;
+import com.emagiz.model.User;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
@@ -100,7 +100,9 @@ public class UserDAO {
     }
 
     public Long getUserIdByToken(String token){
-        String sql = "SELECT user_id FROM user_tokens WHERE token = ?";
+        String sql = "SELECT user_id, role \n" +
+                "FROM user_tokens \n" +
+                "WHERE token = ? AND expires_at > CURRENT_TIMESTAMP;";
         try(Connection conn = DatabaseConfig.getConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, token);
