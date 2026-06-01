@@ -68,6 +68,22 @@ public class TicketResource {
         }
     }
 
+    @PUT
+    @Path("/{id}/assignee/{assigneeId}")
+    public Response assignTicket(@PathParam("id") Long ticketId,
+                                 @PathParam("assigneeId") Long assigneeId) {
+        boolean updated = ticketDAO.assignTicket(ticketId, assigneeId);
+
+        if (!updated) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Ticket not found")
+                    .build();
+        }
+
+        return Response.noContent().build();
+    }
+
+
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -85,6 +101,21 @@ public class TicketResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/assignee/{assigneeId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findByAssigneeId(@PathParam("assigneeId") Long assigneeId) {
+        try {
+            List<Ticket> tickets = ticketDAO.findTicketsByAssigneeId(assigneeId);
+            return Response.ok(tickets).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Failed to fetch tickets by assignee id")
+                    .build();
+        }
+    }
+
 
     @GET
     @Path("/client/{clientId}")
