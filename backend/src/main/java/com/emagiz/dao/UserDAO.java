@@ -86,11 +86,12 @@ public class UserDAO {
     }
 
     public void saveToken(String token, Long id){
-        String sql = "INSERT INTO user_tokens (token, user_id) VALUES (?, ?)";
+        String sql = "INSERT INTO user_tokens (user_id, token, expires_at) \n" +
+                "VALUES (?, ?, CURRENT_TIMESTAMP + INTERVAL '24 hours');";
         try(Connection connection = DatabaseConfig.getConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, token);
-            preparedStatement.setLong(2, id);
+            preparedStatement.setLong(1, id);
+            preparedStatement.setString(2, token);
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
