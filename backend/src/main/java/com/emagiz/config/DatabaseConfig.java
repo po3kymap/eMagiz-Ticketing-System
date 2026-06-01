@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConfig {
-    private static final String URL = "jdbc:postgresql://db:5432/emagiz_ticketing";
-    private static final String USER = "emagiz4";
-    private static final String PASSWORD = "emagiz4pass";
+    private static final String URL = "jdbc:postgresql://bronto.ewi.utwente.nl:5432/dab_dcsinf25261a_99?currentSchema=\"emagiz4DB\"";
+    private static final String USER = "dab_dcsinf25261a_99";
+    private static final String PASSWORD = "+a9q8tpM+L27oWYU";
 
     public static Connection getConnection() throws SQLException {
         try {
