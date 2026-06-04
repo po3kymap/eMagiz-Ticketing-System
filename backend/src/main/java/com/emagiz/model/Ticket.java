@@ -7,7 +7,7 @@ public class Ticket {
     private Long id;
     private String title;
     private String description;
-    private main.java.com.emagiz.model.TicketStatus status = main.java.com.emagiz.model.TicketStatus.OPEN;
+    private TicketStatus status = TicketStatus.OPEN;
     private String priority;
 
     private Long creatorId;
