@@ -6,6 +6,8 @@ import jakarta.servlet.annotation.WebListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +17,7 @@ public class GarbageCollectorListener implements ServletContextListener{
     private final ScheduledExecutorService scheduler =
             Executors.newScheduledThreadPool(1);
 
-    String sql = "DELETE FROM user_tokens WHERE expires_at < CURRENT_TIMESTAMP";
+    String sql = "DELETE FROM user_tokens WHERE expires_at < ?";
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -23,6 +25,7 @@ public class GarbageCollectorListener implements ServletContextListener{
         final Runnable sqlRun = () -> {
             try(Connection connection = DatabaseConfig.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
                 preparedStatement.executeUpdate();
 
             } catch (SQLException e) {
