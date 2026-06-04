@@ -1,6 +1,9 @@
 package com.emagiz.resource;
 
+import com.emagiz.dao.CommentDAO;
 import com.emagiz.dao.TicketDAO;
+import com.emagiz.dto.CommentDTO;
+import com.emagiz.model.CommentResponse;
 import com.emagiz.model.Ticket;
 import com.emagiz.model.TicketNotFoundException;
 import com.emagiz.model.TicketStatus;
@@ -94,4 +97,26 @@ public class TicketResource {
         return Response.ok(ticketList).build();
     }
 
+
+
+    @POST
+    @Path("/{ticketID}/comments")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addCommentToTicket(@PathParam("ticketID") Long ticketID, CommentDTO commentDTO,
+                                       @Context ContainerRequestContext containerRequestContext){
+        Long userId = (Long) containerRequestContext.getProperty("userId");
+
+        CommentResponse responseDTO = new CommentDAO().addComment(
+                ticketID, userId, commentDTO.getContent(), commentDTO.isInternal()
+        );
+
+        if (responseDTO == null) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        return Response.status(Response.Status.CREATED)
+                .entity(responseDTO)
+                .build();
+    }
 }

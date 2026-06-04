@@ -1,23 +1,20 @@
 package com.emagiz.dto;
 
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.core.MediaType;
-
 public class CommentDTO {
     private String content;
-    private boolean isInternal;
 
-
-    public CommentDTO(boolean isInternal, String content) {
-        this.isInternal = isInternal;
-        this.content = content;
+    public CommentDTO() {
     }
 
     public boolean isInternal() {
         return isInternal;
     }
 
+    public void setInternal(boolean internal) {
+        isInternal = internal;
+    }
 
+    private boolean isInternal;
 
     public String getContent() {
         return content;
