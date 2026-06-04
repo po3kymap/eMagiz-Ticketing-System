@@ -4,6 +4,8 @@ import com.emagiz.config.DatabaseConfig;
 import com.emagiz.model.Ticket;
 import com.emagiz.model.TicketNotFoundException;
 import com.emagiz.model.TicketStatus;
+import jakarta.ws.rs.core.Response;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -116,5 +118,9 @@ public class TicketDAO {
             t.setUpdatedAt(rs.getTimestamp("updated_at"));
             tickets.add(t);
         }
+    }
+
+    private Response addCommentToTicket(Long user_id, Long ticket_id){
+
     }
 }
