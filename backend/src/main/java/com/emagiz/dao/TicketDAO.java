@@ -1,9 +1,7 @@
 package com.emagiz.dao;
 
 import com.emagiz.config.DatabaseConfig;
-import com.emagiz.model.Ticket;
-import com.emagiz.model.TicketNotFoundException;
-import com.emagiz.model.TicketStatus;
+import com.emagiz.model.*;
 import jakarta.ws.rs.core.Response;
 
 import java.sql.*;
@@ -74,7 +72,7 @@ public class TicketDAO {
     }
 
     public void updateStatus(Long ticketId, TicketStatus newStatus) {
-        String sql = "UPDATE tickets SET status = ? WHERE id = ?";
+        String sql = "UPDATE tickets SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -87,6 +85,22 @@ public class TicketDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void updateTicket(Long id, Ticket ticket){
+        String sql =  "UPDATE tickets SET title = ?," +
+                " description = ? , status = ?, priority = ? , updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+        try(Connection conn = DatabaseConfig.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, ticket.getTitle());
+            pstmt.setString(2, ticket.getDescription());
+            pstmt.setString(3, ticket.getStatus().name());
+            pstmt.setString(4, ticket.getPriority());
+            pstmt.setLong(5, id);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public List<Ticket> findTicketsByClientId(Long clientID){
@@ -120,7 +134,7 @@ public class TicketDAO {
     }
 
     public boolean assignTicket(Long ticketId, Long assigneeId) {
-        String sql = "UPDATE tickets SET assignee_id = ? WHERE id = ?";
+        String sql = "UPDATE tickets SET assignee_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

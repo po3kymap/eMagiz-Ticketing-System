@@ -3,6 +3,7 @@ package com.emagiz.resource;
 import com.emagiz.dao.CommentDAO;
 import com.emagiz.dao.TicketDAO;
 import com.emagiz.dto.CommentDTO;
+import com.emagiz.dto.StatusUpdateRequest;
 import com.emagiz.model.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -13,6 +14,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Path("tickets")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class TicketResource {
     TicketDAO ticketDAO = new TicketDAO();
 
@@ -20,8 +23,6 @@ public class TicketResource {
     @Context
     private ContainerRequestContext requestContext;
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response createTicket(Ticket ticket){
         Long userId =
                 (Long) requestContext.getProperty("userId");
@@ -32,7 +33,6 @@ public class TicketResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getAllTickets(){
         try {
             List<Ticket> ticketList = ticketDAO.findAll();
@@ -45,28 +45,37 @@ public class TicketResource {
 
     }
 
+    @POST
+    @Path("/update/{ticketId}")
+    public Response UpdateTicket(@PathParam("ticketId") Long id, Ticket ticket){
+        try {
+            ticketDAO.updateTicket(id, ticket);
+            return Response.ok(new ApiSuccess("Ticket updated")).build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @PATCH
     @Path("/{id}/status")
-    @Consumes(MediaType.TEXT_PLAIN)
     public Response updateTicketStatus(
             @PathParam("id") Long id,
-            String status) {
+            StatusUpdateRequest request) {
 
         try {
-            TicketStatus newStatus = TicketStatus.valueOf(status);
+            TicketStatus newStatus = TicketStatus.valueOf(request.getStatus());
 
             ticketDAO.updateStatus(id, newStatus);
 
-            return Response.ok("Status updated").build();
+            return Response.ok(new ApiSuccess("Status updated")).build();
 
         } catch (IllegalArgumentException e) {
-
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Invalid status")
                     .build();
-
         }
     }
+
 
     @PUT
     @Path("/{id}/assignee/{assigneeId}")
@@ -93,7 +102,6 @@ public class TicketResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response findById(
             @PathParam("id") Long id) {
 
