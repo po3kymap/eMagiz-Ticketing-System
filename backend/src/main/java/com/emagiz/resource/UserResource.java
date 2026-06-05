@@ -1,22 +1,21 @@
 package com.emagiz.resource;
 
 import com.emagiz.dao.UserDAO;
+import com.emagiz.dto.EmailRequest;
+import com.emagiz.dto.ResetPasswordRequest;
 import com.emagiz.model.ApiError;
 import com.emagiz.model.LoginResponse;
 import com.emagiz.model.User;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
-@Path("users")
+@Path("/users")
 public class UserResource {
     private final UserDAO userDAO = new UserDAO();
 
@@ -42,7 +41,7 @@ public class UserResource {
     }
 
     @POST
-    @Path("login")
+    @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response loginUser(User loginData) {
@@ -82,18 +81,38 @@ public class UserResource {
     }
 
     @POST
-    @Path("password-reset")
+    @Path("/password-reset")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response resetPassword(String email){
+    public Response resetPassword(EmailRequest emailRequest){
 
+        String email = emailRequest.getEmail();
         User authUser = userDAO.findUserByEmail(email);
         if (authUser == null){
             return Response.ok(new ApiError("If an account exists with that mail, you'll receive reset instructions")).build();
         }
         String token = UUID.randomUUID().toString();
         userDAO.savePasswordResetToken(authUser.getId(), token);
-
+        EmailService emailService = new EmailService();
+        emailService.sendPasswordResetLink(authUser.getEmail(), token);
         return Response.ok(new ApiError("If an account exists with that mail, you'll receive reset instructions")).build();
+    }
+
+    @PUT
+    @Path("/reset-password")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+        public Response finishResetPassword(ResetPasswordRequest request) {
+        String token = request.getToken();
+        String password = request.getNewPassword();
+        String hashedEntry = BCrypt.hashpw(password, BCrypt.gensalt());
+        if(userDAO.getUserIdByResetToken(token) == null){
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ApiError("Invalid token"))
+                    .build();
+        }
+        userDAO.updatePassword(userDAO.getUserIdByResetToken(token), hashedEntry);
+        userDAO.makeResetTokenUsed(token);
+        return Response.ok("Password was changed succesfully").build();
     }
 }

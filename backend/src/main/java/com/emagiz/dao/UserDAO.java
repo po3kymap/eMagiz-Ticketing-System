@@ -157,4 +157,46 @@ public class UserDAO {
         }
     }
 
+    public Long getUserIdByResetToken(String resetToken){
+        String sql = "SELECT user_id FROM password_reset_tokens " +
+                "WHERE token = ? AND expires_at > ? AND used = false";
+
+        try(Connection connection = DatabaseConfig.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, resetToken);
+            preparedStatement.setTimestamp(2, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()){
+                return resultSet.getLong("user_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void updatePassword(Long userId, String hashedPassword){
+        String sql = "UPDATE users SET password = ? WHERE id = ?";
+        try(Connection connection = DatabaseConfig.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, hashedPassword);
+            preparedStatement.setLong(2, userId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void makeResetTokenUsed(String token){
+        String sql = "UPDATE password_reset_tokens SET used = true WHERE token = ?";
+        try(Connection connection = DatabaseConfig.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, token);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
