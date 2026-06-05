@@ -104,6 +104,39 @@ public class TicketDAO {
         return tickets;
     }
 
+    public List<Ticket> findTicketsByAssigneeId(Long assigneeID){
+        List<Ticket> tickets = new ArrayList<>();
+        String sql = "SELECT * FROM tickets WHERE assigne_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);) {
+
+            pstmt.setLong(1, assigneeID);
+            ResultSet rs = pstmt.executeQuery();
+            formTicket(tickets, rs);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return tickets;
+    }
+
+    public boolean assignTicket(Long ticketId, Long assigneeId) {
+        String sql = "UPDATE tickets SET assignee_id = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, assigneeId);
+            pstmt.setLong(2, ticketId);
+
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to assign ticket", e);
+        }
+    }
+
+
     private void formTicket(List<Ticket> tickets, ResultSet rs) throws SQLException {
         while (rs.next()) {
             Ticket t = new Ticket();
