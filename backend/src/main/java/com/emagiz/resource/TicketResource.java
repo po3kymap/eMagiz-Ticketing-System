@@ -3,10 +3,7 @@ package com.emagiz.resource;
 import com.emagiz.dao.CommentDAO;
 import com.emagiz.dao.TicketDAO;
 import com.emagiz.dto.CommentDTO;
-import com.emagiz.model.CommentResponse;
-import com.emagiz.model.Ticket;
-import com.emagiz.model.TicketNotFoundException;
-import com.emagiz.model.TicketStatus;
+import com.emagiz.model.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
@@ -71,6 +68,29 @@ public class TicketResource {
         }
     }
 
+    @PUT
+    @Path("/{id}/assignee/{assigneeId}")
+    public Response assignTicket(@PathParam("id") Long ticketId,
+                                 @PathParam("assigneeId") Long assigneeId) {
+        try {
+            boolean updated = ticketDAO.assignTicket(ticketId, assigneeId);
+
+            if (!updated) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(new ApiError("Ticket not found"))
+                        .build();
+            }
+
+            return Response.ok(new ApiSuccess("Ticket assigned")).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ApiError("Failed to assign ticket: " + e.getMessage()))
+                    .build();
+        }
+    }
+
+
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -88,6 +108,21 @@ public class TicketResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/assignee/{assigneeId}")
+    public Response findByAssigneeId(@PathParam("assigneeId") Long assigneeId) {
+        try {
+            List<Ticket> tickets = ticketDAO.findTicketsByAssigneeId(assigneeId);
+            return Response.ok(tickets).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ApiError("Failed to fetch tickets by assignee id"))
+                    .build();
+        }
+    }
+
 
     @GET
     @Path("/client/{clientId}")
