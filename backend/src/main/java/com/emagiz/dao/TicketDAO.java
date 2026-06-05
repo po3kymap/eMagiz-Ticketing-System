@@ -120,7 +120,4 @@ public class TicketDAO {
         }
     }
 
-    private Response addCommentToTicket(Long user_id, Long ticket_id){
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
 }

@@ -86,12 +86,13 @@ public class UserDAO {
     }
 
     public void saveToken(String token, Long id){
-        String sql = "INSERT INTO user_tokens (user_id, token, expires_at) \n" +
-                "VALUES (?, ?, CURRENT_TIMESTAMP + INTERVAL '24 hours');";
+        String sql = "INSERT INTO user_tokens (user_id, token, expires_at) VALUES (?, ?, ?);";
         try(Connection connection = DatabaseConfig.getConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setLong(1, id);
             preparedStatement.setString(2, token);
+            java.time.LocalDateTime expireTime = java.time.LocalDateTime.now().plusHours(24);
+            preparedStatement.setTimestamp(3, java.sql.Timestamp.valueOf(expireTime));
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -100,12 +101,11 @@ public class UserDAO {
     }
 
     public Long getUserIdByToken(String token){
-        String sql = "SELECT user_id, role \n" +
-                "FROM user_tokens \n" +
-                "WHERE token = ? AND expires_at > CURRENT_TIMESTAMP;";
+        String sql = "SELECT user_id FROM user_tokens WHERE token = ? AND expires_at > ?;";
         try(Connection conn = DatabaseConfig.getConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, token);
+            preparedStatement.setTimestamp(2, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
             ResultSet resultSet = preparedStatement.executeQuery();
 
 

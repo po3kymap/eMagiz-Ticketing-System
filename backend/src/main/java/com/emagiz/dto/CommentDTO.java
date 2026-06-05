@@ -3,9 +3,7 @@ package com.emagiz.dto;
 public class CommentDTO {
     private String content;
 
-    public CommentDTO(boolean isInternal, String content) {
-        this.isInternal = isInternal;
-        this.content = content;
+    public CommentDTO() {
     }
 
     public boolean isInternal() {

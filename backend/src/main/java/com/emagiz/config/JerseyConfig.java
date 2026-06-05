@@ -10,6 +10,7 @@ public class JerseyConfig extends ResourceConfig {
     public JerseyConfig() {
         packages("com.emagiz.resource", "com.emagiz.security");
         register(JacksonFeature.class);
+        register(com.emagiz.security.AuthFilter.class);
         checkDatabaseConnection();
 
     }
