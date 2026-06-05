@@ -119,4 +119,42 @@ public class UserDAO {
         return null;
     }
 
+    public User findUserByEmail(String email){
+        String sql = "SELECT * FROM users WHERE email = ?";
+
+        try(Connection connection = DatabaseConfig.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql)
+        ) {
+           preparedStatement.setString(1, email);
+           ResultSet resultSet = preparedStatement.executeQuery();
+           if (resultSet.next()){
+               User user = new User();
+               user.setId(resultSet.getLong("id"));
+               user.setUsername(resultSet.getString("username"));
+               user.setEmail(resultSet.getString("email"));
+               user.setRole(resultSet.getString("role"));
+               user.setCompany(resultSet.getString("company"));
+               return user;
+           }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public void savePasswordResetToken(Long userId, String token){
+        String sql = "INSERT INTO password_reset_tokens (user_id, token, expires_at, used) VALUES (?, ?, ?, ?)";
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)
+        ){
+            preparedStatement.setLong(1, userId);
+            preparedStatement.setString(2, token);
+            java.time.LocalDateTime expireTime = java.time.LocalDateTime.now().plusMinutes(30);
+            preparedStatement.setTimestamp(3, java.sql.Timestamp.valueOf(expireTime));
+            preparedStatement.setBoolean(4, false);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

@@ -80,4 +80,20 @@ public class UserResource {
 
         return Response.ok(body).build();
     }
+
+    @POST
+    @Path("password-reset")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response resetPassword(String email){
+
+        User authUser = userDAO.findUserByEmail(email);
+        if (authUser == null){
+            return Response.ok(new ApiError("If an account exists with that mail, you'll receive reset instructions")).build();
+        }
+        String token = UUID.randomUUID().toString();
+        userDAO.savePasswordResetToken(authUser.getId(), token);
+
+        return Response.ok(new ApiError("If an account exists with that mail, you'll receive reset instructions")).build();
+    }
 }
