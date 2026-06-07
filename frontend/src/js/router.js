@@ -1,7 +1,13 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { isAuthenticated } from '@api/auth';
-import Login from '@views/auth/Login.vue';
-import CustomerDashboard from '@views/customer/CustomerDashboard.vue';
+import { getCurrentUser, getHomeRouteForRole, isAuthenticated } from '@api/auth';
+import ConsultantHome from '@/views/consultant/ConsultantHome.vue';
+import { createConsultantPlaceholder } from '@/views/consultant/ConsultantPlaceholder.js';
+import SupportHome from '@/views/support/SupportHome.vue';
+import Login from '@views/auth/Login.js';
+import CustomerDashboard from '@views/customer/Dashboard.js';
+import CustomerMyTickets from '@views/customer/MyTickets.js';
+import CustomerSubmitTicket from '@views/customer/SubmitTicket.js';
+import { createCustomerPlaceholder } from '@views/customer/CustomerPlaceholder.js';
 
 const routes = [
     {
@@ -20,6 +26,54 @@ const routes = [
         component: CustomerDashboard,
         meta: { requiresAuth: true },
     },
+    {
+        path: '/customer/tickets',
+        name: 'customer-tickets',
+        component: CustomerMyTickets,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/customer/submit',
+        name: 'customer-submit',
+        component: CustomerSubmitTicket,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/customer/help',
+        name: 'customer-help',
+        component: createCustomerPlaceholder('Knowledge / Help'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/customer/settings',
+        name: 'customer-settings',
+        component: createCustomerPlaceholder('Settings'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/consultant',
+        name: 'consultant',
+        component: ConsultantHome,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/consultant/assigned',
+        name: 'consultant-assigned',
+        component: createConsultantPlaceholder('Assigned to Me'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/consultant/settings',
+        name: 'consultant-settings',
+        component: createConsultantPlaceholder('Settings'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/support',
+        name: 'support',
+        component: SupportHome,
+        meta: { requiresAuth: true },
+    },
 ];
 
 const router = createRouter({
@@ -27,13 +81,14 @@ const router = createRouter({
     routes,
 });
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
     if (to.meta.requiresAuth && !isAuthenticated()) {
         return { name: 'login' };
     }
 
     if (to.name === 'login' && isAuthenticated()) {
-        return { name: 'dashboard' };
+        const user = await getCurrentUser();
+        return getHomeRouteForRole(user?.role);
     }
 
     return true;
