@@ -1,13 +1,15 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { getCurrentUser, getHomeRouteForRole, isAuthenticated } from '@api/auth';
-import ConsultantHome from '@/views/consultant/ConsultantHome.vue';
-import { createConsultantPlaceholder } from '@/views/consultant/ConsultantPlaceholder.js';
-import SupportHome from '@/views/support/SupportHome.vue';
-import Login from '@views/auth/Login.js';
-import CustomerDashboard from '@views/customer/Dashboard.js';
-import CustomerMyTickets from '@views/customer/MyTickets.js';
-import CustomerSubmitTicket from '@views/customer/SubmitTicket.js';
-import { createCustomerPlaceholder } from '@views/customer/CustomerPlaceholder.js';
+import Login from '@/views/auth/Login.vue';
+import CustomerDashboard from '@/views/customer/Dashboard.vue';
+import CustomerMyTickets from '@/views/customer/MyTickets.vue';
+import CustomerSubmitTicket from '@/views/customer/SubmitTicket.vue';
+import CustomerHelp from '@/views/customer/Help.vue';
+import CustomerSettings from '@/views/customer/Settings.vue';
+import ConsultantDashboard from '@/views/consultant/Dashboard.vue';
+import ConsultantAssigned from '@/views/consultant/Assigned.vue';
+import ConsultantSettings from '@/views/consultant/Settings.vue';
+import SupportDashboard from '@/views/support/Dashboard.vue';
 
 const routes = [
     {
@@ -41,37 +43,37 @@ const routes = [
     {
         path: '/customer/help',
         name: 'customer-help',
-        component: createCustomerPlaceholder('Knowledge / Help'),
+        component: CustomerHelp,
         meta: { requiresAuth: true },
     },
     {
         path: '/customer/settings',
         name: 'customer-settings',
-        component: createCustomerPlaceholder('Settings'),
+        component: CustomerSettings,
         meta: { requiresAuth: true },
     },
     {
         path: '/consultant',
         name: 'consultant',
-        component: ConsultantHome,
+        component: ConsultantDashboard,
         meta: { requiresAuth: true },
     },
     {
         path: '/consultant/assigned',
         name: 'consultant-assigned',
-        component: createConsultantPlaceholder('Assigned to Me'),
+        component: ConsultantAssigned,
         meta: { requiresAuth: true },
     },
     {
         path: '/consultant/settings',
         name: 'consultant-settings',
-        component: createConsultantPlaceholder('Settings'),
+        component: ConsultantSettings,
         meta: { requiresAuth: true },
     },
     {
         path: '/support',
         name: 'support',
-        component: SupportHome,
+        component: SupportDashboard,
         meta: { requiresAuth: true },
     },
 ];

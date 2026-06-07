@@ -11,7 +11,7 @@ defineProps({
     tone: {
         type: String,
         default: 'blue',
-        validator: (value) => ['blue', 'amber', 'emerald', 'violet'].includes(value),
+        validator: (value) => ['blue', 'amber', 'emerald', 'violet', 'red', 'orange'].includes(value),
     },
 });
 
@@ -31,6 +31,14 @@ const toneClasses = {
     violet: {
         card: 'border-violet-100 bg-violet-50/40',
         icon: 'bg-violet-100 text-violet-600',
+    },
+    red: {
+        card: 'border-red-100 bg-red-50/40',
+        icon: 'bg-red-100 text-red-600',
+    },
+    orange: {
+        card: 'border-orange-100 bg-orange-50/40',
+        icon: 'bg-orange-100 text-orange-600',
     },
 };
 </script>
