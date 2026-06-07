@@ -28,6 +28,9 @@ public class TicketResource {
                 (Long) requestContext.getProperty("userId");
 
         ticket.setCreatorId(userId);
+        if (ticket.getType() == null) {
+            ticket.setType(TicketType.INCIDENT);
+        }
         Ticket savedTicket = ticketDAO.save(ticket);
         return Response.status(Response.Status.CREATED).entity(savedTicket).build();
     }

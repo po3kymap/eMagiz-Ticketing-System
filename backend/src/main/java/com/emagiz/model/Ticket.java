@@ -8,6 +8,7 @@ public class Ticket {
     private String title;
     private String description;
     private TicketStatus status = TicketStatus.OPEN;
+    private TicketType type = TicketType.INCIDENT;
     private String priority;
 
     private Long creatorId;
@@ -59,6 +60,14 @@ public class Ticket {
 
     public void setStatus(TicketStatus status) {
         this.status = status;
+    }
+
+    public TicketType getType() {
+        return type;
+    }
+
+    public void setType(TicketType type) {
+        this.type = type;
     }
 
     public String getPriority() {

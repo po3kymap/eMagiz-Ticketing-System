@@ -3,20 +3,20 @@ package com.emagiz.dao;
 import com.emagiz.config.DatabaseConfig;
 import com.emagiz.model.*;
 import jakarta.ws.rs.core.Response;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TicketDAO {
     public Ticket save(Ticket ticket) {
-        String sql = "INSERT INTO tickets (title, description, status, priority, creator_id ) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tickets (title, description, status, type, priority, creator_id) VALUES (?, ?, ?, ?, ?, ?)";
         try(Connection conn = DatabaseConfig.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)){
             pstmt.setString(1, ticket.getTitle());
             pstmt.setString(2, ticket.getDescription());
             pstmt.setString(3, ticket.getStatus().name());
-            pstmt.setString(4, ticket.getPriority());
-            pstmt.setLong(5, ticket.getCreatorId());
+            pstmt.setString(4, ticket.getType().name());
+            pstmt.setString(5, ticket.getPriority());
+            pstmt.setLong(6, ticket.getCreatorId());
 
             pstmt.executeUpdate();
 
@@ -58,6 +58,7 @@ public class TicketDAO {
                 t.setTitle(rs.getString("title"));
                 t.setDescription(rs.getString("description"));
                 t.setStatus(TicketStatus.valueOf(rs.getString("status")));
+                t.setType(readType(rs));
                 t.setPriority(rs.getString("priority"));
                 t.setCreatorId(rs.getLong("creator_id"));
                 t.setAssigneeId(rs.getLong("assignee_id"));
@@ -105,7 +106,7 @@ public class TicketDAO {
 
     public List<Ticket> findTicketsByClientId(Long clientID){
         List<Ticket> tickets = new ArrayList<>();
-        String sql = "SELECT * FROM tickets WHERE creator_id = ?";
+        String sql = "SELECT * FROM tickets WHERE creator_id = ? ORDER BY id DESC";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
 
@@ -151,6 +152,14 @@ public class TicketDAO {
     }
 
 
+    private TicketType readType(ResultSet rs) throws SQLException {
+        String type = rs.getString("type");
+        if (type == null || type.isBlank()) {
+            return TicketType.INCIDENT;
+        }
+        return TicketType.valueOf(type);
+    }
+
     private void formTicket(List<Ticket> tickets, ResultSet rs) throws SQLException {
         while (rs.next()) {
             Ticket t = new Ticket();
@@ -158,6 +167,7 @@ public class TicketDAO {
             t.setTitle(rs.getString("title"));
             t.setDescription(rs.getString("description"));
             t.setStatus(TicketStatus.valueOf(rs.getString("status")));
+            t.setType(readType(rs));
             t.setPriority(rs.getString("priority"));
             t.setCreatorId(rs.getLong("creator_id"));
             t.setAssigneeId(rs.getLong("assignee_id"));

@@ -38,7 +38,6 @@ defineEmits(['logout', 'notifications']);
                     :unread-count="unreadNotifications"
                     @click="$emit('notifications')"
                 />
-                <ChevronDown class="w-3 h-3 text-slate-400" />
                 <UserProfileChip
                     :name="userName"
                     :email="userEmail"
