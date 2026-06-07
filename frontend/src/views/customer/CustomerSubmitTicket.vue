@@ -1,5 +1,5 @@
 <script setup>
-import CustomerLayout from '@/layouts/AllLayout.vue';
+import CustomerLayout from '@/layouts/CustomerLayout.vue';
 </script>
 
 <template>

@@ -21,8 +21,8 @@ const routes = [
         meta: { public: true },
     },
     {
-        path: '/dashboard',
-        name: 'dashboard',
+        path: '/customer',
+        name: 'customer',
         component: CustomerDashboard,
         meta: { requiresAuth: true },
     },
