@@ -90,13 +90,14 @@ public class TicketDAO {
 
     public void updateTicket(Long id, Ticket ticket){
         String sql =  "UPDATE tickets SET title = ?," +
-                " description = ? , status = ?, priority = ? , updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+                " description = ? , status = ?, priority = ? ,type = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
         try(Connection conn = DatabaseConfig.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, ticket.getTitle());
             pstmt.setString(2, ticket.getDescription());
             pstmt.setString(3, ticket.getStatus().name());
             pstmt.setString(4, ticket.getPriority());
-            pstmt.setLong(5, id);
+            pstmt.setString(5, ticket.getType().name());
+            pstmt.setLong(6, id);
             pstmt.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException(e);
