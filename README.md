@@ -16,7 +16,7 @@ A ticket management system for the eMagiz support team. Allows customers to crea
 ```
 booking/
 ├── backend/          # Java WAR application (Jersey + Tomcat)
-│   └── src/main/
+│   └── src/app/
 │       ├── java/com/emagiz/
 │       │   ├── config/   # DatabaseConfig, JerseyConfig
 │       │   ├── dao/      # UserDAO, TicketDAO

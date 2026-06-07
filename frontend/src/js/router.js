@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { isAuthenticated } from '@api/auth';
-import Login from '@views/auth/Login.js';
-import CustomerDashboard from '@views/customer/Dashboard.js';
+import Login from '@views/auth/Login.vue';
+import CustomerDashboard from '@views/customer/CustomerDashboard.vue';
 
 const routes = [
     {
@@ -15,8 +15,8 @@ const routes = [
         meta: { public: true },
     },
     {
-        path: '/customer',
-        name: 'customer',
+        path: '/dashboard',
+        name: 'dashboard',
         component: CustomerDashboard,
         meta: { requiresAuth: true },
     },
@@ -33,7 +33,7 @@ router.beforeEach((to) => {
     }
 
     if (to.name === 'login' && isAuthenticated()) {
-        return { name: 'customer' };
+        return { name: 'dashboard' };
     }
 
     return true;
