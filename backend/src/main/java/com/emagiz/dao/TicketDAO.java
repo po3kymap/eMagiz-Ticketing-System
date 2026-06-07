@@ -121,7 +121,7 @@ public class TicketDAO {
 
     public List<Ticket> findTicketsByAssigneeId(Long assigneeID){
         List<Ticket> tickets = new ArrayList<>();
-        String sql = "SELECT * FROM tickets WHERE assigne_id = ?";
+        String sql = "SELECT * FROM tickets WHERE assignee_id = ?";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
 
