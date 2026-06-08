@@ -8,13 +8,6 @@ import MyTicketsPanel from '@/components/tickets/MyTicketsPanel.vue';
 import { getCurrentUser } from '@api/auth';
 import { fetchMyTicketsForCurrentUser } from '@api/tickets';
 
-const MOCK_STATS = {
-    openTickets: 2,
-    waitingForSupport: 1,
-    resolvedThisMonth: 2,
-    recentUpdates: 3,
-};
-
 export default {
     name: 'CustomerDashboard',
     components: {
@@ -28,7 +21,6 @@ export default {
     data() {
         return {
             user: null,
-            stats: MOCK_STATS,
             tickets: [],
             loadingTickets: true,
             ticketsError: '',
@@ -40,6 +32,19 @@ export default {
         },
         company() {
             return this.user?.company || '';
+        },
+        stats() {
+          return {
+            openTickets: this.tickets.filter(t => t.status === 'OPEN').length,
+            waitingForSupport: this.tickets.filter(t => t.status === 'IN_REVIEW').length,
+            resolvedThisMonth: this.tickets.filter(t => t.status === 'CLOSED').length,
+            recentUpdates: this.tickets.filter(t => {
+              if (!t.updatedAt) return false;
+              const oneDayAgo = new Date();
+              oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+              return new Date(t.updatedAt) >= oneDayAgo;
+            }).length,
+          };
         },
     },
     async mounted() {

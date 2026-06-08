@@ -39,7 +39,7 @@ export async function fetchMyTickets(clientId) {
             Accept: 'application/json',
             ...getAuthHeaders(),
         },
-    });
+        });
 
     const data = await response.json().catch(() => ({}));
 
