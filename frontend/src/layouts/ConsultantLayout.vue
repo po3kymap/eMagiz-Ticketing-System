@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import ConsultantSidebar from '@/components/sidebar/ConsultantSidebar.vue';
 import TopNavigation from '@/components/topbar/TopNavigation.vue';
 import { getCurrentUser, logout } from '@api/auth';
+import { searchTicketsForConsultant } from '@api/tickets';
 
 defineProps({
     assignedCount: {
@@ -39,6 +40,11 @@ function onLogout() {
     logout();
     router.replace('/login');
 }
+
+function consultantSearch(query) {
+  return searchTicketsForConsultant(query);
+
+}
 </script>
 
 <template>
@@ -57,6 +63,7 @@ function onLogout() {
                 :user-email="userEmail"
                 :user-initials="userInitials"
                 :unread-notifications="unreadNotifications"
+                :search-fn="consultantSearch"
                 @logout="onLogout"
             />
 
@@ -65,4 +72,6 @@ function onLogout() {
             </main>
         </div>
     </div>
+
+
 </template>

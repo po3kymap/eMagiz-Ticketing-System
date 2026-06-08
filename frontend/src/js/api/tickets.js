@@ -16,7 +16,9 @@ function mapTicket(raw) {
         title: raw.title,
         description: raw.description ?? '',
         type: raw.type ?? parseTicketTypeFromDescription(raw.description ?? ''),
-        priority: raw.priority ?? null,
+        priority: raw.priority
+            ? raw.priority.charAt(0).toUpperCase() + raw.priority.slice(1).toLowerCase()
+            : null,
         status: raw.status ?? null,
         creatorId: raw.creatorId,
         assigneeId: raw.assigneeId ?? null,
@@ -143,6 +145,7 @@ export async function createTicket({ title, description, priority, type, status 
         }),
     });
 
+
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
@@ -151,3 +154,27 @@ export async function createTicket({ title, description, priority, type, status 
 
     return data;
 }
+
+export async function searchMyTickets(query) {
+    const tickets = await fetchMyTicketsForCurrentUser();
+    const q = query.toLowerCase();
+    return tickets.filter(
+        (t) =>
+            t.title?.toLowerCase().includes(q) ||
+            t.id?.toString().includes(q) ||
+            t.description?.toLowerCase().includes(q)
+    );
+}
+
+export async function searchTicketsForConsultant(query) {
+    const tickets = await fetchAssignedTicketsForCurrentUser();
+    const q = query.toLowerCase();
+    return tickets.filter(
+        (t) =>
+            t.title?.toLowerCase().includes(q) ||
+            t.id?.toString().includes(q) ||
+            t.description?.toLowerCase().includes(q)
+    );
+}
+
+
