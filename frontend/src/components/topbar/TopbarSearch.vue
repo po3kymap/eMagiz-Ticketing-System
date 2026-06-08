@@ -2,7 +2,6 @@
 import { ref, watch, computed } from 'vue';
 
 const props = defineProps({
-  // async (query: string) => Ticket[]  — provided by the parent layout
   searchFn: { type: Function, required: true },
 });
 
@@ -14,7 +13,7 @@ const isLoading = ref(false);
 const isFocused = ref(false);
 const inputRef = ref(null);
 
-// Debounce the search so you don't hammer the API on every keystroke
+
 let debounceTimer = null;
 watch(query, (val) => {
   clearTimeout(debounceTimer);
@@ -55,7 +54,7 @@ function clear() {
                 ? 'border-blue-400 ring-2 ring-blue-100 shadow-sm'
                 : 'border-slate-200 hover:border-slate-300'"
     >
-      <!-- Loading spinner / search icon -->
+
       <svg v-if="!isLoading" class="h-4 w-4 shrink-0 text-slate-400" viewBox="0 0 24 24"
            fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <circle cx="11" cy="11" r="8" />
