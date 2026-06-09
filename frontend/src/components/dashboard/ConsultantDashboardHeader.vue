@@ -46,20 +46,5 @@ const workspaceSubtitle = computed(() => {
             </h1>
             <p class="mt-1 text-sm text-slate-500">{{ workspaceSubtitle }}</p>
         </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-            <button
-                type="button"
-                class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-            >
-                Filter by Priority
-            </button>
-            <button
-                type="button"
-                class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-            >
-                Sort by Due Date
-            </button>
-        </div>
     </div>
 </template>
