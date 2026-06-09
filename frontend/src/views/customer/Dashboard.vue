@@ -1,6 +1,6 @@
 <script>
 import CustomerLayout from '@/layouts/CustomerLayout.vue';
-import DashboardHeader from '@/components/dashboard/DashboardHeader.vue';
+import DashboardHeader from '@/components/dashboard/CustomerDashboardHeader.vue';
 import DashboardStatCard from '@/components/dashboard/DashboardStatCard.vue';
 import DashboardCtaBanner from '@/components/dashboard/DashboardCtaBanner.vue';
 import RecentActivityPanel from '@/components/dashboard/RecentActivityPanel.vue';
