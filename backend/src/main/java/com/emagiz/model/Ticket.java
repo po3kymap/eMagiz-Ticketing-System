@@ -9,7 +9,7 @@ public class Ticket {
     private String description;
     private TicketStatus status = TicketStatus.OPEN;
     private TicketType type = TicketType.INCIDENT;
-    private String priority;
+    private TicketPriority priority;
 
     private Long creatorId;
     private Long assigneeId;
@@ -20,7 +20,7 @@ public class Ticket {
     public Ticket() {
     }
 
-    public Ticket(String title, String description, String priority,
+    public Ticket(String title, String description, TicketPriority priority,
                   Long creatorId, Long assigneeId) {
 
         this.title = title;
@@ -70,11 +70,11 @@ public class Ticket {
         this.type = type;
     }
 
-    public String getPriority() {
+    public TicketPriority getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(TicketPriority priority) {
         this.priority = priority;
     }
 
