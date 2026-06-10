@@ -47,4 +47,5 @@ const workspaceSubtitle = computed(() => {
             <p class="mt-1 text-sm text-slate-500">{{ workspaceSubtitle }}</p>
         </div>
     </div>
+
 </template>

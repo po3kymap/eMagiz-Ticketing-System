@@ -1,5 +1,4 @@
 import { getAuthHeaders, getCurrentUser, getStoredToken } from '@api/auth';
-import { parseTicketTypeFromDescription } from '@js/domain/tickets/ticketCatalog';
 
 /**
  * Backend contract:
@@ -15,7 +14,7 @@ function mapTicket(raw) {
         id: raw.id,
         title: raw.title,
         description: raw.description ?? '',
-        type: raw.type ?? parseTicketTypeFromDescription(raw.description ?? ''),
+        type: raw.type ?? '',
         priority: raw.priority
             ? raw.priority.charAt(0).toUpperCase() + raw.priority.slice(1).toLowerCase()
             : null,
@@ -24,6 +23,7 @@ function mapTicket(raw) {
         assigneeId: raw.assigneeId ?? null,
         createdAt: raw.createdAt ?? null,
         updatedAt: raw.updatedAt ?? null,
+        company: raw.company ?? null,
     };
 }
 
@@ -177,4 +177,105 @@ export async function searchTicketsForConsultant(query) {
     );
 }
 
+export async function fetchAllTickets() {
+    const response = await fetch('/api/tickets', {
+        headers: {
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
 
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to load tickets (${response.status})`);
+    }
+
+    if (!Array.isArray(data)) {
+        throw new Error('Unexpected tickets response from server');
+    }
+
+    return data.map(mapTicket);
+}
+
+export async function acceptTicket(ticketId) {
+    const response = await fetch(`/api/tickets/${ticketId}/status`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+            status: 'IN_REVIEW',
+        }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to accept ticket (${response.status})`);
+    }
+
+    return data;
+}
+
+export async function denyTicket(ticketId) {
+    const response = await fetch(`/api/tickets/${ticketId}/status`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+            status: 'DENIED',
+        }),
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to decline ticket (${response.status})`);
+    }
+
+    return data;
+}
+
+export async function assignTicket(ticketId, assigneeId) {
+    const response = await fetch(`/api/tickets/${ticketId}/assignee/${assigneeId}`, {
+        method: 'PUT',
+        headers: {
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        }
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to assign ticket (${response.status})`);
+    }
+
+    return data;
+}
+
+export async function changeTicketStatus(ticketId, status) {
+    const response = await fetch(`/api/tickets/${ticketId}/status`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+            status,
+        }),
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to change ticket status (${response.status})`);
+    }
+
+    return data;
+}

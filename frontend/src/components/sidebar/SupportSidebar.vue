@@ -71,28 +71,18 @@ function isActive(path) {
 </script>
 
 <template>
-    <aside
+   <aside
         class="flex shrink-0 flex-col bg-[#0f172a] text-slate-300 transition-[width] duration-200"
         :class="sidebarClass"
     >
+        <!-- Brand -->
         <div class="flex h-16 items-center justify-between border-b border-slate-800 px-4">
             <div class="flex min-w-0 items-center gap-2.5">
-                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-400">
-                    <svg
-                        class="h-5 w-5 text-slate-900"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                    >
-                        <path d="M4 7V4h16v3" />
-                        <path d="M9 20h6" />
-                        <path d="M12 4v16" />
-                    </svg>
-                </div>
+                <img
+                    src="/img/logo.png"
+                    alt="eMagiz"
+                    class="h-8 w-8 shrink-0 rounded-lg object-contain"
+                />
                 <div v-if="!collapsed" class="min-w-0 truncate leading-tight">
                     <span class="text-sm font-semibold text-white">eMagiz </span>
                     <span class="text-sm font-semibold text-emerald-400">Tickets</span>
@@ -100,7 +90,7 @@ function isActive(path) {
             </div>
             <button
                 type="button"
-                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-800 hover:text-slate-200"
+                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-800 hover:text-slate-300"
                 :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
                 @click="collapsed = !collapsed"
             >
@@ -111,15 +101,13 @@ function isActive(path) {
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
                     aria-hidden="true"
                 >
-                    <path d="m15 18-6-6 6-6" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
         </div>
-
+        
         <nav class="flex-1 overflow-y-auto px-3 py-4">
             <p
                 v-if="!collapsed"

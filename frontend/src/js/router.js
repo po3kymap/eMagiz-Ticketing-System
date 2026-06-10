@@ -10,6 +10,8 @@ import ConsultantDashboard from '@/views/consultant/Dashboard.vue';
 import ConsultantAssigned from '@/views/consultant/Assigned.vue';
 import ConsultantSettings from '@/views/consultant/Settings.vue';
 import SupportDashboard from '@/views/support/Dashboard.vue';
+import SupportTicketQueue from '@/views/support/TicketQueue.vue';
+import SupportUsers from '@/views/support/UsersPage.vue';
 
 const routes = [
     {
@@ -74,6 +76,18 @@ const routes = [
         path: '/support',
         name: 'support',
         component: SupportDashboard,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/support/queue',
+        name: 'support-queue',
+        component: SupportTicketQueue,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/support/users',
+        name: 'support-users',
+        component: SupportUsers,
         meta: { requiresAuth: true },
     },
 ];

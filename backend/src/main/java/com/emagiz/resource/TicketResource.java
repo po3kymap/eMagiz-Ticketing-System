@@ -78,11 +78,12 @@ public class TicketResource {
                     .build();
         }
     }
+    
 
 
     @PUT
-    @Path("/{id}/assignee/{assigneeId}")
-    public Response assignTicket(@PathParam("id") Long ticketId,
+    @Path("/{ticketId}/assignee/{assigneeId}")
+    public Response assignTicket(@PathParam("ticketId") Long ticketId,
                                  @PathParam("assigneeId") Long assigneeId) {
         try {
             boolean updated = ticketDAO.assignTicket(ticketId, assigneeId);

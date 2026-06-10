@@ -1,0 +1,47 @@
+import { getAuthHeaders, getCurrentUser, getStoredToken } from '@api/auth';
+
+function mapUser(raw) {
+    return {
+        id: raw.id,
+        username: raw.username,
+        email: raw.email,
+        role: raw.role,
+        company: raw.company,
+    };
+}
+export async function fetchUsers() {
+    const response = await fetch('/api/users', {
+        headers: {
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to load users (${response.status})`);
+    }
+
+    return data.map(mapUser);
+}
+
+export async function createUser(user) {
+    const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(user),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to create user (${response.status})`);
+    }
+
+    return data;
+}

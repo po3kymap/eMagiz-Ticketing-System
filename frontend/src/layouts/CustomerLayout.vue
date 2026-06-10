@@ -33,7 +33,7 @@ function onLogout() {
 }
 
 function customerSearch(query) {
-  return searchMyTickets(query); //
+  return searchMyTickets(query); 
 }
 </script>
 

@@ -35,8 +35,7 @@ public class TicketDAO {
 
     public List<Ticket> findAll() throws SQLException {
         List<Ticket> tickets = new ArrayList<>();
-        String sql = "SELECT * FROM tickets";
-
+        String sql = "SELECT t.*, u.company as company FROM tickets t LEFT JOIN users u ON t.creator_id = u.id;";
         try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {

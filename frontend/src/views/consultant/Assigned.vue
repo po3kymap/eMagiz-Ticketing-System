@@ -20,11 +20,11 @@ const filterStatus   = ref('');
 const filterPriority = ref('');
 const filterType     = ref('');
 
-const statusOptions   = ['OPEN', 'IN_REVIEW', 'ACCEPTED', 'DENIED', 'ASSIGNED', 'RESOLVED', 'CLOSED'];
+const statusOptions   = ['OPEN', 'IN_REVIEW', 'DENIED', 'ASSIGNED', 'CLOSED'];
 const priorityOptions = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
-const typeOptions     = ['INCIDENT', 'RFC', 'INTERNAL'];
+const typeOptions     = ['INCIDENT', 'RFC'];
 
-const tabs = ['All', 'My Tickets', 'Unassigned', 'Open', 'Closed'];
+const tabs = ['All', 'Open', 'Closed'];
 
 const columns = [
   { key: 'id',         label: 'Ticket ID' },
@@ -50,7 +50,6 @@ onMounted(async () => {
 
 const tabFiltered = computed(() => {
   switch (activeTab.value) {
-    case 'Unassigned': return allTickets.value.filter(t => !t.assigneeId);
     case 'Open':       return allTickets.value.filter(t => t.status === 'OPEN');
     case 'Closed':     return allTickets.value.filter(t => t.status === 'CLOSED');
     default:           return allTickets.value;
@@ -111,23 +110,14 @@ function formatDate(val) {
     <div class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
 
       <!-- Header -->
-      <div class="flex items-start justify-between">
-        <div>
           <h1 class="text-xl font-semibold text-slate-900">Tickets</h1>
           <p class="text-sm text-slate-500 mt-0.5">
             {{ allTickets.length }} tickets · Full access
           </p>
-        </div>
-        <button class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-          </svg>
-          Export
-        </button>
-      </div>
+      
 
       <!-- Search + Filters -->
-      <!-- Search + Filters row — replace the existing one -->
+      <!-- Search + Filters row -->
       <div class="space-y-3">
         <div class="flex gap-3">
           <div class="flex flex-1 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5">

@@ -1,10 +1,10 @@
 <script>
 import CustomerLayout from '@/layouts/CustomerLayout.vue';
-import DashboardHeader from '@/components/dashboard/CustomerDashboardHeader.vue';
+import CustomerDashboardHeader from '@/components/dashboard/CustomerDashboardHeader.vue';
 import DashboardStatCard from '@/components/dashboard/DashboardStatCard.vue';
 import DashboardCtaBanner from '@/components/dashboard/DashboardCtaBanner.vue';
 import RecentActivityPanel from '@/components/dashboard/RecentActivityPanel.vue';
-import MyTicketsPanel from '@/components/tickets/MyTicketsPanel.vue';
+import CustomerTicketsPanel from '@/components/tickets/CustomerTicketsPanel.vue';
 import { getCurrentUser } from '@api/auth';
 import { fetchMyTicketsForCurrentUser } from '@api/tickets';
 
@@ -12,11 +12,11 @@ export default {
     name: 'CustomerDashboard',
     components: {
         CustomerLayout,
-        DashboardHeader,
+        CustomerDashboardHeader,
         DashboardStatCard,
         DashboardCtaBanner,
         RecentActivityPanel,
-        MyTicketsPanel,
+        CustomerTicketsPanel,
     },
     data() {
         return {
@@ -25,7 +25,7 @@ export default {
             loadingTickets: true,
             ticketsError: '',
         };
-    },
+    }, 
     computed: {
         userName() {
             return this.user?.username || 'User';
@@ -65,7 +65,7 @@ export default {
             }
         },
         onSubmitTicket() {
-            this.$router.push('/customer/submit');
+        this.$router.push('/customer/submit');
         },
     },
 };
@@ -74,7 +74,7 @@ export default {
 <template>
     <CustomerLayout>
         <div class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-            <DashboardHeader
+            <CustomerDashboardHeader
                 :user-name="userName"
                 :company="company"
                 @submit-ticket="onSubmitTicket"
@@ -133,7 +133,7 @@ export default {
             </div>
 
             <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-                <MyTicketsPanel
+                <CustomerTicketsPanel
                     :tickets="tickets"
                     :loading="loadingTickets"
                     :error="ticketsError"

@@ -4,7 +4,7 @@ import PrioritySelector from '@/components/submit/PrioritySelector.vue';
 import SubmitTicketSidebar from '@/components/submit/SubmitTicketSidebar.vue';
 import { TICKET_TYPES } from '@js/domain/tickets/ticketCatalog';
 import { createTicket } from '@api/tickets';
-import {createRouter as $router} from "vue-router/dist/vue-router.esm-browser.js";
+import { useRouter } from 'vue-router';
 
 const TICKET_TYPE_OPTIONS = Object.values(TICKET_TYPES);
 
@@ -40,10 +40,11 @@ export default {
             loading: false,
             error: '',
             ticketTypes: TICKET_TYPE_OPTIONS,
+            router: useRouter(),
         };
     },
     methods: {
-      $router,
+        
         async onSubmit() {
             this.error = '';
 
@@ -77,7 +78,7 @@ export default {
                     status: 'OPEN',
                 });
 
-                await this.$router.push('/customer/tickets');
+                await this.router.push('/customer/tickets');
             } catch (err) {
                 this.error = err.message || 'Failed to submit ticket.';
             } finally {

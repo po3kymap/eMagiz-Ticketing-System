@@ -87,15 +87,6 @@ export function formatTicketNumber(id) {
     return `TKT-${String(id).padStart(4, '0')}`;
 }
 
-export function parseTicketTypeFromDescription(description) {
-    if (!description) {
-        return null;
-    }
-
-    const match = description.match(/^Ticket Type:\s*(INCIDENT|RFC)\b/i);
-    return match ? match[1].toUpperCase() : null;
-}
-
 export const TICKET_STATUS_FILTER_OPTIONS = [
     { key: 'ALL', label: 'All' },
     ...Object.values(TICKET_STATUSES).map(({ key, label }) => ({ key, label })),
