@@ -8,12 +8,11 @@ export default defineConfig({
   resolve: {
     extensions: ['.js', '.json', '.vue'],
     alias: {
-      // Нужен для template: `...` в .js (Login.js, Dashboard.js, app.js)
       vue: 'vue/dist/vue.esm-bundler.js',
       '@'        : fileURLToPath(new URL('./src', import.meta.url)),
       '@js'      : fileURLToPath(new URL('./src/js', import.meta.url)),
       '@css'     : fileURLToPath(new URL('./src/css', import.meta.url)),
-      '@views'   : fileURLToPath(new URL('./src/js/views', import.meta.url)),
+      '@views'   : fileURLToPath(new URL('./src/views', import.meta.url)),
       '@api'     : fileURLToPath(new URL('./src/js/api', import.meta.url)),
       '@assets'  : fileURLToPath(new URL('./public', import.meta.url)),
     }
@@ -24,6 +23,10 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    host: true,
+    watch: {
+      usePolling: true,
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8080',

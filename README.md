@@ -4,19 +4,19 @@ A ticket management system for the eMagiz support team. Allows customers to crea
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Vue 3, Vue Router 4, Tailwind CSS 3, Chart.js, Vite 5 |
-| Backend | Java 17, Jakarta EE, Jersey 3 (JAX-RS), Tomcat 10 |
-| Database | PostgreSQL 15 |
-| Infrastructure | Docker, Docker Compose |
+|     Layer      |                      Technology                       |
+|----------------|-------------------------------------------------------|
+|     Frontend   | Vue 3, Vue Router 4, Tailwind CSS 3, Chart.js, Vite 5 |
+|     Backend    |   Java 17, Jakarta EE, Jersey 3 (JAX-RS), Tomcat 10   |
+|     Database   |                  PostgreSQL 15                        |
+| Infrastructure |               Docker, Docker Compose                  |
 
 ## Repository Structure
 
 ```
-booking/
+di26-04/
 ├── backend/          # Java WAR application (Jersey + Tomcat)
-│   └── src/main/
+│   └── src/app/
 │       ├── java/com/emagiz/
 │       │   ├── config/   # DatabaseConfig, JerseyConfig
 │       │   ├── dao/      # UserDAO, TicketDAO
@@ -48,7 +48,7 @@ Base URL: `http://localhost:8080/api`
 
 **User** — `id`, `username`, `email`, `password`, `role`, `company`
 
-**Ticket** — `id`, `title`, `description`, `status` (OPEN), `priority` (MEDIUM), `creatorId`, `assigneeId`, `createdAt`, `updatedAt`
+**Ticket** — `id`, `title`, `description`, `status` (OPEN), `type` (INCIDENT), `priority` (MEDIUM), `creatorId`, `assigneeId`, `createdAt`, `updatedAt`
 
 **AuditLog** — `id`, `ticketId`, `userId`, `action`, `createdAt`
 

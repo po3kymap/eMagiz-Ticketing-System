@@ -1,10 +1,9 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import CustomerSidebar from '@/components/sidebar/CustomerSidebar.vue';
+import SupportSidebar from '@/components/sidebar/SupportSidebar.vue';
 import TopNavigation from '@/components/topbar/TopNavigation.vue';
 import { getCurrentUser, logout } from '@api/auth';
-import { searchMyTickets } from '@api/tickets';
 
 
 const router = useRouter();
@@ -32,26 +31,26 @@ function onLogout() {
   router.replace('/login');
 }
 
-function customerSearch(query) {
-  return searchMyTickets(query); 
+function supportSearch(query) {
+  return searchTicketsForSupport(query);
 }
 </script>
 
 <template>
   <div class="flex min-h-screen bg-slate-50">
-    <CustomerSidebar
+    <SupportSidebar
         :user-name="displayName"
         :user-email="userEmail"
         :user-initials="userInitials"
     />
     <div class="flex min-w-0 flex-1 flex-col">
       <TopNavigation
-          :role="user?.role || 'Customer'"
+          :role="user?.role || 'Support'"
           :user-name="displayName"
           :user-email="userEmail"
           :user-initials="userInitials"
           :unread-notifications="unreadNotifications"
-          :search-fn="customerSearch"
+          :search-fn="supportSearch"
           @logout="onLogout"
       />
       <main class="flex-1 overflow-y-auto">

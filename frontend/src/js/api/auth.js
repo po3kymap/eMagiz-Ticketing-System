@@ -6,8 +6,9 @@ function saveSession(data) {
     localStorage.setItem(USER_KEY, JSON.stringify({
         username: data.username,
         role: data.role,
-        userId: data.userId,
+        userId: data.userId ?? data.id ?? null,
         email: data.email ?? null,
+        company: data.company ?? null,
     }));
 }
 
@@ -64,4 +65,18 @@ export async function getCurrentUser() {
 
 export function isAuthenticated() {
     return Boolean(getStoredToken());
+}
+
+export function getHomeRouteForRole(role) {
+    const normalized = String(role || '').trim().toLowerCase();
+
+    if (normalized === 'consultant') {
+        return { name: 'consultant' };
+    }
+
+    if (normalized === 'support') {
+        return { name: 'support' };
+    }
+
+    return { name: 'customer' };
 }

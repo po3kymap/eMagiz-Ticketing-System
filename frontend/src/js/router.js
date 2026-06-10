@@ -1,7 +1,17 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { isAuthenticated } from '@api/auth';
-import Login from '@views/auth/Login.js';
-import CustomerDashboard from '@views/customer/Dashboard.js';
+import { getCurrentUser, getHomeRouteForRole, isAuthenticated } from '@api/auth';
+import Login from '@/views/auth/Login.vue';
+import CustomerDashboard from '@/views/customer/Dashboard.vue';
+import CustomerMyTickets from '@/views/customer/MyTickets.vue';
+import CustomerSubmitTicket from '@/views/customer/SubmitTicket.vue';
+import CustomerHelp from '@/views/customer/Help.vue';
+import CustomerSettings from '@/views/customer/Settings.vue';
+import ConsultantDashboard from '@/views/consultant/Dashboard.vue';
+import ConsultantAssigned from '@/views/consultant/Assigned.vue';
+import ConsultantSettings from '@/views/consultant/Settings.vue';
+import SupportDashboard from '@/views/support/Dashboard.vue';
+import SupportTicketQueue from '@/views/support/TicketQueue.vue';
+import SupportUsers from '@/views/support/UsersPage.vue';
 
 const routes = [
     {
@@ -20,6 +30,66 @@ const routes = [
         component: CustomerDashboard,
         meta: { requiresAuth: true },
     },
+    {
+        path: '/customer/tickets',
+        name: 'customer-tickets',
+        component: CustomerMyTickets,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/customer/submit',
+        name: 'customer-submit',
+        component: CustomerSubmitTicket,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/customer/help',
+        name: 'customer-help',
+        component: CustomerHelp,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/customer/settings',
+        name: 'customer-settings',
+        component: CustomerSettings,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/consultant',
+        name: 'consultant',
+        component: ConsultantDashboard,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/consultant/assigned',
+        name: 'consultant-assigned',
+        component: ConsultantAssigned,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/consultant/settings',
+        name: 'consultant-settings',
+        component: ConsultantSettings,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/support',
+        name: 'support',
+        component: SupportDashboard,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/support/queue',
+        name: 'support-queue',
+        component: SupportTicketQueue,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/support/users',
+        name: 'support-users',
+        component: SupportUsers,
+        meta: { requiresAuth: true },
+    },
 ];
 
 const router = createRouter({
@@ -27,13 +97,14 @@ const router = createRouter({
     routes,
 });
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
     if (to.meta.requiresAuth && !isAuthenticated()) {
         return { name: 'login' };
     }
 
     if (to.name === 'login' && isAuthenticated()) {
-        return { name: 'customer' };
+        const user = await getCurrentUser();
+        return getHomeRouteForRole(user?.role);
     }
 
     return true;
