@@ -11,13 +11,14 @@ const props = defineProps({
 });
 
 const meta = computed(() => getTicketPriorityMeta(props.priority));
+console.log('Priority Meta:', meta.value);
 </script>
 
 <template>
     <TicketBadge
         :label="meta.label"
         :badge-class="meta.badgeClass"
-        show-dot
+        :show-dot="true"
         :dot-class="meta.dotClass"
     />
 </template>

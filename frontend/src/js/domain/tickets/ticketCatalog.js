@@ -76,7 +76,13 @@ export function getTicketTypeMeta(type) {
 }
 
 export function getTicketPriorityMeta(priority) {
-    return TICKET_PRIORITIES[priority] ?? { key: priority, label: priority || 'Unknown', ...UNKNOWN_BADGE };
+    const safePriority = String(priority || '').trim().toUpperCase();
+    
+    return TICKET_PRIORITIES[safePriority] ?? { 
+        key: priority, 
+        label: priority || 'Unknown', 
+        ...UNKNOWN_BADGE 
+    };
 }
 
 export function getTicketStatusMeta(status) {
