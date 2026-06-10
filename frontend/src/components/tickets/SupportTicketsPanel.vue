@@ -1,12 +1,17 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import TicketTypeBadge from '@/components/tickets/TicketTypeBadge.vue';
 import TicketPriorityBadge from '@/components/tickets/TicketPriorityBadge.vue';
 import TicketStatusBadge from '@/components/tickets/TicketStatusBadge.vue';
+import { fetchUsers } from '@api/users';
 
 const props = defineProps({
     tickets: {
+        type: Array,
+        default: () => [],
+    },
+    users: {
         type: Array,
         default: () => [],
     },
@@ -29,6 +34,11 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const allUsers = ref([]);
+
+onMounted(async () => {
+    allUsers.value = await fetchUsers();
+});
 
 const visibleTickets = computed(() => {
     const sorted = [...props.tickets].sort((a, b) => {
@@ -37,11 +47,24 @@ const visibleTickets = computed(() => {
         return timeB - timeA;
     });
 
+
     if (!props.limit || props.limit <= 0) {
         return sorted;
     }
     return sorted.slice(0, props.limit);
 });
+
+function getUserNameDisplay(id) {
+    if (!id) return '—';
+    const user = allUsers.value.find(u => u.id === id);
+    return user?.username ? `${user.username} (${id})` : id;
+}
+
+function getUserCompanyDisplay(id) {
+  if (!id) return '—';
+  const user = allUsers.value.find(u => u.id === id);
+  return user?.company ? user.company : '—';
+}
 
 function onFullView() {
     router.push('/support/triage');
@@ -113,7 +136,7 @@ function onFullView() {
                                 {{ ticket.title }}
                             </div>
                             <div class="mt-0.5 text-xs text-slate-400">
-                                {{ ticket.companyName || ticket.creatorId || 'Unknown Customer' }}
+                                {{ getUserCompanyDisplay(ticket.creatorId) }}
                             </div>
                         </td>
 
@@ -129,7 +152,7 @@ function onFullView() {
 
                         <td class="px-5 py-2.5 align-middle text-[13px]">
                             <span v-if="ticket.assigneeId" class="text-slate-700">
-                                {{ ticket.assigneeId }}
+                                {{ getUserNameDisplay(ticket.assigneeId) }}
                             </span>
                             <span v-else class="font-medium text-red-500">
                                 Unassigned

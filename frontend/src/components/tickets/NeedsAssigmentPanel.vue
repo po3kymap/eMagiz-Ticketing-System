@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import TicketPriorityBadge from '@/components/tickets/TicketPriorityBadge.vue';
 
@@ -8,6 +8,18 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    users: {
+        type: Array,
+        default: () => [],
+    },
+    loading: {
+        type: Boolean,
+        default: false,
+    },
+    error: {
+        type: String,
+        default: '',
+    },
 });
 
 const router = useRouter();
@@ -15,6 +27,12 @@ const router = useRouter();
 const unassignedTickets = computed(() => {
     return props.tickets.filter(t => String(t.status).toUpperCase() === 'IN_REVIEW');
 });
+
+function getUserCompanyDisplay(id) {
+  if (!id) return '—';
+  const user = props.users.find(u => u.id === id);
+  return user?.company ? user.company : '—';
+}
 
 const visibleTickets = computed(() => {
     return unassignedTickets.value.slice(0, 5);
@@ -44,7 +62,13 @@ function onTriage() {
         </div>
 
         <div class="flex-1 overflow-y-auto">
-            <div v-if="unassignedTickets.length === 0" class="p-6 text-center text-sm text-slate-500">
+            <div v-if="loading" class="p-6 text-center text-sm text-slate-500">
+                Loading tickets...
+            </div>
+            <p v-else-if="error" class="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {{ error }}
+            </p>
+            <div v-else-if="unassignedTickets.length === 0" class="p-6 text-center text-sm text-slate-500">
                 No tickets need assignment.
             </div>
             <div v-else class="divide-y divide-slate-100">
@@ -56,13 +80,13 @@ function onTriage() {
                     <div class="min-w-0 flex-1">
                         <div class="text-[11px] font-medium text-slate-400">TKT-{{ ticket.id }}</div>
                         <h4 class="mt-0.5 truncate text-sm font-medium text-slate-800">{{ ticket.title }}</h4>
-                        <div class="mt-0.5 text-xs text-slate-400">{{ ticket.companyName || ticket.creatorId || 'Unknown' }}</div>
+                        <div class="mt-0.5 text-xs text-slate-400">{{ getUserCompanyDisplay(ticket.creatorId) }}</div>
                     </div>
                     <div class="shrink-0 mt-0.5">
                         <TicketPriorityBadge :priority="ticket.priority" />
                     </div>
                 </article>
-            </div>
+            </div>  
         </div>
     </section>
 </template>
