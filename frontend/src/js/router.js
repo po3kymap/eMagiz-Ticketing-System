@@ -9,6 +9,7 @@ import CustomerSettings from '@/views/customer/Settings.vue';
 import ConsultantDashboard from '@/views/consultant/Dashboard.vue';
 import ConsultantAssigned from '@/views/consultant/Assigned.vue';
 import ConsultantSettings from '@/views/consultant/Settings.vue';
+import TicketDetailView from "@views/consultant/TicketDetailView.vue";
 import SupportDashboard from '@/views/support/Dashboard.vue';
 import SupportTicketQueue from '@/views/support/TicketQueue.vue';
 import SupportUsers from '@/views/support/UsersPage.vue';
@@ -70,6 +71,12 @@ const routes = [
         path: '/consultant/settings',
         name: 'consultant-settings',
         component: ConsultantSettings,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/consultant/assigned/ticket/TKT-:id',
+        name: 'consultant-assigned-ticket',
+        component: TicketDetailView,
         meta: { requiresAuth: true },
     },
     {

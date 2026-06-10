@@ -15,9 +15,7 @@ function mapTicket(raw) {
         title: raw.title,
         description: raw.description ?? '',
         type: raw.type ?? '',
-        priority: raw.priority
-            ? raw.priority.charAt(0).toUpperCase() + raw.priority.slice(1).toLowerCase()
-            : null,
+        priority: raw.priority ?? null,
         status: raw.status ?? null,
         creatorId: raw.creatorId,
         assigneeId: raw.assigneeId ?? null,
@@ -278,4 +276,18 @@ export async function changeTicketStatus(ticketId, status) {
     }
 
     return data;
+}
+
+export async function fetchTicketById(id) {
+    if (!getStoredToken()) {
+        throw new Error('Not authenticated. Please log in again.');
+    }
+    const response = await fetch(`/api/tickets/${id}`, {
+        headers: { Accept: 'application/json', ...getAuthHeaders() },
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to load ticket (${response.status})`);
+    }
+    return mapTicket(data);
 }

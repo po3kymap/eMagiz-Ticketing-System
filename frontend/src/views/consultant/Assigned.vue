@@ -5,12 +5,15 @@ import TicketTypeBadge from '@/components/tickets/TicketTypeBadge.vue';
 import TicketPriorityBadge from '@/components/tickets/TicketPriorityBadge.vue';
 import TicketStatusBadge from '@/components/tickets/TicketStatusBadge.vue';
 import { fetchAssignedTicketsForCurrentUser } from '@api/tickets';
+import { fetchUsers } from '@api/users';
+import { useRouter } from 'vue-router';
 
-const allTickets = ref([]);
+const router = useRouter();
+const tickets = ref([]);
+const usersMap = ref({});
 const isLoading = ref(true);
 const error = ref('');
 const searchQuery = ref('');
-const activeTab = ref('All');
 const sortKey = ref('createdAt');
 const sortDir = ref('desc');
 const currentPage = ref(1);
@@ -20,11 +23,9 @@ const filterStatus   = ref('');
 const filterPriority = ref('');
 const filterType     = ref('');
 
-const statusOptions   = ['OPEN', 'IN_REVIEW', 'DENIED', 'ASSIGNED', 'CLOSED'];
+const statusOptions   = ['IN_REVIEW', 'ACCEPTED', 'DENIED', 'ASSIGNED', 'RESOLVED', 'CLOSED'];
 const priorityOptions = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
-const typeOptions     = ['INCIDENT', 'RFC'];
-
-const tabs = ['All', 'Open', 'Closed'];
+const typeOptions     = ['INCIDENT', 'RFC', 'INTERNAL'];
 
 const columns = [
   { key: 'id',         label: 'Ticket ID' },
@@ -40,7 +41,12 @@ const columns = [
 
 onMounted(async () => {
   try {
-    allTickets.value = await fetchAssignedTicketsForCurrentUser();
+    const [fetchedTickets, users] = await Promise.all([
+      fetchAssignedTicketsForCurrentUser(),
+      fetchUsers(),
+    ]);
+    tickets.value = fetchedTickets;
+    usersMap.value = Object.fromEntries(users.map(u => [u.id, u.username]));
   } catch (e) {
     error.value = e.message;
   } finally {
@@ -48,17 +54,14 @@ onMounted(async () => {
   }
 });
 
-const tabFiltered = computed(() => {
-  switch (activeTab.value) {
-    case 'Open':       return allTickets.value.filter(t => t.status === 'OPEN');
-    case 'Closed':     return allTickets.value.filter(t => t.status === 'CLOSED');
-    default:           return allTickets.value;
-  }
-});
+function getAssigneeName(assigneeId) {
+  if (!assigneeId) return '—';
+  return usersMap.value[assigneeId] ?? assigneeId;
+}
 
 const searched = computed(() => {
   const q = searchQuery.value.toLowerCase();
-  return tabFiltered.value.filter(t => {
+  return tickets.value.filter(t => {
     const matchesQuery    = !q || t.title?.toLowerCase().includes(q) || t.id?.toString().includes(q);
     const matchesStatus   = !filterStatus.value   || t.status   === filterStatus.value;
     const matchesPriority = !filterPriority.value || t.priority === filterPriority.value;
@@ -66,7 +69,6 @@ const searched = computed(() => {
     return matchesQuery && matchesStatus && matchesPriority && matchesType;
   });
 });
-
 
 const sorted = computed(() => {
   return [...searched.value].sort((a, b) => {
@@ -94,11 +96,6 @@ function toggleSort(key) {
   currentPage.value = 1;
 }
 
-function onTabChange(tab) {
-  activeTab.value = tab;
-  currentPage.value = 1;
-}
-
 function formatDate(val) {
   if (!val) return '—';
   return new Date(val).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
@@ -109,15 +106,15 @@ function formatDate(val) {
   <ConsultantLayout>
     <div class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
 
-      <!-- Header -->
+      <div class="flex items-start justify-between">
+        <div>
           <h1 class="text-xl font-semibold text-slate-900">Tickets</h1>
           <p class="text-sm text-slate-500 mt-0.5">
-            {{ allTickets.length }} tickets · Full access
+            {{ tickets.length }} tickets
           </p>
-      
+        </div>
+      </div>
 
-      <!-- Search + Filters -->
-      <!-- Search + Filters row -->
       <div class="space-y-3">
         <div class="flex gap-3">
           <div class="flex flex-1 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5">
@@ -128,7 +125,7 @@ function formatDate(val) {
             <input
                 v-model="searchQuery"
                 type="search"
-                placeholder="Search by title, ID, or customer..."
+                placeholder="Search by title or ID..."
                 class="flex-1 bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none"
                 @input="currentPage = 1"
             />
@@ -137,15 +134,14 @@ function formatDate(val) {
           <button
               class="flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition"
               :class="showFilters
-                ? 'border-teal-500 bg-teal-50 text-teal-700'
-                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'"
+                            ? 'border-teal-500 bg-teal-50 text-teal-700'
+                            : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'"
               @click="showFilters = !showFilters"
           >
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
             </svg>
             Filters
-            <!-- Active indicator dot -->
             <span
                 v-if="filterStatus || filterPriority || filterType"
                 class="h-2 w-2 rounded-full bg-teal-500"
@@ -153,7 +149,6 @@ function formatDate(val) {
           </button>
         </div>
 
-        <!-- Filter dropdowns — shown when Filters is toggled -->
         <Transition
             enter-active-class="transition duration-150 ease-out"
             enter-from-class="opacity-0 -translate-y-1"
@@ -163,8 +158,6 @@ function formatDate(val) {
             leave-to-class="opacity-0 -translate-y-1"
         >
           <div v-if="showFilters" class="flex flex-wrap gap-3">
-
-            <!-- Status -->
             <div class="relative">
               <select
                   v-model="filterStatus"
@@ -181,7 +174,6 @@ function formatDate(val) {
               </svg>
             </div>
 
-            <!-- Priority -->
             <div class="relative">
               <select
                   v-model="filterPriority"
@@ -198,7 +190,6 @@ function formatDate(val) {
               </svg>
             </div>
 
-            <!-- Type -->
             <div class="relative">
               <select
                   v-model="filterType"
@@ -215,7 +206,6 @@ function formatDate(val) {
               </svg>
             </div>
 
-            <!-- Clear all -->
             <button
                 v-if="filterStatus || filterPriority || filterType"
                 class="text-sm text-slate-400 hover:text-slate-600 transition px-2"
@@ -223,37 +213,18 @@ function formatDate(val) {
             >
               Clear all
             </button>
-
           </div>
         </Transition>
       </div>
 
-      <!-- Tabs -->
-      <div class="flex gap-1 border-b border-slate-200">
-        <button
-            v-for="tab in tabs"
-            :key="tab"
-            class="px-4 py-2 text-sm font-medium transition border-b-2 -mb-px"
-            :class="activeTab === tab
-                        ? 'border-teal-600 text-teal-600'
-                        : 'border-transparent text-slate-500 hover:text-slate-700'"
-            @click="onTabChange(tab)"
-        >
-          {{ tab }}
-        </button>
-      </div>
-
-      <!-- Loading -->
       <div v-if="isLoading" class="py-12 text-center text-sm text-slate-400">
         Loading tickets…
       </div>
 
-      <!-- Error -->
       <div v-else-if="error" class="py-12 text-center text-sm text-red-500">
         {{ error }}
       </div>
 
-      <!-- Table -->
       <div v-else class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table class="w-full text-sm">
           <thead>
@@ -276,6 +247,7 @@ function formatDate(val) {
               v-for="ticket in paginated"
               :key="ticket.id"
               class="border-b border-slate-100 last:border-0 hover:bg-slate-50 cursor-pointer transition"
+              @click="router.push(`/consultant/assigned/ticket/TKT-${ticket.id}`)"
           >
             <td class="px-4 py-3 font-mono text-xs text-teal-600 whitespace-nowrap">
               TKT-{{ ticket.id }}
@@ -296,7 +268,7 @@ function formatDate(val) {
               <TicketStatusBadge :status="ticket.status" />
             </td>
             <td class="px-4 py-3 text-slate-500 whitespace-nowrap">
-              {{ ticket.assigneeId ?? '—' }}
+              {{ getAssigneeName(ticket.assigneeId) }}
             </td>
             <td class="px-4 py-3 text-slate-400 whitespace-nowrap">
               {{ formatDate(ticket.createdAt) }}
@@ -315,7 +287,6 @@ function formatDate(val) {
         </table>
       </div>
 
-      <!-- Pagination -->
       <div class="flex items-center justify-between text-sm text-slate-500">
         <span>Showing {{ sorted.length }} tickets</span>
         <div class="flex items-center gap-3">
