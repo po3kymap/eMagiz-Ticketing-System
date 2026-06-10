@@ -15,7 +15,7 @@ public class TicketDAO {
             pstmt.setString(2, ticket.getDescription());
             pstmt.setString(3, ticket.getStatus().name());
             pstmt.setString(4, ticket.getType().name());
-            pstmt.setString(5, ticket.getPriority());
+            pstmt.setString(5, ticket.getPriority().name());
             pstmt.setLong(6, ticket.getCreatorId());
 
             pstmt.executeUpdate();
@@ -58,7 +58,7 @@ public class TicketDAO {
                 t.setDescription(rs.getString("description"));
                 t.setStatus(TicketStatus.valueOf(rs.getString("status")));
                 t.setType(readType(rs));
-                t.setPriority(rs.getString("priority"));
+                t.setPriority(TicketPriority.valueOf(rs.getString("priority")));
                 t.setCreatorId(rs.getLong("creator_id"));
                 t.setAssigneeId(rs.getLong("assignee_id"));
                 t.setCreatedAt(rs.getTimestamp("created_at"));
@@ -94,7 +94,7 @@ public class TicketDAO {
             pstmt.setString(1, ticket.getTitle());
             pstmt.setString(2, ticket.getDescription());
             pstmt.setString(3, ticket.getStatus().name());
-            pstmt.setString(4, ticket.getPriority());
+            pstmt.setString(4, ticket.getPriority().name());
             pstmt.setString(5, ticket.getType().name());
             pstmt.setLong(6, id);
             pstmt.executeUpdate();
@@ -168,7 +168,7 @@ public class TicketDAO {
             t.setDescription(rs.getString("description"));
             t.setStatus(TicketStatus.valueOf(rs.getString("status")));
             t.setType(readType(rs));
-            t.setPriority(rs.getString("priority"));
+            t.setPriority(TicketPriority.valueOf(rs.getString("priority")));
             t.setCreatorId(rs.getLong("creator_id"));
             t.setAssigneeId(rs.getLong("assignee_id"));
             t.setCreatedAt(rs.getTimestamp("created_at"));
