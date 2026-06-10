@@ -9,10 +9,11 @@ import CustomerSettings from '@/views/customer/Settings.vue';
 import ConsultantDashboard from '@/views/consultant/Dashboard.vue';
 import ConsultantAssigned from '@/views/consultant/Assigned.vue';
 import ConsultantSettings from '@/views/consultant/Settings.vue';
-import TicketDetailView from "@views/consultant/TicketDetailView.vue";
+import ConsultantTicketView from "@views/consultant/ConsultantTicketView.vue";
 import SupportDashboard from '@/views/support/Dashboard.vue';
 import SupportTicketQueue from '@/views/support/TicketQueue.vue';
 import SupportUsers from '@/views/support/UsersPage.vue';
+import SupportTicketView from "@views/support/SupportTicketView.vue";
 
 const routes = [
     {
@@ -76,7 +77,7 @@ const routes = [
     {
         path: '/consultant/assigned/ticket/TKT-:id',
         name: 'consultant-assigned-ticket',
-        component: TicketDetailView,
+        component: ConsultantTicketView,
         meta: { requiresAuth: true },
     },
     {
@@ -97,6 +98,12 @@ const routes = [
         component: SupportUsers,
         meta: { requiresAuth: true },
     },
+    {
+        path: '/support/queue/ticket/TKT-:id',
+        name: 'support-queue-ticket',
+        component: SupportTicketView,
+        meta: { requiresAuth: true },
+    }
 ];
 
 const router = createRouter({

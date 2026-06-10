@@ -6,7 +6,9 @@ import TicketPriorityBadge from '@/components/tickets/TicketPriorityBadge.vue';
 import TicketStatusBadge from '@/components/tickets/TicketStatusBadge.vue';
 import { fetchAllTickets, acceptTicket, denyTicket, assignTicket, changeTicketStatus } from '@api/tickets';
 import { fetchUsers } from '@api/users';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const allTickets = ref([]);
 const isLoading = ref(true);
 const error = ref('');
@@ -115,7 +117,7 @@ function formatDate(val) {
 }
 
 function onView(ticket) {
-  console.log('View ticket', ticket.id);
+  router.push(`/support/queue/ticket/TKT-${ticket.id}`);
 }
 
 function onAccept(ticket) {
