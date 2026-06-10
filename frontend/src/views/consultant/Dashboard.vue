@@ -8,6 +8,7 @@ import {
     computeConsultantStats,
     fetchAssignedTicketsForCurrentUser,
 } from '@api/tickets';
+import ConsultantTicketsPanel from '@/components/tickets/ConsultantTicketsPanel.vue';
 
 const user = ref(null);
 const tickets = ref([]);
@@ -100,6 +101,10 @@ onMounted(async () => {
                     </template>
                 </DashboardStatCard>
             </div>
+            <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+                <ConsultantTicketsPanel :tickets="tickets" :loading="loading" :error="loadError" :limit="6" :show-view-all="false" />
+            </div>
         </div>
+        
     </ConsultantLayout>
 </template>

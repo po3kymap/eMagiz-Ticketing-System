@@ -25,7 +25,7 @@ const filterType     = ref('');
 
 const statusOptions   = ['IN_REVIEW', 'ACCEPTED', 'DENIED', 'ASSIGNED', 'RESOLVED', 'CLOSED'];
 const priorityOptions = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
-const typeOptions     = ['INCIDENT', 'RFC', 'INTERNAL'];
+const typeOptions     = ['INCIDENT', 'RFC'];
 
 const columns = [
   { key: 'id',         label: 'Ticket ID' },
