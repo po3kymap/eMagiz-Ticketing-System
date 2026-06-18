@@ -226,4 +226,24 @@ public class UserDAO {
             e.printStackTrace();
         }
     }
+
+    public String getUserRole(Long userId) {
+        String sql = "SELECT role FROM users WHERE id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, userId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("role");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error while getting role: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

@@ -7,6 +7,7 @@ import com.emagiz.dto.CommentDTO;
 import com.emagiz.dto.PriorityUpdateRequest;
 import com.emagiz.dto.StatusUpdateRequest;
 import com.emagiz.model.*;
+import com.emagiz.security.RolesAllowed;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
@@ -27,6 +28,7 @@ public class TicketResource {
     private ContainerRequestContext requestContext;
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"CUSTOMER", "SUPPORT"})
     public Response createTicket(Ticket ticket){
         Long userId =
                 (Long) requestContext.getProperty("userId");
@@ -38,7 +40,7 @@ public class TicketResource {
         Ticket savedTicket = ticketDAO.save(ticket);
         return Response.status(Response.Status.CREATED).entity(savedTicket).build();
     }
-
+    @RolesAllowed("SUPPORT")
     @GET
     public Response getAllTickets(){
         try {

@@ -34,6 +34,8 @@ public class AuthFilter implements ContainerRequestFilter {
         }
 
         requestContext.setProperty("userId", userId);
+        String userRole = userDAO.getUserRole(userId);
+        requestContext.setProperty("userRole", userRole);
     }
 
     private boolean isPublicRoute(ContainerRequestContext requestContext) {
