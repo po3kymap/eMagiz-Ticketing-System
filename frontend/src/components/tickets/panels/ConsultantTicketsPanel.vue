@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import TicketTypeBadge from '@/components/tickets/TicketTypeBadge.vue';
-import TicketPriorityBadge from '@/components/tickets/TicketPriorityBadge.vue';
-import TicketStatusBadge from '@/components/tickets/TicketStatusBadge.vue';
+import TicketTypeBadge from '@/components/tickets/ticket_components/TicketTypeBadge.vue';
+import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPriorityBadge.vue';
+import TicketStatusBadge from '@/components/tickets/ticket_components/TicketStatusBadge.vue';
 
 const props = defineProps({
     tickets: {

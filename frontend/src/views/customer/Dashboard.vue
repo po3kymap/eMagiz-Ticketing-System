@@ -4,7 +4,7 @@ import CustomerDashboardHeader from '@/components/dashboard/CustomerDashboardHea
 import DashboardStatCard from '@/components/dashboard/DashboardStatCard.vue';
 import DashboardCtaBanner from '@/components/dashboard/DashboardCtaBanner.vue';
 import RecentActivityPanel from '@/components/dashboard/RecentActivityPanel.vue';
-import CustomerTicketsPanel from '@/components/tickets/CustomerTicketsPanel.vue';
+import CustomerTicketsPanel from '@/components/tickets/panels/CustomerTicketsPanel.vue';
 import { getCurrentUser } from '@api/auth';
 import { fetchMyTicketsForCurrentUser } from '@api/tickets';
 
@@ -36,7 +36,9 @@ export default {
         stats() {
           return {
             openTickets: this.tickets.filter(t => t.status === 'OPEN').length,
-            waitingForSupport: this.tickets.filter(t => t.status === 'IN_REVIEW').length,
+            waitingForSupport: this.tickets.filter((t) =>
+                ['OPEN', 'IN_REVIEW', 'ACCEPTED'].includes(t.status),
+            ).length,
             resolvedThisMonth: this.tickets.filter(t => t.status === 'CLOSED').length,
             recentUpdates: this.tickets.filter(t => {
               if (!t.updatedAt) return false;

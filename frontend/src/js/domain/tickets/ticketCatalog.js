@@ -54,6 +54,11 @@ export const TICKET_STATUSES = {
         label: 'In Review',
         badgeClass: 'bg-amber-50 text-amber-700 ring-amber-100',
     },
+    ACCEPTED: {
+        key: 'ACCEPTED',
+        label: 'Accepted',
+        badgeClass: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+    },
     DENIED: {
         key: 'DENIED',
         label: 'Denied',
@@ -92,8 +97,3 @@ export function getTicketStatusMeta(status) {
 export function formatTicketNumber(id) {
     return `TKT-${String(id).padStart(4, '0')}`;
 }
-
-export const TICKET_STATUS_FILTER_OPTIONS = [
-    { key: 'ALL', label: 'All' },
-    ...Object.values(TICKET_STATUSES).map(({ key, label }) => ({ key, label })),
-];

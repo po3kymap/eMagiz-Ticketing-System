@@ -8,7 +8,7 @@ import {
     computeConsultantStats,
     fetchAssignedTicketsForCurrentUser,
 } from '@api/tickets';
-import ConsultantTicketsPanel from '@/components/tickets/ConsultantTicketsPanel.vue';
+import ConsultantTicketsPanel from '@/components/tickets/panels/ConsultantTicketsPanel.vue';
 
 const user = ref(null);
 const tickets = ref([]);

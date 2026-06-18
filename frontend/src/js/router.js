@@ -3,6 +3,7 @@ import { getCurrentUser, getHomeRouteForRole, isAuthenticated } from '@api/auth'
 import Login from '@/views/auth/Login.vue';
 import CustomerDashboard from '@/views/customer/Dashboard.vue';
 import CustomerMyTickets from '@/views/customer/MyTickets.vue';
+import CustomerTicketView from '@/views/customer/CustomerTicketView.vue';
 import CustomerSubmitTicket from '@/views/customer/SubmitTicket.vue';
 import CustomerHelp from '@/views/customer/Help.vue';
 import CustomerSettings from '@/views/customer/Settings.vue';
@@ -12,7 +13,9 @@ import ConsultantSettings from '@/views/consultant/Settings.vue';
 import ConsultantTicketView from "@views/consultant/ConsultantTicketView.vue";
 import SupportDashboard from '@/views/support/Dashboard.vue';
 import SupportTicketQueue from '@/views/support/TicketQueue.vue';
+import SupportTriageBoard from '@/views/support/TriageBoard.vue';
 import SupportUsers from '@/views/support/UsersPage.vue';
+import SupportAuditLog from '@/views/support/AuditLog.vue';
 import SupportTicketView from "@views/support/SupportTicketView.vue";
 
 const routes = [
@@ -36,6 +39,12 @@ const routes = [
         path: '/customer/tickets',
         name: 'customer-tickets',
         component: CustomerMyTickets,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/customer/tickets/ticket/TKT-:id',
+        name: 'customer-ticket',
+        component: CustomerTicketView,
         meta: { requiresAuth: true },
     },
     {
@@ -90,6 +99,18 @@ const routes = [
         path: '/support/queue',
         name: 'support-queue',
         component: SupportTicketQueue,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/support/triage',
+        name: 'support-triage',
+        component: SupportTriageBoard,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/support/audit',
+        name: 'support-audit',
+        component: SupportAuditLog,
         meta: { requiresAuth: true },
     },
     {

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import TicketPriorityBadge from '@/components/tickets/TicketPriorityBadge.vue';
+import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPriorityBadge.vue';
 
 const props = defineProps({
     tickets: {
@@ -25,7 +25,7 @@ const props = defineProps({
 const router = useRouter();
 
 const unassignedTickets = computed(() => {
-    return props.tickets.filter(t => String(t.status).toUpperCase() === 'IN_REVIEW');
+    return props.tickets.filter((t) => String(t.status).toUpperCase() === 'ACCEPTED');
 });
 
 function getUserCompanyDisplay(id) {

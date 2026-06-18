@@ -103,7 +103,7 @@ export async function fetchAssignedTicketsForCurrentUser() {
     return fetchAssignedTickets(user.userId);
 }
 
-const ACTIVE_STATUSES = new Set(['OPEN', 'ASSIGNED', 'IN_REVIEW']);
+const ACTIVE_STATUSES = new Set(['OPEN', 'ASSIGNED', 'IN_REVIEW', 'ACCEPTED']);
 
 export function computeConsultantStats(tickets) {
     const now = new Date();
@@ -124,6 +124,26 @@ export function computeConsultantStats(tickets) {
             return new Date(ticket.updatedAt) >= threeDaysAgo;
         }).length,
     };
+}
+
+export async function updateTicketPriority(ticketId, priority) {
+    const response = await fetch(`/api/tickets/${ticketId}/priority`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ priority }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to update priority (${response.status})`);
+    }
+
+    return data;
 }
 
 export async function createTicket({ title, description, priority, type, status = 'OPEN' }) {
@@ -205,7 +225,7 @@ export async function acceptTicket(ticketId) {
             ...getAuthHeaders(),
         },
         body: JSON.stringify({
-            status: 'IN_REVIEW',
+            status: 'ACCEPTED',
         }),
     });
 
@@ -290,4 +310,61 @@ export async function fetchTicketById(id) {
         throw new Error(data?.error || `Failed to load ticket (${response.status})`);
     }
     return mapTicket(data);
+}
+
+function mapComment(raw) {
+    return {
+        id: raw.id,
+        userId: raw.userId,
+        username: raw.username ?? 'Unknown',
+        role: raw.role ?? '',
+        content: raw.content ?? '',
+        isInternal: raw.isInternal ?? raw.internal ?? false,
+        createdAt: raw.createdAt ?? null,
+    };
+}
+
+export async function fetchTicketComments(ticketId) {
+    if (!getStoredToken()) {
+        throw new Error('Not authenticated. Please log in again.');
+    }
+
+    const response = await fetch(`/api/tickets/${ticketId}/comments`, {
+        headers: {
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to load comments (${response.status})`);
+    }
+
+    if (!Array.isArray(data)) {
+        throw new Error('Unexpected comments response from server');
+    }
+
+    return data.map(mapComment);
+}
+
+export async function addTicketComment(ticketId, content, isInternal = false) {
+    const response = await fetch(`/api/tickets/${ticketId}/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ content, internal: isInternal }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to post comment (${response.status})`);
+    }
+
+    return mapComment(data);
 }

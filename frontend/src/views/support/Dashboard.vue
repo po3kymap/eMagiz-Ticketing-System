@@ -5,8 +5,11 @@ import SupportDashboardHeader from '@/components/dashboard/SupportDashboardHeade
 import DashboardStatCard from '@/components/dashboard/DashboardStatCard.vue';
 import { getCurrentUser } from '@api/auth';
 import { fetchAllTickets } from '@api/tickets';
-import SupportTicketsPanel from '@/components/tickets/SupportTicketsPanel.vue';
-import NeedsAssigmentPanel from '@/components/tickets/NeedsAssigmentPanel.vue';
+import SupportTicketsPanel from '@/components/tickets/panels/SupportTicketsPanel.vue';
+import NeedsAssigmentPanel from '@/components/tickets/panels/NeedsAssigmentPanel.vue';
+import TicketsByTypeChart from '@/components/dashboard/TicketsByTypeChart.vue';
+import PriorityBreakdownChart from '@/components/dashboard/PriorityBreakdownChart.vue';
+import RecentAuditPanel from '@/components/dashboard/RecentAuditPanel.vue';
 import { fetchUsers } from '@api/users';
 
 const user = ref(null);
@@ -27,7 +30,7 @@ const stats = computed(() => {
             oneDayAgo.setDate(oneDayAgo.getDate() - 1);
             return new Date(t.createdAt) >= oneDayAgo;
         }).length,
-        inReviewTickets: tickets.value.filter(t => t.status === 'IN_REVIEW').length,
+        acceptedTickets: tickets.value.filter((t) => t.status === 'ACCEPTED').length,
         openTickets: tickets.value.filter(t => t.status === 'OPEN').length,
         deniedTickets: tickets.value.filter(t => t.status === 'DENIED').length,
         slaRiskTickets: tickets.value.filter(t => {
@@ -84,9 +87,9 @@ onMounted(async () => {
                 </DashboardStatCard>
 
                 <DashboardStatCard
-                    label="In Review"
-                    :value="loadingTickets ? '—' : stats.inReviewTickets"
-                    tone="amber"
+                    label="Accepted"
+                    :value="loadingTickets ? '—' : stats.acceptedTickets"
+                    tone="emerald"
                 >
                     <template #icon>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -146,6 +149,14 @@ onMounted(async () => {
                 />
 
                 <NeedsAssigmentPanel :tickets="tickets" :users="allUsers" :loading="loadingTickets" :error="ticketsError" />
+            </div>
+
+            <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <TicketsByTypeChart :tickets="tickets" :loading="loadingTickets" />
+                    <PriorityBreakdownChart :tickets="tickets" :loading="loadingTickets" />
+                </div>
+                <RecentAuditPanel />
             </div>
         </div>
     </SupportLayout>

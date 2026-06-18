@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import TicketBadge from '@/components/tickets/TicketBadge.vue';
+import TicketBadge from '@/components/tickets/ticket_components/TicketBadge.vue';
 import { getTicketPriorityMeta } from '@js/domain/tickets/ticketCatalog';
 
 const props = defineProps({
