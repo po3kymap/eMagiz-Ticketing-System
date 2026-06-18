@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TicketDAO {
+    private AuditLogDAO auditLogDAO = new AuditLogDAO();
     public Ticket save(Ticket ticket) {
         String sql = "INSERT INTO tickets (title, description, status, type, priority, creator_id) VALUES (?, ?, ?, ?, ?, ?)";
         try(Connection conn = DatabaseConfig.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)){
