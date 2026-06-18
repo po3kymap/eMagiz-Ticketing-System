@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommentDAO {
+    private AuditLogDAO auditLogDAO = new AuditLogDAO();
 
     public CommentResponse addComment(Long ticketID, Long userID, String text, Boolean isInternal) {
         String sql = """
@@ -27,6 +28,7 @@ public class CommentDAO {
 
             try (ResultSet resultSet = stmt.executeQuery()) {
                 if (resultSet.next()) {
+                    auditLogDAO.saveLog(ticketID.intValue(), userID.intValue(), "COMMENT_ADDED");
                     return findById(resultSet.getLong("comment_id"));
                 }
             }

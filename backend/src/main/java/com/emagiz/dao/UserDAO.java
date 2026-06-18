@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
+    private AuditLogDAO auditLogDAO = new AuditLogDAO();
     public User save(User user) {
         String sql = "INSERT INTO users (username, email, password, role, company) VALUES (?, ?, ?, ?, ?)";
 
@@ -27,6 +28,7 @@ public class UserDAO {
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     user.setId(generatedKeys.getLong(1));
+                    auditLogDAO.saveLog(null, user.getId().intValue(), "USER_CREATED");
                 }
             }
             user.setPassword(null);
@@ -175,6 +177,7 @@ public class UserDAO {
             java.time.LocalDateTime expireTime = java.time.LocalDateTime.now().plusMinutes(30);
             preparedStatement.setTimestamp(3, java.sql.Timestamp.valueOf(expireTime));
             preparedStatement.setBoolean(4, false);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -206,6 +209,7 @@ public class UserDAO {
             preparedStatement.setString(1, hashedPassword);
             preparedStatement.setLong(2, userId);
             preparedStatement.executeUpdate();
+            auditLogDAO.saveLog(null, userId.intValue(), "PASSWORD_UPDATED");
         } catch (SQLException e) {
             e.printStackTrace();
         }
