@@ -148,10 +148,6 @@ function toggleItem(sectionId, index) {
     openItems.value = next;
 }
 
-function goToSubmit() {
-    router.push('/customer/submit');
-}
-
 function goToTickets() {
     router.push('/customer/tickets');
 }
@@ -241,23 +237,6 @@ function goToTickets() {
                             </button>
                         </div>
                     </section>
-
-                    <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <h3 class="text-sm font-semibold text-slate-800">Still need help?</h3>
-                        <p class="mt-2 text-xs leading-relaxed text-slate-500">
-                            If you cannot find an answer here, open a support ticket and describe
-                            your issue. Our team typically responds within one business day for
-                            Medium priority requests.
-                        </p>
-                        <button
-                            type="button"
-                            class="mt-4 w-full rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-                            @click="goToSubmit"
-                        >
-                            Contact Support
-                        </button>
-                    </section>
-
                     <section class="rounded-xl border border-amber-200 bg-amber-50/50 p-5">
                         <h3 class="text-sm font-semibold text-amber-900">Tip</h3>
                         <p class="mt-2 text-xs leading-relaxed text-amber-800/80">

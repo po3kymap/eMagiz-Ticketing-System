@@ -3,7 +3,8 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SupportSidebar from '@/components/sidebar/SupportSidebar.vue';
 import TopNavigation from '@/components/topbar/TopNavigation.vue';
-import { getCurrentUser, logout } from '@api/auth';
+import { getCurrentUser, getTicketRouteForRole, logout } from '@api/auth';
+import { searchTicketsForSupport } from '@api/tickets';
 
 
 const router = useRouter();
@@ -34,6 +35,13 @@ function onLogout() {
 function supportSearch(query) {
   return searchTicketsForSupport(query);
 }
+
+function onTicketSelect(ticket) {
+  if (!ticket?.id) {
+    return;
+  }
+  router.push(getTicketRouteForRole(user.value?.role, ticket.id));
+}
 </script>
 
 <template>
@@ -52,6 +60,7 @@ function supportSearch(query) {
           :unread-notifications="unreadNotifications"
           :search-fn="supportSearch"
           @logout="onLogout"
+          @ticket-select="onTicketSelect"
       />
       <main class="flex-1 overflow-y-auto">
         <slot />

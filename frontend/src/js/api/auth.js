@@ -78,5 +78,28 @@ export function getHomeRouteForRole(role) {
         return { name: 'support' };
     }
 
+    if (normalized === 'admin') {
+        return { name: 'support' };
+    }
+
     return { name: 'customer' };
+}
+
+export function getTicketRouteForRole(role, ticketId) {
+    const normalized = String(role || '').trim().toLowerCase();
+    const id = String(ticketId);
+
+    if (normalized === 'consultant') {
+        return { name: 'consultant-assigned-ticket', params: { id } };
+    }
+
+    if (normalized === 'support') {
+        return { name: 'support-queue-ticket', params: { id } };
+    }
+
+    if (normalized === 'admin') {
+        return { name: 'support-queue-ticket', params: { id } };
+    }
+
+    return { name: 'customer-ticket', params: { id } };
 }
