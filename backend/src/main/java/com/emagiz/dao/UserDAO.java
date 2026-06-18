@@ -119,6 +119,29 @@ public class UserDAO {
         return null;
     }
 
+    public User findById(Long id) {
+        String sql = "SELECT id, username, email, role, company FROM users WHERE id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, id);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                User user = new User();
+                user.setId(rs.getLong("id"));
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setRole(rs.getString("role"));
+                user.setCompany(rs.getString("company"));
+                return user;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
     public User findUserByEmail(String email){
         String sql = "SELECT * FROM users WHERE email = ?";
 

@@ -2,8 +2,9 @@ package com.emagiz.model;
 
 public enum TicketStatus {
     OPEN,
-    CLOSED,
     IN_REVIEW,
+    ACCEPTED,
+    ASSIGNED,
     DENIED,
-    ASSIGNED
+    CLOSED
 }

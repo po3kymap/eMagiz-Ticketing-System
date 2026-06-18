@@ -2,7 +2,9 @@ package com.emagiz.resource;
 
 import com.emagiz.dao.CommentDAO;
 import com.emagiz.dao.TicketDAO;
+import com.emagiz.dao.UserDAO;
 import com.emagiz.dto.CommentDTO;
+import com.emagiz.dto.PriorityUpdateRequest;
 import com.emagiz.dto.StatusUpdateRequest;
 import com.emagiz.model.*;
 import jakarta.ws.rs.*;
@@ -14,15 +16,17 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Path("tickets")
-@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class TicketResource {
     TicketDAO ticketDAO = new TicketDAO();
+    CommentDAO commentDAO = new CommentDAO();
+    UserDAO userDAO = new UserDAO();
 
 
     @Context
     private ContainerRequestContext requestContext;
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response createTicket(Ticket ticket){
         Long userId =
                 (Long) requestContext.getProperty("userId");
@@ -50,6 +54,7 @@ public class TicketResource {
 
     @POST
     @Path("/update/{ticketId}")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response UpdateTicket(@PathParam("ticketId") Long id, Ticket ticket){
         try {
             ticketDAO.updateTicket(id, ticket);
@@ -61,6 +66,7 @@ public class TicketResource {
 
     @PATCH
     @Path("/{id}/status")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response updateTicketStatus(
             @PathParam("id") Long id,
             StatusUpdateRequest request) {
@@ -75,6 +81,38 @@ public class TicketResource {
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Invalid status")
+                    .build();
+        }
+    }
+
+    @PATCH
+    @Path("/{id}/priority")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateTicketPriority(
+            @PathParam("id") Long id,
+            PriorityUpdateRequest request) {
+
+        if (request == null || request.getPriority() == null || request.getPriority().isBlank()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ApiError("Priority is required"))
+                    .build();
+        }
+
+        try {
+            TicketPriority newPriority = TicketPriority.valueOf(request.getPriority().trim().toUpperCase());
+            boolean updated = ticketDAO.updatePriority(id, newPriority);
+
+            if (!updated) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(new ApiError("Ticket not found"))
+                        .build();
+            }
+
+            return Response.ok(new ApiSuccess("Priority updated")).build();
+
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ApiError("Invalid priority"))
                     .build();
         }
     }
@@ -146,24 +184,67 @@ public class TicketResource {
 
 
 
+    @GET
+    @Path("/{ticketID}/comments")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTicketComments(@PathParam("ticketID") Long ticketID,
+                                        @Context ContainerRequestContext containerRequestContext) {
+        Long userId = (Long) containerRequestContext.getProperty("userId");
+        User user = userDAO.findById(userId);
+        boolean includeInternal = user != null && !"Customer".equalsIgnoreCase(user.getRole());
+
+        try {
+            List<CommentResponse> comments = commentDAO.findByTicketId(ticketID, includeInternal);
+            return Response.ok(comments).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ApiError("Failed to load comments"))
+                    .build();
+        }
+    }
+
     @POST
     @Path("/{ticketID}/comments")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addCommentToTicket(@PathParam("ticketID") Long ticketID, CommentDTO commentDTO,
-                                       @Context ContainerRequestContext containerRequestContext){
+                                       @Context ContainerRequestContext containerRequestContext) {
         Long userId = (Long) containerRequestContext.getProperty("userId");
 
-        CommentResponse responseDTO = new CommentDAO().addComment(
-                ticketID, userId, commentDTO.getContent(), commentDTO.isInternal()
-        );
-
-        if (responseDTO == null) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        if (commentDTO == null
+                || commentDTO.getContent() == null
+                || commentDTO.getContent().isBlank()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ApiError("Comment content is required"))
+                    .build();
         }
 
-        return Response.status(Response.Status.CREATED)
-                .entity(responseDTO)
-                .build();
+        User user = userDAO.findById(userId);
+        if (commentDTO.isInternal()
+                && (user == null || "Customer".equalsIgnoreCase(user.getRole()))) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity(new ApiError("Only staff can post internal notes"))
+                    .build();
+        }
+
+        try {
+            CommentResponse responseDTO = commentDAO.addComment(
+                    ticketID, userId, commentDTO.getContent().trim(), commentDTO.isInternal()
+            );
+
+            if (responseDTO == null) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity(new ApiError("Failed to add comment"))
+                        .build();
+            }
+
+            return Response.status(Response.Status.CREATED)
+                    .entity(responseDTO)
+                    .build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ApiError("Failed to add comment"))
+                    .build();
+        }
     }
 }

@@ -52,18 +52,7 @@ public class TicketDAO {
             pstmt.setLong(1, id);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()){
-                Ticket t = new Ticket();
-                t.setId(rs.getLong("id"));
-                t.setTitle(rs.getString("title"));
-                t.setDescription(rs.getString("description"));
-                t.setStatus(TicketStatus.valueOf(rs.getString("status")));
-                t.setType(readType(rs));
-                t.setPriority(TicketPriority.valueOf(rs.getString("priority")));
-                t.setCreatorId(rs.getLong("creator_id"));
-                t.setAssigneeId(rs.getLong("assignee_id"));
-                t.setCreatedAt(rs.getTimestamp("created_at"));
-                t.setUpdatedAt(rs.getTimestamp("updated_at"));
-                return t;
+                return mapTicketRow(rs);
             }
             throw new TicketNotFoundException("Ticket with id " + id + " not found");
         } catch (SQLException e) {
@@ -81,6 +70,22 @@ public class TicketDAO {
             pstmt.setLong(2, ticketId);
 
             pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean updatePriority(Long ticketId, TicketPriority priority) {
+        String sql = "UPDATE tickets SET priority = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, priority.name());
+            pstmt.setLong(2, ticketId);
+
+            return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -162,19 +167,39 @@ public class TicketDAO {
 
     private void formTicket(List<Ticket> tickets, ResultSet rs) throws SQLException {
         while (rs.next()) {
-            Ticket t = new Ticket();
-            t.setId(rs.getLong("id"));
-            t.setTitle(rs.getString("title"));
-            t.setDescription(rs.getString("description"));
-            t.setStatus(TicketStatus.valueOf(rs.getString("status")));
-            t.setType(readType(rs));
-            t.setPriority(TicketPriority.valueOf(rs.getString("priority")));
-            t.setCreatorId(rs.getLong("creator_id"));
-            t.setAssigneeId(rs.getLong("assignee_id"));
-            t.setCreatedAt(rs.getTimestamp("created_at"));
-            t.setUpdatedAt(rs.getTimestamp("updated_at"));
-            tickets.add(t);
+            tickets.add(mapTicketRow(rs));
         }
+    }
+
+    private Ticket mapTicketRow(ResultSet rs) throws SQLException {
+        Ticket t = new Ticket();
+        t.setId(rs.getLong("id"));
+        t.setTitle(rs.getString("title"));
+        t.setDescription(rs.getString("description"));
+        t.setStatus(TicketStatus.valueOf(rs.getString("status")));
+        t.setType(readType(rs));
+        t.setPriority(readPriority(rs));
+        t.setCreatorId(rs.getLong("creator_id"));
+        t.setAssigneeId(readNullableLong(rs, "assignee_id"));
+        t.setCreatedAt(rs.getTimestamp("created_at"));
+        t.setUpdatedAt(rs.getTimestamp("updated_at"));
+        return t;
+    }
+
+    private TicketPriority readPriority(ResultSet rs) throws SQLException {
+        String priority = rs.getString("priority");
+        if (priority == null || priority.isBlank()) {
+            return TicketPriority.MEDIUM;
+        }
+        return TicketPriority.valueOf(priority);
+    }
+
+    private Long readNullableLong(ResultSet rs, String column) throws SQLException {
+        long value = rs.getLong(column);
+        if (rs.wasNull()) {
+            return null;
+        }
+        return value;
     }
 
 }

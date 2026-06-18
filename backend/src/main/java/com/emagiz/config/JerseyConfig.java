@@ -1,11 +1,10 @@
 package com.emagiz.config;
 
-import com.emagiz.resource.UserResource;
-import jakarta.ws.rs.ApplicationPath;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import java.sql.Connection;
+
 public class JerseyConfig extends ResourceConfig {
 
     public JerseyConfig() {
@@ -14,7 +13,6 @@ public class JerseyConfig extends ResourceConfig {
         register(com.emagiz.security.AuthFilter.class);
         register(MailConfig.class);
         checkDatabaseConnection();
-
     }
 
 
