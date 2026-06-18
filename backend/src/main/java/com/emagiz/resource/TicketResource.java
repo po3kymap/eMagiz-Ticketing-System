@@ -15,6 +15,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.List;
+import com.emagiz.dao.AuditLogDAO;
+
 
 @Path("tickets")
 @Produces(MediaType.APPLICATION_JSON)
@@ -22,6 +24,8 @@ public class TicketResource {
     TicketDAO ticketDAO = new TicketDAO();
     CommentDAO commentDAO = new CommentDAO();
     UserDAO userDAO = new UserDAO();
+    AuditLogDAO auditLogDAO = new AuditLogDAO();
+
 
 
     @Context
@@ -37,10 +41,15 @@ public class TicketResource {
         if (ticket.getType() == null) {
             ticket.setType(TicketType.INCIDENT);
         }
+
         Ticket savedTicket = ticketDAO.save(ticket);
+        auditLogDAO.saveLog(savedTicket.getId().intValue(), userId.intValue(), "TICKET_CREATED");
+
         return Response.status(Response.Status.CREATED).entity(savedTicket).build();
     }
     @RolesAllowed("SUPPORT")
+
+
     @GET
     public Response getAllTickets(){
         try {
@@ -59,12 +68,17 @@ public class TicketResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response UpdateTicket(@PathParam("ticketId") Long id, Ticket ticket){
         try {
+            Long userId = (Long) requestContext.getProperty("userId");
+
             ticketDAO.updateTicket(id, ticket);
+            auditLogDAO.saveLog(id.intValue(), userId.intValue(), "TICKET_UPDATED");
+
             return Response.ok(new ApiSuccess("Ticket updated")).build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
 
     @PATCH
     @Path("/{id}/status")
@@ -75,8 +89,10 @@ public class TicketResource {
 
         try {
             TicketStatus newStatus = TicketStatus.valueOf(request.getStatus());
+            Long userId = (Long) requestContext.getProperty("userId");
 
             ticketDAO.updateStatus(id, newStatus);
+            auditLogDAO.saveLog(id.intValue(), userId.intValue(), "TICKET_STATUS_UPDATED");
 
             return Response.ok(new ApiSuccess("Status updated")).build();
 
@@ -86,6 +102,7 @@ public class TicketResource {
                     .build();
         }
     }
+
 
     @PATCH
     @Path("/{id}/priority")
@@ -102,6 +119,8 @@ public class TicketResource {
 
         try {
             TicketPriority newPriority = TicketPriority.valueOf(request.getPriority().trim().toUpperCase());
+            Long userId = (Long) requestContext.getProperty("userId");
+
             boolean updated = ticketDAO.updatePriority(id, newPriority);
 
             if (!updated) {
@@ -109,6 +128,8 @@ public class TicketResource {
                         .entity(new ApiError("Ticket not found"))
                         .build();
             }
+
+            auditLogDAO.saveLog(id.intValue(), userId.intValue(), "TICKET_PRIORITY_UPDATED");
 
             return Response.ok(new ApiSuccess("Priority updated")).build();
 
@@ -118,7 +139,8 @@ public class TicketResource {
                     .build();
         }
     }
-    
+
+
 
 
     @PUT
@@ -126,6 +148,8 @@ public class TicketResource {
     public Response assignTicket(@PathParam("ticketId") Long ticketId,
                                  @PathParam("assigneeId") Long assigneeId) {
         try {
+            Long userId = (Long) requestContext.getProperty("userId");
+
             boolean updated = ticketDAO.assignTicket(ticketId, assigneeId);
 
             if (!updated) {
@@ -133,6 +157,8 @@ public class TicketResource {
                         .entity(new ApiError("Ticket not found"))
                         .build();
             }
+
+            auditLogDAO.saveLog(ticketId.intValue(), userId.intValue(), "TICKET_ASSIGNED");
 
             return Response.ok(new ApiSuccess("Ticket assigned")).build();
 
@@ -142,6 +168,7 @@ public class TicketResource {
                     .build();
         }
     }
+
 
 
     @GET
@@ -240,6 +267,8 @@ public class TicketResource {
                         .build();
             }
 
+            auditLogDAO.saveLog(ticketID.intValue(), userId.intValue(), "TICKET_COMMENT_ADDED");
+
             return Response.status(Response.Status.CREATED)
                     .entity(responseDTO)
                     .build();
@@ -249,4 +278,5 @@ public class TicketResource {
                     .build();
         }
     }
+
 }
