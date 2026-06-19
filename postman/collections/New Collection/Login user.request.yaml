@@ -1,5 +1,12 @@
 $kind: http-request
 name: Login user
-url: ""
-method: GET
+url: http://localhost:8080/api/users/login
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "username": "demous",
+        "password": "demopass"
+    }
 order: 2680297961088792
