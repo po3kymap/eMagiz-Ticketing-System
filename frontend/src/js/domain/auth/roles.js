@@ -2,7 +2,6 @@ export const ROLES = {
     CUSTOMER: 'customer',
     CONSULTANT: 'consultant',
     SUPPORT: 'support',
-    ADMIN: 'admin',
 };
 
 export function normalizeRole(role) {
@@ -22,11 +21,7 @@ export function roleCanAccessPath(role, path) {
     }
 
     if (normalizedPath.startsWith('/support')) {
-        return normalizedRole === ROLES.SUPPORT || normalizedRole === ROLES.ADMIN;
-    }
-
-    if (normalizedPath.startsWith('/admin')) {
-        return normalizedRole === ROLES.ADMIN;
+        return normalizedRole === ROLES.SUPPORT;
     }
 
     return true;

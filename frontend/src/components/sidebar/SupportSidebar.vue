@@ -113,7 +113,7 @@ function isActive(path) {
                 v-if="!collapsed"
                 class="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.1em] text-emerald-500/90"
             >
-                Support — Admin
+                Support
             </p>
 
             <ul class="space-y-1">

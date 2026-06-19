@@ -48,8 +48,6 @@ public class TicketResource {
         return Response.status(Response.Status.CREATED).entity(savedTicket).build();
     }
     @RolesAllowed("SUPPORT")
-
-
     @GET
     public Response getAllTickets(){
         try {
@@ -92,7 +90,7 @@ public class TicketResource {
             Long userId = (Long) requestContext.getProperty("userId");
 
             ticketDAO.updateStatus(id, newStatus);
-            auditLogDAO.saveLog(id.intValue(), userId.intValue(), "TICKET_STATUS_UPDATED");
+            auditLogDAO.saveLog(id.intValue(), userId.intValue(), "STATUS_" + newStatus.name());
 
             return Response.ok(new ApiSuccess("Status updated")).build();
 
@@ -158,7 +156,7 @@ public class TicketResource {
                         .build();
             }
 
-            auditLogDAO.saveLog(ticketId.intValue(), userId.intValue(), "TICKET_ASSIGNED");
+            auditLogDAO.saveLog(ticketId.intValue(), userId.intValue(), "TICKET_ASSIGNED", String.valueOf(assigneeId));
 
             return Response.ok(new ApiSuccess("Ticket assigned")).build();
 

@@ -78,10 +78,6 @@ export function getHomeRouteForRole(role) {
         return { name: 'support' };
     }
 
-    if (normalized === 'admin') {
-        return { name: 'support' };
-    }
-
     return { name: 'customer' };
 }
 
@@ -94,10 +90,6 @@ export function getTicketRouteForRole(role, ticketId) {
     }
 
     if (normalized === 'support') {
-        return { name: 'support-queue-ticket', params: { id } };
-    }
-
-    if (normalized === 'admin') {
         return { name: 'support-queue-ticket', params: { id } };
     }
 
