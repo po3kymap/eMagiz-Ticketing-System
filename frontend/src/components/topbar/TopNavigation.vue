@@ -1,19 +1,54 @@
 <script setup>
+import { useRouter } from 'vue-router';
 import RoleChip from '@/components/topbar/RoleChip.vue';
 import NotificationBell from '@/components/topbar/NotificationBell.vue';
 import UserProfileChip from '@/components/topbar/UserProfileChip.vue';
 import TopbarSearch from '@/components/topbar/TopbarSearch.vue';
+import { getTicketRouteForRole } from '@api/auth';
+import { useActivityNotifications } from '@js/composables/useActivityNotifications';
 
-defineProps({
+const props = defineProps({
   role: { type: String, required: true },
   userName: { type: String, required: true },
   userEmail: { type: String, default: '' },
   userInitials: { type: String, required: true },
-  unreadNotifications: { type: Number, default: 0 },
   searchFn: { type: Function, default: null },
 });
 
-defineEmits(['logout', 'notifications', 'ticket-select']);
+defineEmits(['logout', 'ticket-select']);
+
+const router = useRouter();
+
+const {
+  items,
+  unreadCount,
+  isLoading,
+  isOpen,
+  error,
+  openPanel,
+  closePanel,
+  markAllRead,
+} = useActivityNotifications();
+
+function onToggleNotifications(forceState) {
+  if (forceState === false) {
+    closePanel();
+    return;
+  }
+  if (isOpen.value) {
+    closePanel();
+  } else {
+    openPanel();
+  }
+}
+
+function onNotificationSelect(item) {
+  if (!item?.ticketId) {
+    return;
+  }
+  closePanel();
+  router.push(getTicketRouteForRole(props.role, item.ticketId));
+}
 </script>
 
 <template>
@@ -30,8 +65,14 @@ defineEmits(['logout', 'notifications', 'ticket-select']);
     <div class="flex shrink-0 items-center gap-2">
       <RoleChip :role="role" />
       <NotificationBell
-          :unread-count="unreadNotifications"
-          @click="$emit('notifications')"
+          :unread-count="unreadCount"
+          :items="items"
+          :is-open="isOpen"
+          :is-loading="isLoading"
+          :error="error"
+          @toggle="onToggleNotifications"
+          @select="onNotificationSelect"
+          @mark-all-read="markAllRead"
       />
       <UserProfileChip
       :name="userName"
