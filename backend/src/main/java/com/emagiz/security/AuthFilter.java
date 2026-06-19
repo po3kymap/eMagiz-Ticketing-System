@@ -42,7 +42,8 @@ public class AuthFilter implements ContainerRequestFilter {
         String path = normalizePath(requestContext.getUriInfo().getPath());
 
         return path.endsWith("/login") || "login".equals(path)
-                || path.endsWith("/password-reset") || "users/password-reset".equals(path);
+                || path.endsWith("/password-reset") || "users/password-reset".equals(path)
+                || path.endsWith("/reset-password") || "users/reset-password".equals(path);
     }
 
     private String normalizePath(String path) {

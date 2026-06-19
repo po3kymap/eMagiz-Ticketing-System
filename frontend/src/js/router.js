@@ -17,6 +17,8 @@ import SupportTriageBoard from '@/views/support/TriageBoard.vue';
 import SupportUsers from '@/views/support/UsersPage.vue';
 import SupportAuditLog from '@/views/support/AuditLog.vue';
 import SupportTicketView from "@views/support/SupportTicketView.vue";
+import ResetPassword from "@views/auth/ResetPassword.vue"
+import ForgotPassword from "@views/auth/ForgotPassword.vue"
 
 const routes = [
     {
@@ -124,6 +126,18 @@ const routes = [
         name: 'support-queue-ticket',
         component: SupportTicketView,
         meta: { requiresAuth: true },
+    },
+    {
+        path: '/reset-password',
+        name: 'reset-password',
+        component: ResetPassword,
+        meta: { requiresAuth: false },
+    },
+    {
+        path: '/forgot-password',
+        name: '/forgot-password',
+        component: ForgotPassword,
+        meta: { requiresAuth: false },
     }
 ];
 

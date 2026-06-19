@@ -74,7 +74,8 @@ public class UserResource {
                 authenticatedUser.getId(),
                 authenticatedUser.getUsername(),
                 authenticatedUser.getEmail(),
-                authenticatedUser.getRole()
+                authenticatedUser.getRole(),
+                authenticatedUser.getCompany()
         );
 
         return Response.ok(body).build();

@@ -77,6 +77,7 @@ public class UserDAO {
                     user.setUsername(resultSet.getString("username"));
                     user.setEmail(resultSet.getString("email"));
                     user.setRole(resultSet.getString("role"));
+                    user.setCompany(resultSet.getString("company"));
                     return user;
 
                 }
