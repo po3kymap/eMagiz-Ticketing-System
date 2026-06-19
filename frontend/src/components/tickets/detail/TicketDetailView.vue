@@ -6,6 +6,8 @@ import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPr
 import TicketStatusBadge from '@/components/tickets/ticket_components/TicketStatusBadge.vue';
 import TicketConversation from '@/components/tickets/detail/TicketConversation.vue';
 import { getCurrentUser } from '@api/auth';
+import { fetchTicketAuditLogs } from '@js/api/auditLogs';
+import { getAuditTimelineColor, getAuditTimelineLabel, isLifecycleAction } from '@js/domain/audit/auditCatalog';
 import {
     acceptTicket,
     assignTicket,
@@ -48,6 +50,7 @@ const ticket = ref(null);
 const currentUser = ref(null);
 const allUsers = ref([]);
 const consultantUsers = ref([]);
+const auditLogs = ref([]);
 const isLoading = ref(true);
 const error = ref('');
 const actionError = ref('');
@@ -116,80 +119,39 @@ const lifecycleEvents = computed(() => {
         return [];
     }
 
-    const events = [];
-    const status = ticketStatus.value;
+    const userById = new Map(allUsers.value.map((u) => [u.id, u]));
 
-    events.push({
-        label: 'Submitted by customer',
-        date: ticket.value.createdAt,
-        color: 'bg-blue-500',
-        done: true,
-    });
+    const events = auditLogs.value
+        .filter((log) => isLifecycleAction(log.action))
+        .map((log) => {
+            const user = log.userId ? userById.get(log.userId) : null;
 
-    if (status === 'DENIED') {
-        if (status !== 'OPEN') {
-            events.push({
-                label: 'Reviewed by Support',
-                date: ticket.value.updatedAt,
-                color: 'bg-amber-500',
+            return {
+                id: log.id,
+                label: getAuditTimelineLabel(log.action, {
+                    user,
+                    details: log.details,
+                    userById,
+                }),
+                date: log.createdAt,
+                color: getAuditTimelineColor(log.action),
                 done: true,
-            });
-        }
-        events.push({
-            label: 'Denied',
-            date: ticket.value.updatedAt,
-            color: 'bg-red-500',
-            done: true,
+            };
         });
-        return events;
-    }
 
-    if (status !== 'OPEN') {
+    if (events.length === 0 && ticket.value.createdAt) {
         events.push({
-            label: 'Reviewed by Support',
-            date: ticket.value.updatedAt,
-            color: 'bg-amber-500',
+            id: 'fallback-created',
+            label: 'Submitted by customer',
+            date: ticket.value.createdAt,
+            color: 'bg-blue-500',
             done: true,
         });
     }
 
-    if (['ACCEPTED', 'ASSIGNED', 'CLOSED'].includes(status)) {
+    if (!['CLOSED', 'DENIED'].includes(ticketStatus.value)) {
         events.push({
-            label: 'Accepted',
-            date: ticket.value.updatedAt,
-            color: 'bg-emerald-500',
-            done: true,
-        });
-    }
-
-    if (['ASSIGNED', 'CLOSED'].includes(status) && ticket.value.assigneeId) {
-        const name = assigneeUser.value?.username || 'Consultant';
-        events.push({
-            label: `Assigned to Consultant (${name})`,
-            date: ticket.value.updatedAt,
-            color: 'bg-violet-500',
-            done: true,
-        });
-    }
-
-    if (status === 'ASSIGNED' && ticket.value.updatedAt) {
-        events.push({
-            label: 'Updated · Investigation underway',
-            date: ticket.value.updatedAt,
-            color: 'bg-violet-300',
-            done: true,
-        });
-    }
-
-    if (status === 'CLOSED') {
-        events.push({
-            label: 'Resolved / Closed',
-            date: ticket.value.updatedAt,
-            color: 'bg-slate-500',
-            done: true,
-        });
-    } else if (['ACCEPTED', 'ASSIGNED', 'IN_REVIEW'].includes(status)) {
-        events.push({
+            id: 'pending-closed',
             label: 'Resolved / Closed',
             pending: true,
             color: 'bg-slate-200',
@@ -246,15 +208,17 @@ async function loadData() {
     error.value = '';
     try {
         const id = route.params.id.replace('TKT-', '');
-        const [fetchedTicket, users, user] = await Promise.all([
+        const [fetchedTicket, users, user, logs] = await Promise.all([
             fetchTicketById(id),
             fetchUsers(),
             getCurrentUser(),
+            fetchTicketAuditLogs(id).catch(() => []),
         ]);
         ticket.value = fetchedTicket;
         allUsers.value = users;
         consultantUsers.value = users.filter((u) => u.role === 'Consultant');
         currentUser.value = user;
+        auditLogs.value = logs;
         selectedPriority.value = fetchedTicket.priority || 'MEDIUM';
     } catch (e) {
         error.value = e.message;
@@ -570,7 +534,7 @@ onUnmounted(() => {
                         <div class="relative mt-5 space-y-0">
                             <div
                                 v-for="(event, index) in lifecycleEvents"
-                                :key="`${event.label}-${index}`"
+                                :key="event.id ?? `${event.label}-${index}`"
                                 class="relative flex gap-3 pb-5 last:pb-0"
                             >
                                 <div

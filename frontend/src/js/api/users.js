@@ -1,4 +1,5 @@
 import { getAuthHeaders, getCurrentUser, getStoredToken } from '@api/auth';
+import { apiFetch } from '@js/api/http';
 
 function mapUser(raw) {
     return {
@@ -10,7 +11,7 @@ function mapUser(raw) {
     };
 }
 export async function fetchUsers() {
-    const response = await fetch('/api/users', {
+    const response = await apiFetch('/api/users', {
         headers: {
             Accept: 'application/json',
             ...getAuthHeaders(),
@@ -27,7 +28,7 @@ export async function fetchUsers() {
 }
 
 export async function createUser(user) {
-    const response = await fetch('/api/users', {
+    const response = await apiFetch('/api/users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

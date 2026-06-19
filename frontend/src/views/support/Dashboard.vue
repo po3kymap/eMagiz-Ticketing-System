@@ -152,7 +152,7 @@ onMounted(async () => {
             </div>
 
             <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-                <div class="grid gap-6 xl:grid-cols-2">
+                <div class="grid gap-6 xl:grid-cols-2 max-h-[320px]">
                     <TicketsByTypeChart :tickets="tickets" :loading="loadingTickets" />
                     <PriorityBreakdownChart :tickets="tickets" :loading="loadingTickets" />
                 </div>

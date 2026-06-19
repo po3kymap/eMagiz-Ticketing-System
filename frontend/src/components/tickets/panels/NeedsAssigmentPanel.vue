@@ -1,7 +1,8 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPriorityBadge.vue';
+import { formatTicketNumber } from '@js/domain/tickets/ticketCatalog';
 
 const props = defineProps({
     tickets: {
@@ -24,22 +25,30 @@ const props = defineProps({
 
 const router = useRouter();
 
+function needsAssignment(ticket) {
+    return String(ticket.status).toUpperCase() === 'ACCEPTED' && !ticket.assigneeId;
+}
+
 const unassignedTickets = computed(() => {
-    return props.tickets.filter((t) => String(t.status).toUpperCase() === 'ACCEPTED');
+    return props.tickets.filter(needsAssignment);
 });
 
 function getUserCompanyDisplay(id) {
-  if (!id) return '—';
-  const user = props.users.find(u => u.id === id);
-  return user?.company ? user.company : '—';
+    if (!id) {
+        return '—';
+    }
+    const user = props.users.find((u) => u.id === id);
+    return user?.company ? user.company : '—';
 }
 
-const visibleTickets = computed(() => {
-    return unassignedTickets.value.slice(0, 5);
-});
+const visibleTickets = computed(() => unassignedTickets.value.slice(0, 5));
 
 function onTriage() {
     router.push('/support/triage');
+}
+
+function onViewTicket(ticket) {
+    router.push(`/support/queue/ticket/TKT-${ticket.id}`);
 }
 </script>
 
@@ -76,9 +85,12 @@ function onTriage() {
                     v-for="ticket in visibleTickets"
                     :key="ticket.id"
                     class="p-4 hover:bg-slate-50 transition cursor-pointer flex items-start justify-between gap-3"
+                    @click="onViewTicket(ticket)"
                 >
                     <div class="min-w-0 flex-1">
-                        <div class="text-[11px] font-medium text-slate-400">TKT-{{ ticket.id }}</div>
+                        <div class="text-[11px] font-medium text-slate-400">
+                            {{ formatTicketNumber(ticket.id) }}
+                        </div>
                         <h4 class="mt-0.5 truncate text-sm font-medium text-slate-800">{{ ticket.title }}</h4>
                         <div class="mt-0.5 text-xs text-slate-400">{{ getUserCompanyDisplay(ticket.creatorId) }}</div>
                     </div>

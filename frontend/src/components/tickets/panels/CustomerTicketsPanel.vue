@@ -41,6 +41,10 @@ const visibleTickets = computed(() => {
 function onViewAll() {
     router.push('/customer/tickets');
 }
+
+function onViewTicket(ticket) {
+    router.push(`/customer/tickets/ticket/TKT-${ticket.id}`);
+}
 </script>
 
 <template>
@@ -77,7 +81,8 @@ function onViewAll() {
                 <article
                     v-for="ticket in visibleTickets"
                     :key="ticket.id"
-                    class="flex flex-col gap-3 py-4 last:pb-0 sm:flex-row sm:items-start sm:justify-between"
+                    class="flex cursor-pointer flex-col gap-3 py-4 transition hover:bg-slate-50 last:pb-0 sm:flex-row sm:items-start sm:justify-between"
+                    @click="onViewTicket(ticket)"
                 >
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-2">

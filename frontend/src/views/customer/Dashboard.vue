@@ -6,7 +6,10 @@ import DashboardCtaBanner from '@/components/dashboard/DashboardCtaBanner.vue';
 import RecentActivityPanel from '@/components/dashboard/RecentActivityPanel.vue';
 import CustomerTicketsPanel from '@/components/tickets/panels/CustomerTicketsPanel.vue';
 import { getCurrentUser } from '@api/auth';
+import { fetchAuditLogs } from '@js/api/auditLogs';
 import { fetchMyTicketsForCurrentUser } from '@api/tickets';
+import { fetchUsers } from '@api/users';
+import { computeRecentUpdatesCount, computeResolvedThisMonthCount } from '@js/domain/notifications/activityFeed';
 
 export default {
     name: 'CustomerDashboard',
@@ -22,6 +25,8 @@ export default {
         return {
             user: null,
             tickets: [],
+            auditLogs: [],
+            users: [],
             loadingTickets: true,
             ticketsError: '',
         };
@@ -39,13 +44,16 @@ export default {
             waitingForSupport: this.tickets.filter((t) =>
                 ['OPEN', 'IN_REVIEW', 'ACCEPTED'].includes(t.status),
             ).length,
-            resolvedThisMonth: this.tickets.filter(t => t.status === 'CLOSED').length,
-            recentUpdates: this.tickets.filter(t => {
-              if (!t.updatedAt) return false;
-              const oneDayAgo = new Date();
-              oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-              return new Date(t.updatedAt) >= oneDayAgo;
-            }).length,
+            resolvedThisMonth: computeResolvedThisMonthCount({
+                tickets: this.tickets,
+                auditLogs: this.auditLogs,
+            }),
+            recentUpdates: computeRecentUpdatesCount({
+                userId: this.user?.userId,
+                tickets: this.tickets,
+                auditLogs: this.auditLogs,
+                days: 3,
+            }),
           };
         },
     },
@@ -59,7 +67,14 @@ export default {
             this.ticketsError = '';
 
             try {
-                this.tickets = await fetchMyTicketsForCurrentUser();
+                const [tickets, auditLogs, users] = await Promise.all([
+                    fetchMyTicketsForCurrentUser(),
+                    fetchAuditLogs().catch(() => []),
+                    fetchUsers().catch(() => []),
+                ]);
+                this.tickets = tickets;
+                this.auditLogs = auditLogs;
+                this.users = users;
             } catch (err) {
                 this.ticketsError = err.message || 'Failed to load tickets';
             } finally {
@@ -142,7 +157,13 @@ export default {
                     :limit="3"
                 />
 
-                <RecentActivityPanel />
+                <RecentActivityPanel
+                    :tickets="tickets"
+                    :audit-logs="auditLogs"
+                    :users="users"
+                    :user-id="user?.userId"
+                    :loading="loadingTickets"
+                />
             </div>
 
             <div class="mt-8">

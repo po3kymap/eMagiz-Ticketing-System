@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import ConsultantSidebar from '@/components/sidebar/ConsultantSidebar.vue';
 import TopNavigation from '@/components/topbar/TopNavigation.vue';
-import { getCurrentUser, logout } from '@api/auth';
+import { getCurrentUser, getTicketRouteForRole, logout } from '@api/auth';
 import { searchTicketsForConsultant } from '@api/tickets';
 
 defineProps({
@@ -15,7 +15,6 @@ defineProps({
 
 const router = useRouter();
 const user = ref(null);
-const unreadNotifications = ref(1);
 
 onMounted(async () => {
     user.value = await getCurrentUser();
@@ -43,7 +42,13 @@ function onLogout() {
 
 function consultantSearch(query) {
   return searchTicketsForConsultant(query);
+}
 
+function onTicketSelect(ticket) {
+  if (!ticket?.id) {
+    return;
+  }
+  router.push(getTicketRouteForRole(user.value?.role, ticket.id));
 }
 </script>
 
@@ -62,9 +67,9 @@ function consultantSearch(query) {
                 :user-name="displayName"
                 :user-email="userEmail"
                 :user-initials="userInitials"
-                :unread-notifications="unreadNotifications"
                 :search-fn="consultantSearch"
                 @logout="onLogout"
+                @ticket-select="onTicketSelect"
             />
 
             <main class="flex-1 overflow-y-auto">

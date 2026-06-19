@@ -7,6 +7,7 @@ public class AuditLog {
     private Integer ticketId;
     private Integer userId;
     private String action;
+    private String details;
     private Timestamp createdAt;
 
     public AuditLog() {}
@@ -31,6 +32,14 @@ public class AuditLog {
 
     public void setAction(String action) {
         this.action = action;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
     }
 
     public Integer getUserId() {

@@ -14,5 +14,5 @@ public class MailConfig {
     public static String getPassword(){ return get("SMTP_PASSWORD", ""); }
     public static String getFrom()   { return get("SMTP_FROM", "no-reply@localhost"); }
     public static String getFrontendResetUrl(){ return get("FRONTEND_RESET_URL",
-            "http://localhost:3000/reset-password"); }
+            "http://localhost/#/reset-password"); }
 }

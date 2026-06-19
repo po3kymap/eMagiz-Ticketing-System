@@ -187,6 +187,24 @@ async function handleAssignConfirm() {
         isAssigning.value = false;
     }
 }
+
+const reviewingTicketId = ref(null);
+
+async function onAddToReview(ticket) {
+    if (reviewingTicketId.value) {
+        return;
+    }
+
+    reviewingTicketId.value = ticket.id;
+    try {
+        await changeTicketStatus(ticket.id, 'IN_REVIEW');
+        await loadData();
+    } catch {
+        alert('Failed to move the ticket to review.');
+    } finally {
+        reviewingTicketId.value = null;
+    }
+}
 </script>
 
 <template>
@@ -246,7 +264,20 @@ async function handleAssignConfirm() {
                             </button>
 
                             <button
-                                v-if="['OPEN', 'ACCEPTED'].includes(String(ticket.status).toUpperCase())"
+                                v-if="String(ticket.status).toUpperCase() === 'OPEN'"
+                                type="button"
+                                class="rounded p-1.5 transition hover:bg-amber-100 hover:text-amber-600 disabled:opacity-50"
+                                title="Add to Review"
+                                :disabled="reviewingTicketId === ticket.id"
+                                @click="onAddToReview(ticket)"
+                            >
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
+                            </button>
+
+                            <button
+                                v-if="String(ticket.status).toUpperCase() === 'ACCEPTED'"
                                 type="button"
                                 class="rounded p-1.5 transition hover:bg-blue-100 hover:text-blue-600"
                                 title="Assign"

@@ -80,25 +80,6 @@ function getRoleBadgeClass(role) {
   return 'bg-slate-50 text-slate-600 ring-slate-500/10';
 }
 
-function getStatusBadgeClass(status) {
-  const s = String(status || 'Active').toUpperCase();
-  if (s === 'ACTIVE') return 'text-emerald-700 bg-emerald-50 ring-emerald-600/20';
-  if (s === 'INACTIVE') return 'text-slate-600 bg-slate-50 ring-slate-500/10';
-  if (s === 'PENDING') return 'text-amber-700 bg-amber-50 ring-amber-600/20';
-  return 'text-slate-600 bg-slate-50 ring-slate-500/10';
-}
-
-function formatDate(val) {
-  if (!val) return 'Never logged in';
-  return new Date(val).toLocaleDateString('en-GB', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
 function openAddUserModal() {
   showAddUserModal.value = true;
 }
@@ -226,17 +207,14 @@ async function handleCreateUser() {
                 <th class="px-6 py-4">Email</th>
                 <th class="px-6 py-4">Organization</th>
                 <th class="px-6 py-4">Role</th>
-                <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4">Last Login</th>
-                <th class="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-if="isLoading">
-                <td colspan="7" class="px-6 py-12 text-center text-slate-400">Loading users...</td>
+                <td colspan="4" class="px-6 py-12 text-center text-slate-400">Loading users...</td>
               </tr>
               <tr v-else-if="filteredUsers.length === 0">
-                <td colspan="7" class="px-6 py-12 text-center text-slate-400">No users found.</td>
+                <td colspan="4" class="px-6 py-12 text-center text-slate-400">No users found.</td>
               </tr>
               <tr 
                 v-else
@@ -267,41 +245,6 @@ async function handleCreateUser() {
                   >
                     {{ String(user.role).charAt(0).toUpperCase() + String(user.role).slice(1).toLowerCase() }}
                   </span>
-                </td>
-                <td class="px-6 py-4">
-                  <span 
-                    class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
-                    :class="getStatusBadgeClass(user.status)"
-                  >
-                    <svg class="h-1.5 w-1.5 fill-current" viewBox="0 0 6 6">
-                      <circle cx="3" cy="3" r="3" />
-                    </svg>
-                    {{ String(user.status || 'Active').charAt(0).toUpperCase() + String(user.status || 'Active').slice(1).toLowerCase() }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-slate-500">
-                  <span :class="!user.lastLogin ? 'text-slate-300' : ''">
-                    {{ formatDate(user.lastLogin) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center justify-end gap-2 text-slate-400">
-                    <button class="p-1 hover:text-slate-600 transition" title="Edit">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-                      </svg>
-                    </button>
-                    <button class="p-1 hover:text-slate-600 transition" title="Manage Roles">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                      </svg>
-                    </button>
-                    <button class="p-1 hover:text-slate-600 transition" title="Reset Password">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                      </svg>
-                    </button>
-                  </div>
                 </td>
               </tr>
             </tbody>

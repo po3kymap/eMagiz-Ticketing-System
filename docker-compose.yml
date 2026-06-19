@@ -16,6 +16,8 @@ services:
     container_name: emagiz_backend
     ports:
       - "8080:8080"
+    depends_on:
+      - mailhog
     networks:
       - emagiz_network
     depends_on:
@@ -30,6 +32,15 @@ services:
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - emagiz_network
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: emagiz_mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - emagiz_network
 
