@@ -137,6 +137,7 @@ export function buildActivityFeed({
                 ticketTitle: ticket?.title ?? '',
                 title: buildNotificationTitle(log, actor),
                 subtitle: actor?.username ?? 'System',
+                action: log.action,
                 createdAt: log.createdAt,
                 timeLabel: formatActivityTime(log.createdAt),
                 isUnread: createdAtMs > seenAt,
@@ -146,4 +147,67 @@ export function buildActivityFeed({
     const unreadCount = items.filter((item) => item.isUnread).length;
 
     return { items, unreadCount };
+}
+
+export function computeRecentUpdatesCount({
+    userId,
+    tickets = [],
+    auditLogs = [],
+    days = 3,
+}) {
+    const ticketIds = new Set(tickets.map((ticket) => ticket.id));
+    const cutoff = Date.now() - days * 86_400_000;
+
+    return auditLogs.filter((log) => {
+        if (!log.ticketId || !ticketIds.has(log.ticketId)) {
+            return false;
+        }
+        if (!isNotificationAction(log.action)) {
+            return false;
+        }
+        if (log.userId != null && log.userId === userId) {
+            return false;
+        }
+        if (log.action === 'TICKET_CREATED') {
+            return false;
+        }
+        const createdAtMs = log.createdAt ? new Date(log.createdAt).getTime() : 0;
+        return createdAtMs >= cutoff;
+    }).length;
+}
+
+export function computeResolvedThisMonthCount({
+    tickets = [],
+    auditLogs = [],
+}) {
+    const ticketIds = new Set(tickets.map((ticket) => ticket.id));
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const closedThisMonth = new Set();
+
+    for (const log of auditLogs) {
+        if (String(log.action || '').toUpperCase() !== 'STATUS_CLOSED') {
+            continue;
+        }
+        if (!log.ticketId || !ticketIds.has(log.ticketId)) {
+            continue;
+        }
+        const createdAt = log.createdAt ? new Date(log.createdAt) : null;
+        if (!createdAt || Number.isNaN(createdAt.getTime()) || createdAt < monthStart) {
+            continue;
+        }
+        closedThisMonth.add(log.ticketId);
+    }
+
+    if (closedThisMonth.size > 0) {
+        return closedThisMonth.size;
+    }
+
+    return tickets.filter((ticket) => {
+        if (String(ticket.status || '').toUpperCase() !== 'CLOSED' || !ticket.updatedAt) {
+            return false;
+        }
+        const updatedAt = new Date(ticket.updatedAt);
+        return !Number.isNaN(updatedAt.getTime()) && updatedAt >= monthStart;
+    }).length;
 }
