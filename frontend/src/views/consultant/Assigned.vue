@@ -18,7 +18,7 @@ const error = ref('');
 const columns = [
     { key: 'id', label: 'Ticket ID' },
     { key: 'title', label: 'Title' },
-    { key: 'creatorId', label: 'Customer' },
+    { key: 'company', label: 'Customer' },
     { key: 'type', label: 'Type' },
     { key: 'priority', label: 'Priority' },
     { key: 'status', label: 'Status' },
@@ -59,7 +59,7 @@ onMounted(async () => {
         ]);
         tickets.value = fetchedTickets;
         usersMap.value = Object.fromEntries(
-            users.map((u) => [u.id, u.company || u.username]),
+            users.map((u) => [u.id, u.username]),
         );
     } catch (e) {
         error.value = e.message;

@@ -16,6 +16,7 @@ public class Ticket {
 
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private String company;
 
     public Ticket() {
     }
@@ -108,5 +109,13 @@ public class Ticket {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
     }
 }

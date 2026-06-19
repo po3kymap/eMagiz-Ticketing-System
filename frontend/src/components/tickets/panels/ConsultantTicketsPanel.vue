@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import TicketTypeBadge from '@/components/tickets/ticket_components/TicketTypeBadge.vue';
 import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPriorityBadge.vue';
 import TicketStatusBadge from '@/components/tickets/ticket_components/TicketStatusBadge.vue';
-import { formatTicketNumber } from '@js/domain/tickets/ticketCatalog';
+import { formatTicketNumber, getTicketCompanyLabel } from '@js/domain/tickets/ticketCatalog';
 
 const props = defineProps({
     tickets: {
@@ -105,7 +105,7 @@ function onTicketClick(id) {
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 shrink-0">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
-                        <span class="truncate">{{ ticket.company || 'Unknown Company' }}</span>
+                        <span class="truncate">{{ getTicketCompanyLabel(ticket) }}</span>
                         <span class="text-slate-300">&middot;</span>
                         <span>Updated {{ formatDate(ticket.updatedAt) }}</span>
                     </div>

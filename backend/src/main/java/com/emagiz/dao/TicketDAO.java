@@ -47,7 +47,12 @@ public class TicketDAO {
     }
 
     public Ticket findById(Long id){
-        String sql = "SELECT * FROM tickets WHERE id = ?";
+        String sql = """
+                SELECT t.*, u.company AS company
+                FROM tickets t
+                LEFT JOIN users u ON t.creator_id = u.id
+                WHERE t.id = ?
+                """;
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setLong(1, id);
@@ -112,7 +117,13 @@ public class TicketDAO {
 
     public List<Ticket> findTicketsByClientId(Long clientID){
         List<Ticket> tickets = new ArrayList<>();
-        String sql = "SELECT * FROM tickets WHERE creator_id = ? ORDER BY id DESC";
+        String sql = """
+                SELECT t.*, u.company AS company
+                FROM tickets t
+                LEFT JOIN users u ON t.creator_id = u.id
+                WHERE t.creator_id = ?
+                ORDER BY t.id DESC
+                """;
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
 
@@ -127,7 +138,13 @@ public class TicketDAO {
 
     public List<Ticket> findTicketsByAssigneeId(Long assigneeID){
         List<Ticket> tickets = new ArrayList<>();
-        String sql = "SELECT * FROM tickets WHERE assignee_id = ?";
+        String sql = """
+                SELECT t.*, u.company AS company
+                FROM tickets t
+                LEFT JOIN users u ON t.creator_id = u.id
+                WHERE t.assignee_id = ?
+                ORDER BY t.updated_at DESC
+                """;
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
 
@@ -184,7 +201,20 @@ public class TicketDAO {
         t.setAssigneeId(readNullableLong(rs, "assignee_id"));
         t.setCreatedAt(rs.getTimestamp("created_at"));
         t.setUpdatedAt(rs.getTimestamp("updated_at"));
+        t.setCompany(readOptionalString(rs, "company"));
         return t;
+    }
+
+    private String readOptionalString(ResultSet rs, String column) throws SQLException {
+        try {
+            String value = rs.getString(column);
+            if (rs.wasNull()) {
+                return null;
+            }
+            return value;
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
     private TicketPriority readPriority(ResultSet rs) throws SQLException {

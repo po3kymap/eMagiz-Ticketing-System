@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import SupportLayout from '@/layouts/SupportLayout.vue';
 import TriageBoardCard from '@/components/tickets/triage/TriageBoardCard.vue';
 import { formatTicketDate } from '@js/composables/useTicketTable';
+import { getTicketCompanyLabel } from '@js/domain/tickets/ticketCatalog';
 import {
     acceptTicket,
     assignTicket,
@@ -133,14 +134,6 @@ async function loadData() {
     } finally {
         isLoading.value = false;
     }
-}
-
-function getCompanyLabel(ticket) {
-    if (ticket.company) {
-        return ticket.company;
-    }
-    const user = allUsers.value.find((u) => u.id === ticket.creatorId);
-    return user?.company || user?.username || '—';
 }
 
 function onView(ticket) {
@@ -288,7 +281,7 @@ async function onAddToReview(ticket) {
                             v-for="ticket in visibleTickets(column.status)"
                             :key="ticket.id"
                             :ticket="ticket"
-                            :company-label="getCompanyLabel(ticket)"
+                            :company-label="getTicketCompanyLabel(ticket)"
                             :date-label="formatTicketDate(ticket.createdAt)"
                             :show-accept="column.showAccept"
                             :show-deny="column.showDeny"

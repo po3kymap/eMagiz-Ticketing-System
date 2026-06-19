@@ -3,6 +3,7 @@ import TicketTypeBadge from '@/components/tickets/ticket_components/TicketTypeBa
 import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPriorityBadge.vue';
 import TicketStatusBadge from '@/components/tickets/ticket_components/TicketStatusBadge.vue';
 import { formatTicketDate } from '@js/composables/useTicketTable';
+import { formatTicketNumber, getTicketCompanyLabel } from '@js/domain/tickets/ticketCatalog';
 
 const props = defineProps({
     columns: { type: Array, required: true },
@@ -19,7 +20,9 @@ defineEmits(['sort', 'row-click']);
 function cellText(ticket, key) {
     switch (key) {
         case 'id':
-            return `TKT-${ticket.id}`;
+            return formatTicketNumber(ticket.id);
+        case 'company':
+            return getTicketCompanyLabel(ticket);
         case 'creatorId':
             return props.resolveUser
                 ? props.resolveUser(ticket.creatorId)
@@ -76,7 +79,7 @@ function cellText(ticket, key) {
                         :class="{
                             'font-mono text-xs text-teal-600 whitespace-nowrap': col.key === 'id',
                             'max-w-[200px] truncate text-slate-800': col.key === 'title',
-                            'whitespace-nowrap text-slate-500': col.key === 'creatorId' || col.key === 'assigneeId',
+                            'whitespace-nowrap text-slate-500': col.key === 'company' || col.key === 'creatorId' || col.key === 'assigneeId',
                             'whitespace-nowrap text-slate-400': col.key === 'createdAt' || col.key === 'updatedAt',
                         }"
                     >

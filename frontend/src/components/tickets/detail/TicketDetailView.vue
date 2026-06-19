@@ -17,6 +17,7 @@ import {
     updateTicketPriority,
 } from '@api/tickets';
 import { fetchUsers } from '@api/users';
+import { getTicketCompanyLabel } from '@js/domain/tickets/ticketCatalog';
 import {
     Activity,
     ArrowLeft,
@@ -107,12 +108,7 @@ const assigneeUser = computed(() =>
     allUsers.value.find((u) => u.id === ticket.value?.assigneeId),
 );
 
-const customerLabel = computed(() =>
-    ticket.value?.company
-    || creatorUser.value?.company
-    || creatorUser.value?.username
-    || '—',
-);
+const customerLabel = computed(() => getTicketCompanyLabel(ticket.value));
 
 const lifecycleEvents = computed(() => {
     if (!ticket.value) {

@@ -36,7 +36,7 @@ const isAssigning = ref(false);
 const columns = [
     { key: 'id', label: 'Ticket ID' },
     { key: 'title', label: 'Title' },
-    { key: 'creatorId', label: 'Customer' },
+    { key: 'company', label: 'Customer' },
     { key: 'type', label: 'Type' },
     { key: 'priority', label: 'Priority' },
     { key: 'status', label: 'Status' },
@@ -76,10 +76,10 @@ const {
 } = useTicketTable(tickets, {
     statusOptions: ['OPEN', 'IN_REVIEW', 'ACCEPTED', 'DENIED', 'ASSIGNED', 'CLOSED'],
     matchSearch: (ticket, q) => {
-        const creatorName = String(getUserNameDisplay(ticket.creatorId)).toLowerCase();
+        const company = String(ticket.company || '').toLowerCase();
         return ticket.title?.toLowerCase().includes(q)
             || ticket.id?.toString().includes(q)
-            || creatorName.includes(q);
+            || company.includes(q);
     },
 });
 

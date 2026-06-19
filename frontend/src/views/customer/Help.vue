@@ -47,7 +47,7 @@ const faqSections = [
             {
                 question: 'What ticket types should I use?',
                 answer:
-                    'Use Incident for something broken or not working as expected (e.g. integration errors, timeouts, failed jobs). Use RFC (Request for Change) when you need a configuration change, enhancement, or planned update.',
+                    'Use Incident for something broken or not working as expected (e.g. integration errors, timeouts, failed jobs). Use RFC (Request for Change) when you need a configuration change, enhancement, or planned update. Choose Other for general questions or requests that do not fit the categories above.',
             },
             {
                 question: 'How do I choose the right priority?',

@@ -10,14 +10,12 @@ import NeedsAssigmentPanel from '@/components/tickets/panels/NeedsAssigmentPanel
 import TicketsByTypeChart from '@/components/dashboard/TicketsByTypeChart.vue';
 import PriorityBreakdownChart from '@/components/dashboard/PriorityBreakdownChart.vue';
 import RecentAuditPanel from '@/components/dashboard/RecentAuditPanel.vue';
-import { fetchUsers } from '@api/users';
 
 const user = ref(null);
 const tickets = ref([]);
 const queueCount = ref(0);
 const loadingTickets = ref(true);
 const ticketsError = ref('');
-const allUsers = ref([]);
 const userName = computed(() => {
     return user.value?.username || 'User';
 });
@@ -55,7 +53,6 @@ const loadTickets = async () => {
 
 onMounted(async () => {
     user.value = await getCurrentUser();
-    allUsers.value = await fetchUsers();
     await loadTickets();
 });
 </script>
@@ -141,14 +138,13 @@ onMounted(async () => {
             <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
                 <SupportTicketsPanel
                     :tickets="tickets"
-                    :users="allUsers"
                     :loading="loadingTickets"
                     :error="ticketsError"
                     :limit="6"
                     :show-view-all="false"
                 />
 
-                <NeedsAssigmentPanel :tickets="tickets" :users="allUsers" :loading="loadingTickets" :error="ticketsError" />
+                <NeedsAssigmentPanel :tickets="tickets" :loading="loadingTickets" :error="ticketsError" />
             </div>
 
             <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">

@@ -3,11 +3,19 @@ export const TICKET_TYPES = {
         key: 'INCIDENT',
         label: 'Incident',
         badgeClass: 'bg-red-50 text-red-700 ring-red-100',
+        chartColor: '#ef4444',
     },
     RFC: {
         key: 'RFC',
         label: 'RFC',
         badgeClass: 'bg-sky-50 text-sky-700 ring-sky-100',
+        chartColor: '#3b82f6',
+    },
+    OTHER: {
+        key: 'OTHER',
+        label: 'Other',
+        badgeClass: 'bg-violet-50 text-violet-700 ring-violet-100',
+        chartColor: '#8b5cf6',
     },
 };
 
@@ -96,4 +104,9 @@ export function getTicketStatusMeta(status) {
 
 export function formatTicketNumber(id) {
     return `TKT-${String(id).padStart(4, '0')}`;
+}
+
+export function getTicketCompanyLabel(ticket) {
+    const company = String(ticket?.company || '').trim();
+    return company || '—';
 }

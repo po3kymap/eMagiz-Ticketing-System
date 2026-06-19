@@ -25,11 +25,6 @@ const props = defineProps({
 const canvasRef = ref(null);
 let chartInstance = null;
 
-const TYPE_COLORS = {
-    INCIDENT: '#ef4444',
-    RFC: '#3b82f6',
-};
-
 const chartData = computed(() => {
     const counts = {};
 
@@ -43,7 +38,7 @@ const chartData = computed(() => {
         labels: labels.map((key) => getTicketTypeMeta(key).label),
         datasets: [{
             data: labels.map((key) => counts[key]),
-            backgroundColor: labels.map((key) => TYPE_COLORS[key] || '#a78bfa'),
+            backgroundColor: labels.map((key) => getTicketTypeMeta(key).chartColor || '#94a3b8'),
             borderWidth: 0,
             hoverOffset: 4,
         }],
@@ -51,7 +46,7 @@ const chartData = computed(() => {
             key,
             label: getTicketTypeMeta(key).label,
             count: counts[key],
-            color: TYPE_COLORS[key] || '#a78bfa',
+            color: getTicketTypeMeta(key).chartColor || '#94a3b8',
         })),
     };
 });

@@ -5,13 +5,10 @@ import TicketTypeBadge from '@/components/tickets/ticket_components/TicketTypeBa
 import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPriorityBadge.vue';
 import TicketStatusBadge from '@/components/tickets/ticket_components/TicketStatusBadge.vue';
 import { fetchUsers } from '@api/users';
+import { getTicketCompanyLabel } from '@js/domain/tickets/ticketCatalog';
 
 const props = defineProps({
     tickets: {
-        type: Array,
-        default: () => [],
-    },
-    users: {
         type: Array,
         default: () => [],
     },
@@ -58,12 +55,6 @@ function getUserNameDisplay(id) {
     if (!id) return '—';
     const user = allUsers.value.find(u => u.id === id);
     return user?.username ? `${user.username} (${id})` : id;
-}
-
-function getUserCompanyDisplay(id) {
-  if (!id) return '—';
-  const user = allUsers.value.find(u => u.id === id);
-  return user?.company ? user.company : '—';
 }
 
 function onFullView() {
@@ -141,7 +132,7 @@ function onViewTicket(ticket) {
                                 {{ ticket.title }}
                             </div>
                             <div class="mt-0.5 text-xs text-slate-400">
-                                {{ getUserCompanyDisplay(ticket.creatorId) }}
+                                {{ getTicketCompanyLabel(ticket) }}
                             </div>
                         </td>
 

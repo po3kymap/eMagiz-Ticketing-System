@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue';
+import { TICKET_TYPES } from '@js/domain/tickets/ticketCatalog';
 
 export function formatTicketDate(val) {
     if (!val) {
@@ -19,7 +20,7 @@ export function useTicketTable(tickets, options = {}) {
         pageSize = 15,
         statusOptions = ['OPEN', 'IN_REVIEW', 'ACCEPTED', 'ASSIGNED', 'RESOLVED', 'DENIED', 'CLOSED'],
         priorityOptions = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'],
-        typeOptions = ['INCIDENT', 'RFC'],
+        typeOptions = Object.keys(TICKET_TYPES),
         matchSearch = null,
     } = options;
 

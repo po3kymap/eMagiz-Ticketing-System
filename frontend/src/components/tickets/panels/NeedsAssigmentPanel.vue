@@ -2,14 +2,10 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPriorityBadge.vue';
-import { formatTicketNumber } from '@js/domain/tickets/ticketCatalog';
+import { formatTicketNumber, getTicketCompanyLabel } from '@js/domain/tickets/ticketCatalog';
 
 const props = defineProps({
     tickets: {
-        type: Array,
-        default: () => [],
-    },
-    users: {
         type: Array,
         default: () => [],
     },
@@ -29,17 +25,7 @@ function needsAssignment(ticket) {
     return String(ticket.status).toUpperCase() === 'ACCEPTED' && !ticket.assigneeId;
 }
 
-const unassignedTickets = computed(() => {
-    return props.tickets.filter(needsAssignment);
-});
-
-function getUserCompanyDisplay(id) {
-    if (!id) {
-        return '—';
-    }
-    const user = props.users.find((u) => u.id === id);
-    return user?.company ? user.company : '—';
-}
+const unassignedTickets = computed(() => props.tickets.filter(needsAssignment));
 
 const visibleTickets = computed(() => unassignedTickets.value.slice(0, 5));
 
@@ -92,13 +78,13 @@ function onViewTicket(ticket) {
                             {{ formatTicketNumber(ticket.id) }}
                         </div>
                         <h4 class="mt-0.5 truncate text-sm font-medium text-slate-800">{{ ticket.title }}</h4>
-                        <div class="mt-0.5 text-xs text-slate-400">{{ getUserCompanyDisplay(ticket.creatorId) }}</div>
+                        <div class="mt-0.5 text-xs text-slate-400">{{ getTicketCompanyLabel(ticket) }}</div>
                     </div>
                     <div class="shrink-0 mt-0.5">
                         <TicketPriorityBadge :priority="ticket.priority" />
                     </div>
                 </article>
-            </div>  
+            </div>
         </div>
     </section>
 </template>
