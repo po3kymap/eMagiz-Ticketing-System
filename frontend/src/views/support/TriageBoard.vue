@@ -30,6 +30,7 @@ const showAssignModal = ref(false);
 const assignTicketObj = ref(null);
 const selectedAssignee = ref('');
 const isAssigning = ref(false);
+const reviewingTicketId = ref(null);
 
 const COLUMN_TICKET_LIMIT = 4;
 
@@ -39,9 +40,10 @@ const TRIAGE_COLUMNS = [
         label: 'New',
         dotClass: 'bg-blue-500',
         headerClass: 'bg-blue-50/90',
-        showAccept: true,
-        showDeny: true,
+        showAccept: false,
+        showDeny: false,
         showAssign: false,
+        showAddToReview: true,
     },
     {
         status: 'IN_REVIEW',
@@ -213,6 +215,22 @@ async function handleAssignConfirm() {
         isAssigning.value = false;
     }
 }
+
+async function onAddToReview(ticket) {
+    if (reviewingTicketId.value) {
+        return;
+    }
+
+    reviewingTicketId.value = ticket.id;
+    try {
+        await changeTicketStatus(ticket.id, 'IN_REVIEW');
+        await loadData();
+    } catch {
+        alert('Failed to move the ticket to review.');
+    } finally {
+        reviewingTicketId.value = null;
+    }
+}
 </script>
 
 <template>
@@ -275,10 +293,12 @@ async function handleAssignConfirm() {
                             :show-accept="column.showAccept"
                             :show-deny="column.showDeny"
                             :show-assign="column.showAssign"
+                            :show-add-to-review="column.showAddToReview"
                             @view="onView"
                             @accept="onAccept"
                             @deny="onDeny"
                             @assign="onAssign"
+                            @add-to-review="onAddToReview"
                         />
 
                         <button

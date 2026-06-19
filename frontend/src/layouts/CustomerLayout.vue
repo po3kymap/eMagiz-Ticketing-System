@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import CustomerSidebar from '@/components/sidebar/CustomerSidebar.vue';
 import TopNavigation from '@/components/topbar/TopNavigation.vue';
-import { getCurrentUser, logout } from '@api/auth';
+import { getCurrentUser, getTicketRouteForRole, logout } from '@api/auth';
 import { searchMyTickets } from '@api/tickets';
 
 
@@ -33,7 +33,14 @@ function onLogout() {
 }
 
 function customerSearch(query) {
-  return searchMyTickets(query); 
+  return searchMyTickets(query);
+}
+
+function onTicketSelect(ticket) {
+  if (!ticket?.id) {
+    return;
+  }
+  router.push(getTicketRouteForRole(user.value?.role, ticket.id));
 }
 </script>
 
@@ -53,6 +60,7 @@ function customerSearch(query) {
           :unread-notifications="unreadNotifications"
           :search-fn="customerSearch"
           @logout="onLogout"
+          @ticket-select="onTicketSelect"
       />
       <main class="flex-1 overflow-y-auto">
         <slot />

@@ -1,9 +1,11 @@
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { getHomeRouteForRole, login } from '@api/auth';
+import { roleCanAccessPath } from '@js/domain/auth/roles';
 
 const router = useRouter();
+const route = useRoute();
 
 const username = ref('');
 const password = ref('');
@@ -20,14 +22,21 @@ async function onSubmit() {
 
   loading.value = true;
 
-  try {
-    const session = await login(username.value.trim(), password.value);
-    await router.replace(getHomeRouteForRole(session.role));
-  } catch (err) {
-    error.value = err.message || 'Login failed.';
-  } finally {
-    loading.value = false;
-  }
+    try {
+        const session = await login(username.value.trim(), password.value);
+
+        const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '';
+        if (redirect && roleCanAccessPath(session.role, redirect)) {
+            await router.replace(redirect);
+            return;
+        }
+
+        await router.replace(getHomeRouteForRole(session.role));
+    } catch (err) {
+        error.value = err.message || 'Login failed.';
+    } finally {
+        loading.value = false;
+    }
 }
 </script>
 

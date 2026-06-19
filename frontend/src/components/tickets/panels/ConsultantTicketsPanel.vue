@@ -4,17 +4,37 @@ import { useRouter } from 'vue-router';
 import TicketTypeBadge from '@/components/tickets/ticket_components/TicketTypeBadge.vue';
 import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPriorityBadge.vue';
 import TicketStatusBadge from '@/components/tickets/ticket_components/TicketStatusBadge.vue';
+import { formatTicketNumber } from '@js/domain/tickets/ticketCatalog';
 
 const props = defineProps({
     tickets: {
         type: Array,
         default: () => [],
     },
+    loading: {
+        type: Boolean,
+        default: false,
+    },
+    error: {
+        type: String,
+        default: '',
+    },
+    limit: {
+        type: Number,
+        default: 4,
+    },
+    showViewAll: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 const router = useRouter();
 const visibleTickets = computed(() => {
-    return props.tickets.slice(0, 4);
+    if (!props.limit || props.limit <= 0) {
+        return props.tickets;
+    }
+    return props.tickets.slice(0, props.limit);
 });
 
 function formatDate(val) {
@@ -68,7 +88,9 @@ function onTicketClick(id) {
                 >
                     <div class="flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-medium text-slate-400">TKT-{{ ticket.id }}</span>
+                            <span class="text-xs font-medium text-slate-400">
+                                {{ formatTicketNumber(ticket.id) }}
+                            </span>
                             <TicketTypeBadge :type="ticket.type" />
                             <TicketPriorityBadge :priority="ticket.priority" />
                         </div>

@@ -17,6 +17,7 @@ import SupportTriageBoard from '@/views/support/TriageBoard.vue';
 import SupportUsers from '@/views/support/UsersPage.vue';
 import SupportAuditLog from '@/views/support/AuditLog.vue';
 import SupportTicketView from "@views/support/SupportTicketView.vue";
+import Unauthorized from '@/views/auth/Unauthorized.vue';
 import ResetPassword from "@views/auth/ResetPassword.vue"
 import ForgotPassword from "@views/auth/ForgotPassword.vue"
 
@@ -128,6 +129,13 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
+        path: '/unauthorized',
+        name: 'unauthorized',
+        component: Unauthorized,
+        meta: { requiresAuth: true, skipRoleCheck: true },
+    },
+    },
+    {
         path: '/reset-password',
         name: 'reset-password',
         component: ResetPassword,
@@ -147,13 +155,34 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
+    if (to.meta.public) {
+        if (to.name === 'login' && isAuthenticated()) {
+            const user = await getCurrentUser();
+            return getHomeRouteForRole(user?.role);
+        }
+        return true;
+    }
+
     if (to.meta.requiresAuth && !isAuthenticated()) {
+        return {
+            name: 'login',
+            query: to.fullPath !== '/login' ? { redirect: to.fullPath } : undefined,
+        };
+    }
+
+    const user = await getCurrentUser();
+
+    if (!user?.role) {
+        logout();
         return { name: 'login' };
     }
 
+    if (!to.meta.skipRoleCheck && !roleCanAccessPath(user.role, to.path)) {
+        return { name: 'unauthorized' };
+    }
+
     if (to.name === 'login' && isAuthenticated()) {
-        const user = await getCurrentUser();
-        return getHomeRouteForRole(user?.role);
+        return getHomeRouteForRole(user.role);
     }
 
     return true;

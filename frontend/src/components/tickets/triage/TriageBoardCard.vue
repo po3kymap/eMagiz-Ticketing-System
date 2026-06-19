@@ -2,7 +2,7 @@
 import TicketTypeBadge from '@/components/tickets/ticket_components/TicketTypeBadge.vue';
 import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPriorityBadge.vue';
 import { formatTicketNumber } from '@js/domain/tickets/ticketCatalog';
-import { Eye, CheckCircle, CircleX, UserPlus } from 'lucide-vue-next';
+import { Eye, CheckCircle, CircleX, UserPlus, Search } from 'lucide-vue-next';
 
 defineProps({
     ticket: {
@@ -29,9 +29,13 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    showAddToReview: {
+        type: Boolean,
+        default: false,
+    },
 });
 
-defineEmits(['view', 'accept', 'deny', 'assign']);
+defineEmits(['view', 'accept', 'deny', 'assign', 'add-to-review']);
 </script>
 
 <template>
@@ -62,6 +66,16 @@ defineEmits(['view', 'accept', 'deny', 'assign']);
             >
                 <Eye class="h-3.5 w-3.5" />
                 View
+            </button>
+
+            <button
+                v-if="showAddToReview"
+                type="button"
+                class="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-white px-2.5 py-1.5 text-[11px] font-medium text-amber-700 transition hover:bg-amber-50"
+                @click="$emit('add-to-review', ticket)"
+            >
+                <Search class="h-3.5 w-3.5" />
+                Add to Review
             </button>
 
             <button

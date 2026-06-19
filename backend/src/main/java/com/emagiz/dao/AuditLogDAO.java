@@ -12,6 +12,34 @@ import java.util.List;
 
 public class AuditLogDAO {
     public void saveLog(Integer ticketId, Integer userId, String action) {
+        saveLog(ticketId, userId, action, null);
+    }
+
+    public void saveLog(Integer ticketId, Integer userId, String action, String details) {
+        String sql = "INSERT INTO audit_logs (ticket_id, user_id, action, details) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setObject(1, ticketId);
+            stmt.setObject(2, userId);
+            stmt.setString(3, action);
+            stmt.setString(4, details);
+
+            stmt.executeUpdate();
+            System.out.println("Action : " + action + " (User ID: " + userId + ")");
+
+        } catch (SQLException e) {
+            if (details != null) {
+                saveLogWithoutDetails(ticketId, userId, action);
+                return;
+            }
+            System.err.println("Error while saving to audit_logs: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void saveLogWithoutDetails(Integer ticketId, Integer userId, String action) {
         String sql = "INSERT INTO audit_logs (ticket_id, user_id, action) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConfig.getConnection();
@@ -20,13 +48,31 @@ public class AuditLogDAO {
             stmt.setObject(1, ticketId);
             stmt.setObject(2, userId);
             stmt.setString(3, action);
-
             stmt.executeUpdate();
-            System.out.println("Action : " + action + " (User ID: " + userId + ")");
-
         } catch (SQLException e) {
             System.err.println("Error while saving to audit_logs: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void mapRow(ResultSet rs, AuditLog log) throws SQLException {
+        log.setId(rs.getInt("id"));
+
+        int ticketId = rs.getInt("ticket_id");
+        if (rs.wasNull()) {
+            log.setTicketId(null);
+        } else {
+            log.setTicketId(ticketId);
+        }
+
+        log.setUserId(rs.getInt("user_id"));
+        log.setAction(rs.getString("action"));
+        log.setCreatedAt(rs.getTimestamp("created_at"));
+
+        try {
+            log.setDetails(rs.getString("details"));
+        } catch (SQLException ignored) {
+            log.setDetails(null);
         }
     }
 
@@ -40,23 +86,34 @@ public class AuditLogDAO {
 
             while (rs.next()) {
                 AuditLog log = new AuditLog();
-                log.setId(rs.getInt("id"));
-
-                int ticketId = rs.getInt("ticket_id");
-                if (rs.wasNull()) {
-                    log.setTicketId(null);
-                } else {
-                    log.setTicketId(ticketId);
-                }
-
-                log.setUserId(rs.getInt("user_id"));
-                log.setAction(rs.getString("action"));
-                log.setCreatedAt(rs.getTimestamp("created_at"));
-
+                mapRow(rs, log);
                 logs.add(log);
             }
         } catch (SQLException e) {
             System.err.println("Error, while getting logs: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return logs;
+    }
+
+    public List<AuditLog> getLogsByTicketId(Long ticketId) {
+        List<AuditLog> logs = new ArrayList<>();
+        String query = "SELECT * FROM audit_logs WHERE ticket_id = ? ORDER BY created_at ASC";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, ticketId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    AuditLog log = new AuditLog();
+                    mapRow(rs, log);
+                    logs.add(log);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error while getting ticket audit logs: " + e.getMessage());
             e.printStackTrace();
         }
         return logs;

@@ -1,4 +1,8 @@
 import { getAuthHeaders, getCurrentUser, getStoredToken } from '@api/auth';
+import { apiFetch } from '@js/api/http';
+import { formatTicketNumber } from '@js/domain/tickets/ticketCatalog';
+
+const SEARCH_RESULT_LIMIT = 8;
 
 /**
  * Backend contract:
@@ -34,7 +38,7 @@ export async function fetchMyTickets(clientId) {
         throw new Error('Not authenticated. Please log in again.');
     }
 
-    const response = await fetch(`/api/tickets/client/${clientId}`, {
+    const response = await apiFetch(`/api/tickets/client/${clientId}`, {
         headers: {
             Accept: 'application/json',
             ...getAuthHeaders(),
@@ -73,7 +77,7 @@ export async function fetchAssignedTickets(assigneeId) {
         throw new Error('Not authenticated. Please log in again.');
     }
 
-    const response = await fetch(`/api/tickets/assignee/${assigneeId}`, {
+    const response = await apiFetch(`/api/tickets/assignee/${assigneeId}`, {
         headers: {
             Accept: 'application/json',
             ...getAuthHeaders(),
@@ -127,7 +131,7 @@ export function computeConsultantStats(tickets) {
 }
 
 export async function updateTicketPriority(ticketId, priority) {
-    const response = await fetch(`/api/tickets/${ticketId}/priority`, {
+    const response = await apiFetch(`/api/tickets/${ticketId}/priority`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -147,7 +151,7 @@ export async function updateTicketPriority(ticketId, priority) {
 }
 
 export async function createTicket({ title, description, priority, type, status = 'OPEN' }) {
-    const response = await fetch('/api/tickets', {
+    const response = await apiFetch('/api/tickets', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -173,30 +177,47 @@ export async function createTicket({ title, description, priority, type, status 
     return data;
 }
 
+function ticketMatchesSearchQuery(ticket, query) {
+    const q = query.trim().toLowerCase();
+    if (!q) {
+        return false;
+    }
+
+    const idDigits = String(ticket.id ?? '');
+    const formattedId = formatTicketNumber(ticket.id).toLowerCase();
+    const normalizedQuery = q.replace(/^tkt-0*/i, '');
+
+    return (
+        ticket.title?.toLowerCase().includes(q) ||
+        formattedId.includes(q) ||
+        idDigits.includes(normalizedQuery) ||
+        ticket.description?.toLowerCase().includes(q)
+    );
+}
+
+function filterTicketsForSearch(tickets, query) {
+    return tickets
+        .filter((ticket) => ticketMatchesSearchQuery(ticket, query))
+        .slice(0, SEARCH_RESULT_LIMIT);
+}
+
 export async function searchMyTickets(query) {
     const tickets = await fetchMyTicketsForCurrentUser();
-    const q = query.toLowerCase();
-    return tickets.filter(
-        (t) =>
-            t.title?.toLowerCase().includes(q) ||
-            t.id?.toString().includes(q) ||
-            t.description?.toLowerCase().includes(q)
-    );
+    return filterTicketsForSearch(tickets, query);
 }
 
 export async function searchTicketsForConsultant(query) {
     const tickets = await fetchAssignedTicketsForCurrentUser();
-    const q = query.toLowerCase();
-    return tickets.filter(
-        (t) =>
-            t.title?.toLowerCase().includes(q) ||
-            t.id?.toString().includes(q) ||
-            t.description?.toLowerCase().includes(q)
-    );
+    return filterTicketsForSearch(tickets, query);
+}
+
+export async function searchTicketsForSupport(query) {
+    const tickets = await fetchAllTickets();
+    return filterTicketsForSearch(tickets, query);
 }
 
 export async function fetchAllTickets() {
-    const response = await fetch('/api/tickets', {
+    const response = await apiFetch('/api/tickets', {
         headers: {
             Accept: 'application/json',
             ...getAuthHeaders(),
@@ -217,7 +238,7 @@ export async function fetchAllTickets() {
 }
 
 export async function acceptTicket(ticketId) {
-    const response = await fetch(`/api/tickets/${ticketId}/status`, {
+    const response = await apiFetch(`/api/tickets/${ticketId}/status`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -239,7 +260,7 @@ export async function acceptTicket(ticketId) {
 }
 
 export async function denyTicket(ticketId) {
-    const response = await fetch(`/api/tickets/${ticketId}/status`, {
+    const response = await apiFetch(`/api/tickets/${ticketId}/status`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -260,7 +281,7 @@ export async function denyTicket(ticketId) {
 }
 
 export async function assignTicket(ticketId, assigneeId) {
-    const response = await fetch(`/api/tickets/${ticketId}/assignee/${assigneeId}`, {
+    const response = await apiFetch(`/api/tickets/${ticketId}/assignee/${assigneeId}`, {
         method: 'PUT',
         headers: {
             Accept: 'application/json',
@@ -278,7 +299,7 @@ export async function assignTicket(ticketId, assigneeId) {
 }
 
 export async function changeTicketStatus(ticketId, status) {
-    const response = await fetch(`/api/tickets/${ticketId}/status`, {
+    const response = await apiFetch(`/api/tickets/${ticketId}/status`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -302,7 +323,7 @@ export async function fetchTicketById(id) {
     if (!getStoredToken()) {
         throw new Error('Not authenticated. Please log in again.');
     }
-    const response = await fetch(`/api/tickets/${id}`, {
+    const response = await apiFetch(`/api/tickets/${id}`, {
         headers: { Accept: 'application/json', ...getAuthHeaders() },
     });
     const data = await response.json().catch(() => ({}));
@@ -329,7 +350,7 @@ export async function fetchTicketComments(ticketId) {
         throw new Error('Not authenticated. Please log in again.');
     }
 
-    const response = await fetch(`/api/tickets/${ticketId}/comments`, {
+    const response = await apiFetch(`/api/tickets/${ticketId}/comments`, {
         headers: {
             Accept: 'application/json',
             ...getAuthHeaders(),
@@ -350,7 +371,7 @@ export async function fetchTicketComments(ticketId) {
 }
 
 export async function addTicketComment(ticketId, content, isInternal = false) {
-    const response = await fetch(`/api/tickets/${ticketId}/comments`, {
+    const response = await apiFetch(`/api/tickets/${ticketId}/comments`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

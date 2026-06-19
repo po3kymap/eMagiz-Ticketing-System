@@ -9,6 +9,7 @@ import {
     fetchAssignedTicketsForCurrentUser,
 } from '@api/tickets';
 import ConsultantTicketsPanel from '@/components/tickets/panels/ConsultantTicketsPanel.vue';
+import PriorityBreakdownChart from '@/components/dashboard/PriorityBreakdownChart.vue';
 
 const user = ref(null);
 const tickets = ref([]);
@@ -103,6 +104,7 @@ onMounted(async () => {
             </div>
             <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
                 <ConsultantTicketsPanel :tickets="tickets" :loading="loading" :error="loadError" :limit="6" :show-view-all="false" />
+                <PriorityBreakdownChart :tickets="tickets" :loading="loading" />
             </div>
         </div>
         

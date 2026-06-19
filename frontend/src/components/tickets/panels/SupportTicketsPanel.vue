@@ -69,6 +69,10 @@ function getUserCompanyDisplay(id) {
 function onFullView() {
     router.push('/support/triage');
 }
+
+function onViewTicket(ticket) {
+    router.push(`/support/queue/ticket/TKT-${ticket.id}`);
+}
 </script>
 
 <template>
@@ -118,11 +122,12 @@ function onFullView() {
                         <td colspan="6" class="px-5 py-6 text-center text-sm text-slate-400">No tickets in the queue.</td>
                     </tr>
 
-                    <tr 
-                        v-else 
-                        v-for="ticket in visibleTickets" 
+                    <tr
+                        v-else
+                        v-for="ticket in visibleTickets"
                         :key="ticket.id"
-                        class="hover:bg-slate-50/50 transition cursor-pointer"
+                        class="cursor-pointer transition hover:bg-slate-50/50"
+                        @click="onViewTicket(ticket)"
                     >
                         <td class="px-5 py-2.5 align-middle">
                             <div class="text-[11px] leading-tight text-slate-400 font-medium">
