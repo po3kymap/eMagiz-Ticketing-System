@@ -7,10 +7,11 @@ import CustomerMyTickets from '@/views/customer/MyTickets.vue';
 import CustomerTicketView from '@/views/customer/CustomerTicketView.vue';
 import CustomerSubmitTicket from '@/views/customer/SubmitTicket.vue';
 import CustomerHelp from '@/views/customer/Help.vue';
-import CustomerSettings from '@/views/customer/Settings.vue';
 import ConsultantDashboard from '@/views/consultant/Dashboard.vue';
 import ConsultantAssigned from '@/views/consultant/Assigned.vue';
-import ConsultantSettings from '@/views/consultant/Settings.vue';
+import ConsultantSettings from '@views/consultant/ConsultantSettings.vue';
+import CustomerSettings from '@views/customer/CustomerSettings.vue';
+import SupportSettings from '@views/support/SupportSettings.vue';
 import ConsultantTicketView from "@views/consultant/ConsultantTicketView.vue";
 import SupportDashboard from '@/views/support/Dashboard.vue';
 import SupportTicketQueue from '@/views/support/TicketQueue.vue';
@@ -82,15 +83,15 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
-        path: '/consultant/settings',
-        name: 'consultant-settings',
-        component: ConsultantSettings,
-        meta: { requiresAuth: true },
-    },
-    {
         path: '/consultant/assigned/ticket/TKT-:id',
         name: 'consultant-assigned-ticket',
         component: ConsultantTicketView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/consultant/settings',
+        name: 'consultant-settings',
+        component: ConsultantSettings,
         meta: { requiresAuth: true },
     },
     {
@@ -127,6 +128,12 @@ const routes = [
         path: '/support/queue/ticket/TKT-:id',
         name: 'support-queue-ticket',
         component: SupportTicketView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/support/settings',
+        name: 'support-settings',
+        component: SupportSettings,
         meta: { requiresAuth: true },
     },
     {
