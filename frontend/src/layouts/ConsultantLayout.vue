@@ -15,7 +15,6 @@ defineProps({
 
 const router = useRouter();
 const user = ref(null);
-const unreadNotifications = ref(1);
 
 onMounted(async () => {
     user.value = await getCurrentUser();
@@ -68,7 +67,6 @@ function onTicketSelect(ticket) {
                 :user-name="displayName"
                 :user-email="userEmail"
                 :user-initials="userInitials"
-                :unread-notifications="unreadNotifications"
                 :search-fn="consultantSearch"
                 @logout="onLogout"
                 @ticket-select="onTicketSelect"
