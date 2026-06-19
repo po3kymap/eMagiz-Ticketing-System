@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { getCurrentUser, getHomeRouteForRole, isAuthenticated } from '@api/auth';
+import { getCurrentUser, getHomeRouteForRole, isAuthenticated, logout } from '@api/auth';
+import { roleCanAccessPath } from '@js/domain/auth/roles';
 import Login from '@/views/auth/Login.vue';
 import CustomerDashboard from '@/views/customer/Dashboard.vue';
 import CustomerMyTickets from '@/views/customer/MyTickets.vue';
@@ -18,8 +19,8 @@ import SupportUsers from '@/views/support/UsersPage.vue';
 import SupportAuditLog from '@/views/support/AuditLog.vue';
 import SupportTicketView from "@views/support/SupportTicketView.vue";
 import Unauthorized from '@/views/auth/Unauthorized.vue';
-import ResetPassword from "@views/auth/ResetPassword.vue"
-import ForgotPassword from "@views/auth/ForgotPassword.vue"
+import ResetPassword from "@views/auth/ResetPassword.vue";
+import ForgotPassword from "@views/auth/ForgotPassword.vue";
 
 const routes = [
     {
@@ -134,19 +135,18 @@ const routes = [
         component: Unauthorized,
         meta: { requiresAuth: true, skipRoleCheck: true },
     },
-    },
     {
         path: '/reset-password',
         name: 'reset-password',
         component: ResetPassword,
-        meta: { requiresAuth: false },
+        meta: { public: true },
     },
     {
         path: '/forgot-password',
-        name: '/forgot-password',
+        name: 'forgot-password',
         component: ForgotPassword,
-        meta: { requiresAuth: false },
-    }
+        meta: { public: true },
+    },
 ];
 
 const router = createRouter({
