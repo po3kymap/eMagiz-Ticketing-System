@@ -13,7 +13,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @WebListener
-public class GarbageCollectorListener implements ServletContextListener{
+public class GarbageCollector implements ServletContextListener{
     private final ScheduledExecutorService scheduler =
             Executors.newScheduledThreadPool(1);
 
