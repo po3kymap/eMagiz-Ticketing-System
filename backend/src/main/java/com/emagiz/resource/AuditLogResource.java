@@ -2,6 +2,7 @@ package com.emagiz.resource;
 
 import com.emagiz.dao.AuditLogDAO;
 import com.emagiz.model.AuditLog;
+import com.emagiz.security.RolesAllowed;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -17,6 +18,7 @@ public class AuditLogResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"SUPPORT"})
     public Response getAllLogs(){
         List<AuditLog> logs = auditLogDAO.getAllLogs();
         return Response.ok(logs).build();
@@ -25,6 +27,7 @@ public class AuditLogResource {
     @GET
     @Path("ticket/{ticketId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"SUPPORT"})
     public Response getLogsByTicket(@PathParam("ticketId") Long ticketId) {
         List<AuditLog> logs = auditLogDAO.getLogsByTicketId(ticketId);
         return Response.ok(logs).build();

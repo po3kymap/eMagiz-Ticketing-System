@@ -6,6 +6,7 @@ import com.emagiz.dto.ResetPasswordRequest;
 import com.emagiz.model.ApiError;
 import com.emagiz.model.LoginResponse;
 import com.emagiz.model.User;
+import com.emagiz.security.RolesAllowed;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -22,6 +23,7 @@ public class UserResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"SUPPORT"})
     public Response createUser(User user) {
         User savedUser = userDAO.save(user);
         return Response.status(Response.Status.CREATED).entity(savedUser).build();
@@ -29,6 +31,7 @@ public class UserResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"SUPPORT"})
     public Response getAllUsers() {
         try {
             List<User> userList = userDAO.findAll();
