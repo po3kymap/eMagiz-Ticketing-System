@@ -18,6 +18,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * REST resource for user accounts: list / create / delete (SUPPORT-only)
@@ -25,6 +26,10 @@ import java.util.UUID;
  */
 @Path("/users")
 public class UserResource {
+    // quick email shape check; rejects things like a@a, foo@bar, abc@123
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+
     private final UserDAO userDAO = new UserDAO();
     private final AuditLogDAO auditLogDAO = new AuditLogDAO();
 
@@ -163,6 +168,13 @@ public class UserResource {
     public Response resetPassword(EmailRequest emailRequest){
 
         String email = emailRequest.getEmail();
+        if (email == null || !EMAIL_PATTERN.matcher(email.trim()).matches()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ApiError("Invalid email format"))
+                    .build();
+        }
+        email = email.trim();
+
         User authUser = userDAO.findUserByEmail(email);
         if (authUser == null){
             return Response.ok(new ApiError("If an account exists with that mail, you'll receive reset instructions")).build();
