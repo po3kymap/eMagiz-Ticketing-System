@@ -104,7 +104,6 @@ public class TicketResource {
     @POST
     @Path("/update/{ticketId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"SUPPORT", "CONSULTANT"})
     public Response UpdateTicket(@PathParam("ticketId") Long id, Ticket ticket){
         try {
             Long userId = (Long) requestContext.getProperty("userId");
@@ -126,7 +125,6 @@ public class TicketResource {
     @PATCH
     @Path("/{id}/status")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"SUPPORT", "CONSULTANT"})
     public Response updateTicketStatus(
             @PathParam("id") Long id,
             StatusUpdateRequest request) {
@@ -156,7 +154,6 @@ public class TicketResource {
     @PATCH
     @Path("/{id}/priority")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"SUPPORT", "CONSULTANT","CUSTOMER"})
     public Response updateTicketPriority(
             @PathParam("id") Long id,
             PriorityUpdateRequest request) {
@@ -200,7 +197,6 @@ public class TicketResource {
 
     @PUT
     @Path("/{ticketId}/assignee/{assigneeId}")
-    @RolesAllowed("SUPPORT")
     public Response assignTicket(@PathParam("ticketId") Long ticketId,
                                  @PathParam("assigneeId") Long assigneeId) {
         try {
@@ -229,7 +225,6 @@ public class TicketResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed("SUPPORT")
 
     public Response findById(
             @PathParam("id") Long id) {
@@ -252,7 +247,6 @@ public class TicketResource {
 
     @GET
     @Path("/assignee/{assigneeId}")
-    @RolesAllowed("SUPPORT")
 
     public Response findByAssigneeId(@PathParam("assigneeId") Long assigneeId) {
         try {
