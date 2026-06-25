@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Request body for creating a new comment.
  *
- * <p>The internal flag is exposed under the JSON property
+ * The internal flag is exposed under the JSON property
  * "internal"; the field name also accepts the legacy alias
- * "isInternal" for backward compatibility with older clients.</p>
+ * "isInternal" for backward compatibility with older clients.
  */
 public class CommentDTO {
     private String content;

@@ -11,9 +11,9 @@ import java.util.List;
 /**
  * Reads / writes the comments table.
  *
- * <p>Comments belong to tickets and may be marked is_internal
+ * Comments belong to tickets and may be marked is_internal
  * (visible to staff only). Reads return CommentResponse which also
- * joins the author username/role from the users table.</p>
+ * joins the author username/role from the users table.
  */
 public class CommentDAO {
 

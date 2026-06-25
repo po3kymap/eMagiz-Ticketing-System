@@ -12,8 +12,8 @@ import java.util.List;
  * Reads / writes the users table and auth-related tables
  * (user_tokens, password_reset_tokens).
  *
- * <p>Passwords are bcrypt-hashed. Soft-deleted users keep their id but
- * get role "DELETED" and an anonymized profile.</p>
+ * Passwords are bcrypt-hashed. Soft-deleted users keep their id but
+ * get role "DELETED" and an anonymized profile.
  */
 public class UserDAO {
     private static final String DELETED_ROLE = "DELETED";

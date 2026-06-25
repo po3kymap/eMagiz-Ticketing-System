@@ -5,8 +5,8 @@ import java.sql.Timestamp;
 /**
  * Single row of the audit_logs table.
  *
- * <p>One action by a user against a ticket (or system-wide when ticketId is null).
- * Written by AuditLogDAO.</p>
+ * One action by a user against a ticket (or system-wide when ticketId is null).
+ * Written by AuditLogDAO.
  */
 public class AuditLog {
     private int id;

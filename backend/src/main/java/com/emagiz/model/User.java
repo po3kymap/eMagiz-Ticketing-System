@@ -3,8 +3,8 @@ package com.emagiz.model;
 /**
  * Application user. Maps to the users table.
  *
- * <p>Holds basic profile fields plus a role used by the security filter
- * and a company name for grouping users in support workflows.</p>
+ * Holds basic profile fields plus a role used by the security filter
+ * and a company name for grouping users in support workflows.
  */
 public class User {
     private Long id;

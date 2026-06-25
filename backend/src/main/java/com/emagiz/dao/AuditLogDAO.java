@@ -13,8 +13,8 @@ import java.util.List;
 /**
  * Reads / writes the audit_logs table.
  *
- * <p>Writes are best-effort — if saveLog fails it just prints the error
- * and moves on, so an audit problem can't break the main action.</p>
+ * Writes are best-effort — if saveLog fails it just prints the error
+ * and moves on, so an audit problem can't break the main action.
  */
 public class AuditLogDAO {
     /** Same as saveLog(...) but without details. */

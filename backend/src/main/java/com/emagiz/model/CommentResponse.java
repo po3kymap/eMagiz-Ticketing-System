@@ -5,9 +5,9 @@ import java.sql.Timestamp;
 /**
  * Comment as returned to the frontend.
  *
- * <p>Unlike CommentDTO (the request side) this also carries the
+ * Unlike CommentDTO (the request side) this also carries the
  * username and role of the author (joined from the users table)
- * plus the comment id and created_at.</p>
+ * plus the comment id and created_at.
  */
 public class CommentResponse {
     private Long id;
