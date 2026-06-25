@@ -1,7 +1,11 @@
 package com.emagiz.model;
 
-
-
+/**
+ * Application user. Maps to the users table.
+ *
+ * <p>Holds basic profile fields plus a role used by the security filter
+ * and a company name for grouping users in support workflows.</p>
+ */
 public class User {
     private Long id;
     private String username;
@@ -10,9 +14,14 @@ public class User {
     private String role;
     private String company;
 
+    /** No-arg constructor. */
     public User() {
     }
 
+    /**
+     * Creates a user. password is expected to be already hashed
+     * (see UserDAO.save).
+     */
     public User(String username, String email, String password, String role, String company) {
         this.username = username;
         this.email = email;

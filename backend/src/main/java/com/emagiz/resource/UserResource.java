@@ -19,6 +19,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * REST resource for user accounts: list / create / delete (SUPPORT-only)
+ * plus the public login and password-reset endpoints.
+ */
 @Path("/users")
 public class UserResource {
     private final UserDAO userDAO = new UserDAO();
@@ -27,6 +31,7 @@ public class UserResource {
     @Context
     private ContainerRequestContext requestContext;
 
+    /** Creates a new user. SUPPORT-only. */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -36,6 +41,7 @@ public class UserResource {
         return Response.status(Response.Status.CREATED).entity(savedUser).build();
     }
 
+    /** Lists every non-deleted user. 500 on DB failure. */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"SUPPORT"})
@@ -50,6 +56,10 @@ public class UserResource {
         }
     }
 
+    /**
+     * Soft-deletes a user. 400 if you're deleting yourself,
+     * 404 if unknown, 409 if they still have active tickets.
+     */
     @DELETE
     @Path("/{id}")
     @RolesAllowed("SUPPORT")
@@ -98,6 +108,7 @@ public class UserResource {
         }
     }
 
+    /** POST /users/login — checks creds, issues a 24h token. */
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -139,6 +150,12 @@ public class UserResource {
         return Response.ok(body).build();
     }
 
+    /**
+     * Starts the password-reset flow. Always returns the same
+     * message (whether the email is known or not) so we don't leak
+     * which addresses are registered, then sends the reset mail
+     * if a matching account exists.
+     */
     @POST
     @Path("/password-reset")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -157,6 +174,11 @@ public class UserResource {
         return Response.ok(new ApiError("If an account exists with that mail, you'll receive reset instructions")).build();
     }
 
+    /**
+     * Finishes the password-reset flow: hashes the new password,
+     * saves it if the token is still valid, marks the token as used.
+     * 400 if the token is invalid.
+     */
     @PUT
     @Path("/reset-password")
     @Consumes(MediaType.APPLICATION_JSON)

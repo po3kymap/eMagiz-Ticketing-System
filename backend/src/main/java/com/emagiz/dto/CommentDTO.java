@@ -3,6 +3,13 @@ package com.emagiz.dto;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Request body for creating a new comment.
+ *
+ * <p>The internal flag is exposed under the JSON property
+ * "internal"; the field name also accepts the legacy alias
+ * "isInternal" for backward compatibility with older clients.</p>
+ */
 public class CommentDTO {
     private String content;
 
@@ -10,6 +17,7 @@ public class CommentDTO {
     @JsonAlias("isInternal")
     private boolean internal;
 
+    /** No-arg constructor. */
     public CommentDTO() {
     }
 

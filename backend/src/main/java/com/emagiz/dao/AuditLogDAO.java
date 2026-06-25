@@ -10,11 +10,27 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Reads / writes the audit_logs table.
+ *
+ * <p>Writes are best-effort — if saveLog fails it just prints the error
+ * and moves on, so an audit problem can't break the main action.</p>
+ */
 public class AuditLogDAO {
+    /** Same as saveLog(...) but without details. */
     public void saveLog(Integer ticketId, Integer userId, String action) {
         saveLog(ticketId, userId, action, null);
     }
 
+    /**
+     * Inserts one audit row. If the details column isn't writable (older
+     * schema) falls back to saveLogWithoutDetails.
+     *
+     * @param ticketId ticket id, or null for system events
+     * @param userId   who did it
+     * @param action   short action code, e.g. USER_CREATED
+     * @param details  optional extra context, may be null
+     */
     public void saveLog(Integer ticketId, Integer userId, String action, String details) {
         String sql = "INSERT INTO audit_logs (ticket_id, user_id, action, details) VALUES (?, ?, ?, ?)";
 
@@ -76,6 +92,7 @@ public class AuditLogDAO {
         }
     }
 
+    /** Returns every audit row, newest first. */
     public List<AuditLog> getAllLogs() {
         List<AuditLog> logs = new ArrayList<>();
         String query = "SELECT * FROM audit_logs ORDER BY created_at DESC";
@@ -96,6 +113,7 @@ public class AuditLogDAO {
         return logs;
     }
 
+    /** Returns audit rows for one ticket, oldest first. */
     public List<AuditLog> getLogsByTicketId(Long ticketId) {
         List<AuditLog> logs = new ArrayList<>();
         String query = "SELECT * FROM audit_logs WHERE ticket_id = ? ORDER BY created_at ASC";

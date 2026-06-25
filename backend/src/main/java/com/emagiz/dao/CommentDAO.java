@@ -8,8 +8,22 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Reads / writes the comments table.
+ *
+ * <p>Comments belong to tickets and may be marked is_internal
+ * (visible to staff only). Reads return CommentResponse which also
+ * joins the author username/role from the users table.</p>
+ */
 public class CommentDAO {
 
+    /**
+     * Inserts a comment and returns it fully populated (with author
+     * info and server-side created_at). Returns null only if the
+     * insert succeeded but no id was returned.
+     *
+     * @throws RuntimeException if the SQL fails
+     */
     public CommentResponse addComment(Long ticketID, Long userID, String text, Boolean isInternal) {
         String sql = """
                 INSERT INTO comments (ticket_id, user_id, content, is_internal, created_at)
@@ -38,6 +52,13 @@ public class CommentDAO {
         return null;
     }
 
+    /**
+     * Returns all comments for a ticket, oldest first.
+     *
+     * @param ticketId        ticket whose comments to load
+     * @param includeInternal if false, internal notes are hidden
+     *                        (used when the caller is a customer)
+     */
     public List<CommentResponse> findByTicketId(Long ticketId, boolean includeInternal) {
         List<CommentResponse> comments = new ArrayList<>();
         String sql = """

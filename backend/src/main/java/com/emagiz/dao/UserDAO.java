@@ -8,9 +8,24 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Reads / writes the users table and auth-related tables
+ * (user_tokens, password_reset_tokens).
+ *
+ * <p>Passwords are bcrypt-hashed. Soft-deleted users keep their id but
+ * get role "DELETED" and an anonymized profile.</p>
+ */
 public class UserDAO {
     private static final String DELETED_ROLE = "DELETED";
     private AuditLogDAO auditLogDAO = new AuditLogDAO();
+
+    /**
+     * Inserts a user, hashes the password with bcrypt, writes a
+     * USER_CREATED audit entry and clears the plain password field
+     * on the returned object.
+     *
+     * @throws RuntimeException if the insert fails
+     */
     public User save(User user) {
         String sql = "INSERT INTO users (username, email, password, role, company) VALUES (?, ?, ?, ?, ?)";
 
@@ -41,6 +56,7 @@ public class UserDAO {
         }
     }
 
+    /** Returns every non-deleted user. */
     public List<User> findAll() throws SQLException {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE UPPER(role) != ?";
@@ -67,6 +83,11 @@ public class UserDAO {
         return u;
     }
 
+    /**
+     * Checks the username/password against the users table.
+     *
+     * @return the user (no password) or null if login failed
+     */
     public User validateUserLogin(String username, String password){
         String sql = "SELECT * FROM users WHERE username = ? AND UPPER(role) != ?";
 
@@ -95,6 +116,7 @@ public class UserDAO {
         return null;
     }
 
+    /** Saves a session token, valid for 24h. */
     public void saveToken(String token, Long id){
         String sql = "INSERT INTO user_tokens (user_id, token, expires_at) VALUES (?, ?, ?);";
         try(Connection connection = DatabaseConfig.getConnection()) {
@@ -110,6 +132,10 @@ public class UserDAO {
         }
     }
 
+    /**
+     * Looks up the user id behind a session token.
+     * Returns null if the token is missing or expired.
+     */
     public Long getUserIdByToken(String token){
         String sql = "SELECT user_id FROM user_tokens WHERE token = ? AND expires_at > ?;";
         try(Connection conn = DatabaseConfig.getConnection()) {
@@ -129,6 +155,7 @@ public class UserDAO {
         return null;
     }
 
+    /** Finds a non-deleted user by id, null if not found. */
     public User findById(Long id) {
         String sql = "SELECT id, username, email, role, company FROM users WHERE id = ? AND UPPER(role) != ?";
 
@@ -147,6 +174,7 @@ public class UserDAO {
         return null;
     }
 
+    /** Like findById but also returns soft-deleted users. */
     public User findByIdIncludingDeleted(Long id) {
         String sql = "SELECT id, username, email, role, company FROM users WHERE id = ?";
 
@@ -164,6 +192,7 @@ public class UserDAO {
         return null;
     }
 
+    /** Finds a non-deleted user by email. */
     public User findUserByEmail(String email){
         String sql = "SELECT * FROM users WHERE email = ? AND UPPER(role) != ?";
 
@@ -188,6 +217,7 @@ public class UserDAO {
         return null;
     }
 
+    /** Saves a password-reset token, valid for 30 minutes. */
     public void savePasswordResetToken(Long userId, String token){
         String sql = "INSERT INTO password_reset_tokens (user_id, token, expires_at, used) VALUES (?, ?, ?, ?)";
         try (Connection connection = DatabaseConfig.getConnection();
@@ -204,6 +234,7 @@ public class UserDAO {
         }
     }
 
+    /** Returns the user id for a valid reset token, null otherwise. */
     public Long getUserIdByResetToken(String resetToken){
         String sql = "SELECT user_id FROM password_reset_tokens " +
                 "WHERE token = ? AND expires_at > ? AND used = false";
@@ -223,6 +254,7 @@ public class UserDAO {
         return null;
     }
 
+    /** Sets a new (hashed) password and writes a PASSWORD_UPDATED audit. */
     public void updatePassword(Long userId, String hashedPassword){
         String sql = "UPDATE users SET password = ? WHERE id = ?";
         try(Connection connection = DatabaseConfig.getConnection();
@@ -236,6 +268,7 @@ public class UserDAO {
         }
     }
 
+    /** Marks a reset token as used so it can't be reused. */
     public void makeResetTokenUsed(String token){
         String sql = "UPDATE password_reset_tokens SET used = true WHERE token = ?";
         try(Connection connection = DatabaseConfig.getConnection();
@@ -248,6 +281,7 @@ public class UserDAO {
         }
     }
 
+    /** Returns the user's role or null if not found. */
     public String getUserRole(Long userId) {
         String sql = "SELECT role FROM users WHERE id = ?";
 
@@ -268,6 +302,10 @@ public class UserDAO {
         return null;
     }
 
+    /**
+     * True if the user has any ticket that isn't DENIED or CLOSED.
+     * Used to block deletion of users with open work.
+     */
     public boolean hasActiveTickets(Long userId) throws SQLException {
         String sql = """
                 SELECT 1 FROM tickets
@@ -286,6 +324,14 @@ public class UserDAO {
         }
     }
 
+    /**
+     * Soft-deletes a user: removes their tokens, anonymizes the
+     * profile, sets role to DELETED. Returns false if the user
+     * doesn't exist or was already deleted.
+     *
+     * @throws IllegalStateException if the user has active tickets
+     * @throws SQLException          on DB failure (rolled back)
+     */
     public boolean deleteById(Long userId) throws SQLException {
         User user = findByIdIncludingDeleted(userId);
         if (user == null || DELETED_ROLE.equalsIgnoreCase(user.getRole())) {

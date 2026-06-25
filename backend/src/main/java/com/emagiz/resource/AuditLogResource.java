@@ -12,10 +12,14 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
+/**
+ * REST resource for the audit log feed. SUPPORT-only.
+ */
 @Path("audit-logs")
 public class AuditLogResource {
     private AuditLogDAO auditLogDAO = new AuditLogDAO();
 
+    /** GET /audit-logs — every audit entry, newest first. */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"SUPPORT"})
@@ -24,6 +28,7 @@ public class AuditLogResource {
         return Response.ok(logs).build();
     }
 
+    /** GET /audit-logs/ticket/{id} — one ticket's history, oldest first. */
     @GET
     @Path("ticket/{ticketId}")
     @Produces(MediaType.APPLICATION_JSON)

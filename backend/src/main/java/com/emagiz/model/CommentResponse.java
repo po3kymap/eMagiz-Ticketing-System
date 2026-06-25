@@ -2,6 +2,13 @@ package com.emagiz.model;
 
 import java.sql.Timestamp;
 
+/**
+ * Comment as returned to the frontend.
+ *
+ * <p>Unlike CommentDTO (the request side) this also carries the
+ * username and role of the author (joined from the users table)
+ * plus the comment id and created_at.</p>
+ */
 public class CommentResponse {
     private Long id;
     private Long userId;
@@ -11,6 +18,7 @@ public class CommentResponse {
     private boolean isInternal;
     private Timestamp createdAt;
 
+    /** Full constructor used by CommentDAO when mapping rows. */
     public CommentResponse(Long id, Long userId, String username, String role, String content,
                          boolean isInternal, Timestamp createdAt) {
         this.id = id;
