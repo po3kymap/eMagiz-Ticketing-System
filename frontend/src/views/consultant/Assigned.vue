@@ -47,9 +47,7 @@ const {
     resetFilters,
     onSearchInput,
     formatFilterLabel,
-} = useTicketTable(tickets, {
-    statusOptions: ['OPEN', 'IN_REVIEW', 'ACCEPTED', 'DENIED', 'ASSIGNED', 'RESOLVED', 'CLOSED'],
-});
+} = useTicketTable(tickets);
 
 onMounted(async () => {
     try {

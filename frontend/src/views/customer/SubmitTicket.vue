@@ -2,11 +2,11 @@
 import CustomerLayout from '@/layouts/CustomerLayout.vue';
 import PrioritySelector from '@/components/submit/PrioritySelector.vue';
 import SubmitTicketSidebar from '@/components/submit/SubmitTicketSidebar.vue';
-import { TICKET_TYPES } from '@js/domain/tickets/ticketCatalog';
+import { CUSTOMER_TICKET_TYPE_KEYS, TICKET_TYPES } from '@js/domain/tickets/ticketCatalog';
 import { createTicket } from '@api/tickets';
 import { useRouter } from 'vue-router';
 
-const TICKET_TYPE_OPTIONS = Object.values(TICKET_TYPES);
+const TICKET_TYPE_OPTIONS = CUSTOMER_TICKET_TYPE_KEYS.map((key) => TICKET_TYPES[key]);
 
 function buildDescription({ description, environment, businessImpact }) {
     const sections = [description.trim()];

@@ -1,4 +1,4 @@
-import { getCurrentUser, getHomeRouteForRole, logout } from '@api/auth';
+import { logout } from '@api/auth';
 
 let routerInstance = null;
 let isHandlingAuthFailure = false;
@@ -30,27 +30,6 @@ async function handleUnauthorized() {
     }
 }
 
-async function handleForbidden() {
-    if (isHandlingAuthFailure || !routerInstance) {
-        return;
-    }
-
-    isHandlingAuthFailure = true;
-
-    try {
-        const user = await getCurrentUser();
-        if (user?.role) {
-            await routerInstance.replace(getHomeRouteForRole(user.role));
-            return;
-        }
-
-        logout();
-        await routerInstance.replace({ name: 'login' });
-    } finally {
-        isHandlingAuthFailure = false;
-    }
-}
-
 export async function apiFetch(input, init = {}) {
     const response = await fetch(input, init);
 
@@ -60,7 +39,6 @@ export async function apiFetch(input, init = {}) {
     }
 
     if (response.status === 403) {
-        await handleForbidden();
         throw new ApiError('You do not have permission to perform this action.', 403);
     }
 

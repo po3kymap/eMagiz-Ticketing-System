@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
+    private static final String DELETED_ROLE = "DELETED";
     private AuditLogDAO auditLogDAO = new AuditLogDAO();
     public User save(User user) {
         String sql = "INSERT INTO users (username, email, password, role, company) VALUES (?, ?, ?, ?, ?)";
@@ -42,31 +43,37 @@ public class UserDAO {
 
     public List<User> findAll() throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM users";
+        String sql = "SELECT * FROM users WHERE UPPER(role) != ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                User u = new User();
-                u.setId(rs.getLong("id"));
-                u.setUsername(rs.getString("username"));
-                u.setEmail(rs.getString("email"));
-                u.setRole(rs.getString("role"));
-                u.setCompany(rs.getString("company"));
-                users.add(u);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, DELETED_ROLE);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(mapUserRow(rs));
+                }
             }
         }
         return users;
     }
 
+    private User mapUserRow(ResultSet rs) throws SQLException {
+        User u = new User();
+        u.setId(rs.getLong("id"));
+        u.setUsername(rs.getString("username"));
+        u.setEmail(rs.getString("email"));
+        u.setRole(rs.getString("role"));
+        u.setCompany(rs.getString("company"));
+        return u;
+    }
+
     public User validateUserLogin(String username, String password){
-        String sql = "SELECT * FROM users WHERE username = ?";
+        String sql = "SELECT * FROM users WHERE username = ? AND UPPER(role) != ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setString(1, username);
+            pstmt.setString(2, DELETED_ROLE);
             ResultSet resultSet =  pstmt.executeQuery();
 
             if (resultSet.next()){
@@ -123,6 +130,24 @@ public class UserDAO {
     }
 
     public User findById(Long id) {
+        String sql = "SELECT id, username, email, role, company FROM users WHERE id = ? AND UPPER(role) != ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, id);
+            pstmt.setString(2, DELETED_ROLE);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return mapUserRow(rs);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public User findByIdIncludingDeleted(Long id) {
         String sql = "SELECT id, username, email, role, company FROM users WHERE id = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
@@ -131,13 +156,7 @@ public class UserDAO {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                User user = new User();
-                user.setId(rs.getLong("id"));
-                user.setUsername(rs.getString("username"));
-                user.setEmail(rs.getString("email"));
-                user.setRole(rs.getString("role"));
-                user.setCompany(rs.getString("company"));
-                return user;
+                return mapUserRow(rs);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -146,12 +165,13 @@ public class UserDAO {
     }
 
     public User findUserByEmail(String email){
-        String sql = "SELECT * FROM users WHERE email = ?";
+        String sql = "SELECT * FROM users WHERE email = ? AND UPPER(role) != ?";
 
         try(Connection connection = DatabaseConfig.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ) {
            preparedStatement.setString(1, email);
+           preparedStatement.setString(2, DELETED_ROLE);
            ResultSet resultSet = preparedStatement.executeQuery();
            if (resultSet.next()){
                User user = new User();
@@ -246,5 +266,70 @@ public class UserDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public boolean hasActiveTickets(Long userId) throws SQLException {
+        String sql = """
+                SELECT 1 FROM tickets
+                WHERE (creator_id = ? OR assignee_id = ?)
+                  AND UPPER(status) NOT IN ('DENIED', 'CLOSED')
+                LIMIT 1
+                """;
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, userId);
+            stmt.setLong(2, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean deleteById(Long userId) throws SQLException {
+        User user = findByIdIncludingDeleted(userId);
+        if (user == null || DELETED_ROLE.equalsIgnoreCase(user.getRole())) {
+            return false;
+        }
+
+        if (hasActiveTickets(userId)) {
+            throw new IllegalStateException("User has active tickets and cannot be deleted");
+        }
+
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                runUpdate(conn, "DELETE FROM user_tokens WHERE user_id = ?", userId);
+                runUpdate(conn, "DELETE FROM password_reset_tokens WHERE user_id = ?", userId);
+
+                String anonymizeSql = """
+                        UPDATE users
+                        SET username = ?, email = ?, password = ?, role = ?, company = NULL
+                        WHERE id = ?
+                        """;
+                try (PreparedStatement stmt = conn.prepareStatement(anonymizeSql)) {
+                    stmt.setString(1, "Deleted User (u" + userId + ")");
+                    stmt.setString(2, "deleted+u" + userId + "@removed.local");
+                    stmt.setString(3, BCrypt.hashpw(java.util.UUID.randomUUID().toString(), BCrypt.gensalt()));
+                    stmt.setString(4, DELETED_ROLE);
+                    stmt.setLong(5, userId);
+                    int updated = stmt.executeUpdate();
+                    conn.commit();
+                    return updated > 0;
+                }
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+    private int runUpdate(Connection conn, String sql, Long userId) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, userId);
+            return stmt.executeUpdate();
+        }
     }
 }

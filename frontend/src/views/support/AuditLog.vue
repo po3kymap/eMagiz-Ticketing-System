@@ -16,6 +16,7 @@ import {
     getAuditActionMeta,
     getAuditRoleBadgeClass,
     getUserInitials,
+    isHiddenAuditAction,
 } from '@js/domain/audit/auditCatalog';
 import { Shield, Search } from 'lucide-vue-next';
 
@@ -35,7 +36,9 @@ const pageSize = 15;
 
 const userById = computed(() => new Map(users.value.map((user) => [user.id, user])));
 
-const enrichedLogs = computed(() => logs.value.map((log) => {
+const enrichedLogs = computed(() => logs.value
+    .filter((log) => !isHiddenAuditAction(log.action))
+    .map((log) => {
     const user = log.userId ? userById.value.get(log.userId) : null;
     const actionMeta = getAuditActionMeta(log.action);
 

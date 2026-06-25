@@ -14,6 +14,7 @@ import {
     fetchAllTickets,
 } from '@api/tickets';
 import { fetchUsers } from '@api/users';
+import CreateTicketModal from '@/components/tickets/CreateTicketModal.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -32,6 +33,9 @@ const showAssignModal = ref(false);
 const assignTicketObj = ref(null);
 const selectedAssignee = ref('');
 const isAssigning = ref(false);
+
+const showCreateModal = ref(false);
+const customerUsers = ref([]);
 
 const columns = [
     { key: 'id', label: 'Ticket ID' },
@@ -107,6 +111,9 @@ async function loadData() {
         tickets.value = await fetchAllTickets();
         const usersData = await fetchUsers();
         allUsers.value = usersData;
+        customerUsers.value = usersData.filter((u) =>
+            String(u.role || '').trim().toLowerCase() === 'customer',
+        );
         consultantUsers.value = usersData.filter((u) => u.role === 'Consultant');
     } catch (e) {
         error.value = e.message;
@@ -205,14 +212,31 @@ async function onAddToReview(ticket) {
         reviewingTicketId.value = null;
     }
 }
+
+function onTicketCreated() {
+    showCreateModal.value = false;
+    loadData();
+}
 </script>
 
 <template>
     <SupportLayout>
         <div class="mx-auto w-full max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-            <div>
-                <h1 class="text-xl font-semibold text-slate-900">Ticket Queue</h1>
-                <p class="mt-0.5 text-sm text-slate-500">{{ tickets.length }} tickets · Open tickets</p>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <h1 class="text-xl font-semibold text-slate-900">Ticket Queue</h1>
+                    <p class="mt-0.5 text-sm text-slate-500">{{ tickets.length }} tickets · Open tickets</p>
+                </div>
+                <button
+                    type="button"
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-teal-700"
+                    @click="showCreateModal = true"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    Create Ticket
+                </button>
             </div>
 
             <TicketTableToolbar
@@ -389,5 +413,12 @@ async function onAddToReview(ticket) {
                 </div>
             </div>
         </div>
+
+        <CreateTicketModal
+            v-if="showCreateModal"
+            :customers="customerUsers"
+            @close="showCreateModal = false"
+            @created="onTicketCreated"
+        />
     </SupportLayout>
 </template>

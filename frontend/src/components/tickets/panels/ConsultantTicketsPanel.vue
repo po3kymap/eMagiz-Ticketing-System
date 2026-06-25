@@ -31,10 +31,19 @@ const props = defineProps({
 
 const router = useRouter();
 const visibleTickets = computed(() => {
+    const sorted = [...props.tickets].sort((a, b) => {
+        const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+        if (timeB !== timeA) {
+            return timeB - timeA;
+        }
+        return Number(b.id) - Number(a.id);
+    });
+
     if (!props.limit || props.limit <= 0) {
-        return props.tickets;
+        return sorted;
     }
-    return props.tickets.slice(0, props.limit);
+    return sorted.slice(0, props.limit);
 });
 
 function formatDate(val) {
@@ -55,13 +64,9 @@ function onTicketClick(id) {
 <template>
     <div class="flex flex-col rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
-            <div class="flex items-center gap-2">
-                <h2 class="text-base font-semibold text-slate-800">Assigned to Me</h2>
-                <span class="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-50 text-[11px] font-semibold text-indigo-600">
-                    {{ visibleTickets.length }}
-                </span>
-            </div>
+            <h2 class="text-base font-semibold text-slate-800">Recently updated tickets</h2>
             <button
+                v-if="showViewAll"
                 type="button"
                 class="text-xs font-medium text-teal-600 hover:text-teal-700 transition flex items-center gap-1"
                 @click="onViewAll"
@@ -77,7 +82,7 @@ function onTicketClick(id) {
         <div v-else-if="error" class="p-6 text-center text-sm text-red-500">{{ error }}</div>
         <div v-else class="flex-1 overflow-y-auto">
             <div v-if="visibleTickets.length === 0" class="p-6 text-center text-sm text-slate-500">
-                No tickets assigned to you.
+                No recently updated tickets.
             </div>
             <div v-else class="divide-y divide-slate-100">
                 <article

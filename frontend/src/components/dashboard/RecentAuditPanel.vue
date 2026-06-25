@@ -8,6 +8,7 @@ import {
     formatAuditTimestamp,
     getAuditActionClass,
     getAuditActionMeta,
+    isHiddenAuditAction,
 } from '@js/domain/audit/auditCatalog';
 import { Clock } from 'lucide-vue-next';
 
@@ -19,7 +20,10 @@ const loading = ref(true);
 
 const userById = computed(() => new Map(users.value.map((user) => [user.id, user])));
 
-const recentLogs = computed(() => logs.value.slice(0, 5).map((log) => {
+const recentLogs = computed(() => logs.value
+    .filter((log) => !isHiddenAuditAction(log.action))
+    .slice(0, 5)
+    .map((log) => {
     const user = log.userId ? userById.value.get(log.userId) : null;
     const actionMeta = getAuditActionMeta(log.action);
 

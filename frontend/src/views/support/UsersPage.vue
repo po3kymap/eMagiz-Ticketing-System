@@ -1,16 +1,22 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import SupportLayout from '@/layouts/SupportLayout.vue';
-import { fetchUsers, createUser } from '@api/users';
+import { fetchUsers, createUser, deleteUser } from '@api/users';
+import { getCurrentUser } from '@api/auth';
 
 const users = ref([]);
 const isLoading = ref(true);
 const error = ref('');
 const searchQuery = ref('');
 const activeTab = ref('All Users');
+const currentUser = ref(null);
 
 const showAddUserModal = ref(false);
 const isCreating = ref(false);
+const showDeleteModal = ref(false);
+const userToDelete = ref(null);
+const isDeleting = ref(false);
+const deleteError = ref('');
 const newUser = ref({
   username: '',
   email: '',
@@ -20,6 +26,7 @@ const newUser = ref({
 });
 
 onMounted(async () => {
+  currentUser.value = await getCurrentUser();
   try {
     users.value = await fetchUsers();
   } catch (e) {
@@ -111,6 +118,40 @@ async function handleCreateUser() {
     alert('Failed to create user. Check console for details.');
   } finally {
     isCreating.value = false;
+  }
+}
+
+function isCurrentUser(user) {
+  return Number(currentUser.value?.userId) === Number(user.id);
+}
+
+function openDeleteModal(user) {
+  userToDelete.value = user;
+  deleteError.value = '';
+  showDeleteModal.value = true;
+}
+
+function closeDeleteModal() {
+  showDeleteModal.value = false;
+  userToDelete.value = null;
+  deleteError.value = '';
+}
+
+async function handleDeleteUser() {
+  if (!userToDelete.value) {
+    return;
+  }
+
+  isDeleting.value = true;
+  deleteError.value = '';
+  try {
+    await deleteUser(userToDelete.value.id);
+    users.value = await fetchUsers();
+    closeDeleteModal();
+  } catch (err) {
+    deleteError.value = err.message || 'Failed to delete user.';
+  } finally {
+    isDeleting.value = false;
   }
 }
 </script>
@@ -207,14 +248,15 @@ async function handleCreateUser() {
                 <th class="px-6 py-4">Email</th>
                 <th class="px-6 py-4">Organization</th>
                 <th class="px-6 py-4">Role</th>
+                <th class="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-if="isLoading">
-                <td colspan="4" class="px-6 py-12 text-center text-slate-400">Loading users...</td>
+                <td colspan="5" class="px-6 py-12 text-center text-slate-400">Loading users...</td>
               </tr>
               <tr v-else-if="filteredUsers.length === 0">
-                <td colspan="4" class="px-6 py-12 text-center text-slate-400">No users found.</td>
+                <td colspan="5" class="px-6 py-12 text-center text-slate-400">No users found.</td>
               </tr>
               <tr 
                 v-else
@@ -245,6 +287,23 @@ async function handleCreateUser() {
                   >
                     {{ String(user.role).charAt(0).toUpperCase() + String(user.role).slice(1).toLowerCase() }}
                   </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition"
+                    :class="isCurrentUser(user)
+                      ? 'cursor-not-allowed text-slate-300'
+                      : 'text-red-600 hover:bg-red-50'"
+                    :disabled="isCurrentUser(user)"
+                    :title="isCurrentUser(user) ? 'You cannot delete your own account' : 'Delete user'"
+                    @click="openDeleteModal(user)"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                    </svg>
+                    Delete
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -362,6 +421,55 @@ async function handleCreateUser() {
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               {{ isCreating ? 'Creating...' : 'Create User' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+    >
+      <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+        <div
+          class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
+          @click="closeDeleteModal"
+        />
+
+        <div class="relative w-full max-w-md rounded-xl bg-white shadow-2xl">
+          <div class="px-6 py-6">
+            <h3 class="text-lg font-semibold text-slate-900">Delete User</h3>
+            <p class="mt-2 text-sm text-slate-500">
+              Are you sure you want to delete
+              <span class="font-medium text-slate-700">{{ userToDelete?.username }}</span>
+              (u{{ userToDelete?.id }})? This action cannot be undone.
+            </p>
+            <p v-if="deleteError" class="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+              {{ deleteError }}
+            </p>
+          </div>
+
+          <div class="flex justify-end gap-3 bg-slate-50 px-6 py-4">
+            <button
+              type="button"
+              class="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 transition disabled:opacity-50"
+              :disabled="isDeleting"
+              @click="closeDeleteModal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition disabled:opacity-75 disabled:cursor-not-allowed"
+              :disabled="isDeleting"
+              @click="handleDeleteUser"
+            >
+              {{ isDeleting ? 'Deleting...' : 'Delete User' }}
             </button>
           </div>
         </div>

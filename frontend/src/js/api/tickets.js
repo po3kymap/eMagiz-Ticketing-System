@@ -1,6 +1,6 @@
 import { getAuthHeaders, getCurrentUser, getStoredToken } from '@api/auth';
 import { apiFetch } from '@js/api/http';
-import { formatTicketNumber } from '@js/domain/tickets/ticketCatalog';
+import { formatTicketNumber, isInternalTicket } from '@js/domain/tickets/ticketCatalog';
 
 const SEARCH_RESULT_LIMIT = 8;
 
@@ -107,20 +107,21 @@ export async function fetchAssignedTicketsForCurrentUser() {
     return fetchAssignedTickets(user.userId);
 }
 
-const ACTIVE_STATUSES = new Set(['OPEN', 'ASSIGNED', 'IN_REVIEW', 'ACCEPTED']);
-
 export function computeConsultantStats(tickets) {
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const threeDaysAgo = new Date(todayStart);
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
-    const activeTickets = tickets.filter((ticket) => ACTIVE_STATUSES.has(ticket.status));
-
     return {
-        assignedToMe: tickets.length,
-        dueToday: activeTickets.filter((ticket) => ticket.priority === 'CRITICAL').length,
-        highPriority: tickets.filter((ticket) => ['HIGH', 'CRITICAL'].includes(ticket.priority)).length,
+        assignedToMe: tickets.filter((ticket) => String(ticket.status).toUpperCase() === 'ASSIGNED').length,
+        internal: tickets.filter((ticket) =>
+            isInternalTicket(ticket) && String(ticket.status).toUpperCase() === 'ASSIGNED',
+        ).length,
+        highPriority: tickets.filter((ticket) =>
+            String(ticket.status).toUpperCase() === 'ASSIGNED'
+            && ['HIGH', 'CRITICAL'].includes(String(ticket.priority).toUpperCase()),
+        ).length,
         recentlyUpdated: tickets.filter((ticket) => {
             if (!ticket.updatedAt) {
                 return false;
@@ -150,7 +151,19 @@ export async function updateTicketPriority(ticketId, priority) {
     return data;
 }
 
-export async function createTicket({ title, description, priority, type, status = 'OPEN' }) {
+export async function createTicket({ title, description, priority, type, status = 'OPEN', creatorId = null }) {
+    const body = {
+        title,
+        description,
+        priority,
+        type,
+        status,
+    };
+
+    if (creatorId != null) {
+        body.creatorId = creatorId;
+    }
+
     const response = await apiFetch('/api/tickets', {
         method: 'POST',
         headers: {
@@ -158,13 +171,7 @@ export async function createTicket({ title, description, priority, type, status 
             Accept: 'application/json',
             ...getAuthHeaders(),
         },
-        body: JSON.stringify({
-            title,
-            description,
-            priority,
-            type,
-            status,
-        }),
+        body: JSON.stringify(body),
     });
 
 

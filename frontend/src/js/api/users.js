@@ -46,3 +46,23 @@ export async function createUser(user) {
 
     return data;
 }
+
+export async function deleteUser(userId) {
+    const response = await apiFetch(`/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    if (response.status === 204) {
+        return;
+    }
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to delete user (${response.status})`);
+    }
+}

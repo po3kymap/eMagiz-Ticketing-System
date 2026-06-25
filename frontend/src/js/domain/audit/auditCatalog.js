@@ -34,11 +34,6 @@ export const AUDIT_ACTION_META = {
         tone: 'red',
         filterKey: 'STATUS_CHANGED',
     },
-    STATUS_ASSIGNED: {
-        label: 'Investigation underway',
-        tone: 'purple',
-        filterKey: 'STATUS_CHANGED',
-    },
     STATUS_CLOSED: {
         label: 'Resolved / Closed',
         tone: 'slate',
@@ -140,22 +135,29 @@ const LIFECYCLE_ACTIONS = new Set([
     'STATUS_IN_REVIEW',
     'STATUS_ACCEPTED',
     'STATUS_DENIED',
-    'STATUS_ASSIGNED',
     'STATUS_CLOSED',
 ]);
+
+export const HIDDEN_AUDIT_ACTIONS = new Set(['STATUS_ASSIGNED']);
+
+export function isHiddenAuditAction(action) {
+    return HIDDEN_AUDIT_ACTIONS.has(String(action || '').toUpperCase());
+}
 
 export function isLifecycleAction(action) {
     const key = String(action || '').toUpperCase();
     return LIFECYCLE_ACTIONS.has(key);
 }
 
-export function getAuditTimelineLabel(action, { user, details, userById } = {}) {
+export function getAuditTimelineLabel(action, { user, details, userById, isInternal = false } = {}) {
     const key = String(action || '').toUpperCase();
     const actorName = user?.username;
 
     switch (key) {
     case 'TICKET_CREATED':
-        return 'Submitted by customer';
+        return isInternal
+            ? (actorName ? `Created by support (${actorName})` : 'Created by support')
+            : 'Submitted by customer';
     case 'STATUS_IN_REVIEW':
         return actorName ? `Reviewed by Support (${actorName})` : 'Reviewed by Support';
     case 'STATUS_ACCEPTED':
@@ -164,8 +166,6 @@ export function getAuditTimelineLabel(action, { user, details, userById } = {}) 
         return 'Denied';
     case 'STATUS_CLOSED':
         return 'Resolved / Closed';
-    case 'STATUS_ASSIGNED':
-        return 'Updated · Investigation underway';
     case 'TICKET_ASSIGNED': {
         const assigneeId = details ? Number(details) : null;
         const assignee = assigneeId && userById ? userById.get(assigneeId) : null;
@@ -192,8 +192,6 @@ export function getAuditTimelineColor(action) {
         return 'bg-red-500';
     case 'TICKET_ASSIGNED':
         return 'bg-violet-500';
-    case 'STATUS_ASSIGNED':
-        return 'bg-violet-300';
     case 'STATUS_CLOSED':
         return 'bg-slate-500';
     default: {
