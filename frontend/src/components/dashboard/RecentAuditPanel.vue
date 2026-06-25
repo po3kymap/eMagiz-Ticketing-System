@@ -8,6 +8,7 @@ import {
     formatAuditTimestamp,
     getAuditActionClass,
     getAuditActionMeta,
+    isClickableAuditLog,
     isHiddenAuditAction,
 } from '@js/domain/audit/auditCatalog';
 import { Clock } from 'lucide-vue-next';
@@ -31,6 +32,7 @@ const recentLogs = computed(() => logs.value
         ...log,
         username: user?.username ?? 'System',
         actionLabel: actionMeta.label,
+        isClickable: isClickableAuditLog(log),
     };
 }));
 
@@ -51,6 +53,13 @@ onMounted(async () => {
 
 function onFullLog() {
     router.push('/support/audit');
+}
+
+function openTicket(ticketId) {
+    if (!ticketId) {
+        return;
+    }
+    router.push(`/support/queue/ticket/TKT-${ticketId}`);
 }
 </script>
 
@@ -87,16 +96,33 @@ function onFullLog() {
                 :key="log.id"
                 class="py-3"
             >
-                <p class="text-sm font-medium" :class="getAuditActionClass(log.action)">
-                    {{ log.actionLabel }}
-                </p>
-                <p class="mt-1 text-xs text-slate-500">
-                    {{ log.username }}
-                    <template v-if="log.ticketId">
+                <button
+                    v-if="log.isClickable"
+                    type="button"
+                    class="w-full text-left transition hover:opacity-80"
+                    @click="openTicket(log.ticketId)"
+                >
+                    <p class="text-sm font-medium underline-offset-2 hover:underline" :class="getAuditActionClass(log.action)">
+                        {{ log.actionLabel }}
+                    </p>
+                    <p class="mt-1 text-xs text-slate-500">
+                        {{ log.username }}
                         · {{ formatTicketNumber(log.ticketId) }}
-                    </template>
-                    · {{ formatAuditTimestamp(log.createdAt) }}
-                </p>
+                        · {{ formatAuditTimestamp(log.createdAt) }}
+                    </p>
+                </button>
+                <template v-else>
+                    <p class="text-sm font-medium" :class="getAuditActionClass(log.action)">
+                        {{ log.actionLabel }}
+                    </p>
+                    <p class="mt-1 text-xs text-slate-500">
+                        {{ log.username }}
+                        <template v-if="log.ticketId">
+                            · {{ formatTicketNumber(log.ticketId) }}
+                        </template>
+                        · {{ formatAuditTimestamp(log.createdAt) }}
+                    </p>
+                </template>
             </li>
         </ul>
     </section>

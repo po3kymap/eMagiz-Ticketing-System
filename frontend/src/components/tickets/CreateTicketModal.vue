@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import PrioritySelector from '@/components/submit/PrioritySelector.vue';
 import { createTicket } from '@api/tickets';
 import { CUSTOMER_TICKET_TYPE_KEYS, TICKET_TYPES } from '@js/domain/tickets/ticketCatalog';
-import { normalizeRole } from '@js/domain/auth/roles';
+import { isCustomerRole } from '@js/domain/auth/roles';
 
 const props = defineProps({
     customers: {
@@ -24,7 +24,7 @@ const loading = ref(false);
 const error = ref('');
 
 const customerOptions = computed(() =>
-    props.customers.filter((user) => normalizeRole(user.role) === 'customer'),
+    props.customers.filter((user) => isCustomerRole(user.role)),
 );
 
 const customerTypeOptions = computed(() =>

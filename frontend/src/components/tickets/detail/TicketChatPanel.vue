@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Loader2 } from 'lucide-vue-next';
+import { normalizeRole } from '@js/domain/auth/roles';
 
 const props = defineProps({
     title: { type: String, required: true },
@@ -17,7 +18,8 @@ const props = defineProps({
         default: 'public',
         validator: (v) => ['public', 'internal'].includes(v),
     },
-    compact: { type: Boolean, default: false },
+    pinForm: { type: Boolean, default: false },
+    matchedHeight: { type: Boolean, default: false },
 });
 
 const draft = defineModel('draft', { type: String, default: '' });
@@ -47,6 +49,24 @@ const buttonClass = computed(() => {
     return 'bg-teal-600 hover:bg-teal-700';
 });
 
+const sectionClass = computed(() => {
+    if (props.matchedHeight || props.pinForm) {
+        return 'flex h-[24rem] flex-col';
+    }
+    return 'flex flex-col';
+});
+
+const messagesClass = computed(() => {
+    if (props.matchedHeight || props.pinForm) {
+        return 'mt-3 min-h-0 flex-1 overflow-y-auto overscroll-y-contain';
+    }
+    return 'mt-3 max-h-56 overflow-y-auto overscroll-y-contain';
+});
+
+const footerClass = computed(() => (
+    (props.matchedHeight || props.pinForm) ? 'mt-auto' : ''
+));
+
 const currentUserInitials = computed(() => getInitials(props.currentUser?.username));
 
 function getInitials(username) {
@@ -61,7 +81,7 @@ function getInitials(username) {
 }
 
 function getRoleMeta(role) {
-    const key = String(role || '').toLowerCase();
+    const key = normalizeRole(role);
     if (key === 'customer') {
         return { label: 'Customer', avatar: 'bg-blue-100 text-blue-700' };
     }
@@ -95,51 +115,41 @@ function submit() {
 
 <template>
     <section
-        class="flex h-full flex-col rounded-xl border p-5 shadow-sm"
-        :class="shellClass"
+        class="rounded-xl border p-4 shadow-sm sm:p-5"
+        :class="[shellClass, sectionClass]"
     >
-        <div>
-            <h2
-                class="font-semibold text-slate-700"
-                :class="compact ? 'text-xs' : 'text-sm'"
-            >
+        <header class="shrink-0">
+            <h2 class="text-sm font-semibold text-slate-700">
                 {{ title }}
             </h2>
-            <p v-if="subtitle" class="mt-1 text-xs text-slate-400">
+            <p v-if="subtitle" class="mt-0.5 text-xs text-slate-400">
                 {{ subtitle }}
             </p>
-        </div>
+        </header>
 
-        <div
-            class="mt-4 flex-1 space-y-4 overflow-y-auto"
-            :class="compact ? 'max-h-72' : 'min-h-[200px]'"
-        >
-            <p v-if="comments.length === 0" class="py-8 text-center text-xs text-slate-400">
+        <div class="space-y-3 pr-1" :class="messagesClass">
+            <p
+                v-if="comments.length === 0"
+                class="py-6 text-center text-xs text-slate-400"
+            >
                 {{ isInternal ? 'No team notes yet.' : 'No messages yet.' }}
             </p>
 
             <article
                 v-for="comment in comments"
                 :key="comment.id"
-                class="flex gap-2"
-                :class="compact ? '' : 'gap-3'"
+                class="flex gap-2.5"
             >
                 <div
-                    class="flex shrink-0 items-center justify-center rounded-full font-semibold"
-                    :class="[
-                        getRoleMeta(comment.role).avatar,
-                        compact ? 'h-7 w-7 text-[10px]' : 'h-9 w-9 text-xs',
-                    ]"
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+                    :class="getRoleMeta(comment.role).avatar"
                 >
                     {{ getInitials(comment.username) }}
                 </div>
 
                 <div class="min-w-0 flex-1">
                     <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-                        <span
-                            class="font-semibold text-slate-800"
-                            :class="compact ? 'text-xs' : 'text-sm'"
-                        >
+                        <span class="text-sm font-semibold text-slate-800">
                             {{ comment.username }}
                         </span>
                         <span class="text-[10px] text-slate-400">
@@ -151,8 +161,8 @@ function submit() {
                     </div>
 
                     <div
-                        class="mt-1.5 rounded-lg px-3 py-2 leading-relaxed text-slate-700 whitespace-pre-wrap"
-                        :class="[bubbleClass, compact ? 'text-xs' : 'text-sm']"
+                        class="mt-1 rounded-lg px-3 py-2 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap"
+                        :class="bubbleClass"
                     >
                         {{ comment.content }}
                     </div>
@@ -160,14 +170,15 @@ function submit() {
             </article>
         </div>
 
-        <div v-if="canPost" class="mt-4 border-t border-slate-100/80 pt-4">
+        <footer
+            v-if="canPost"
+            class="mt-3 shrink-0 border-t border-slate-100/80 pt-3"
+            :class="footerClass"
+        >
             <form class="flex gap-2" @submit.prevent="submit">
                 <div
-                    class="flex shrink-0 items-center justify-center rounded-full font-semibold"
-                    :class="[
-                        getRoleMeta(currentUser?.role).avatar,
-                        compact ? 'h-7 w-7 text-[10px]' : 'h-9 w-9 text-xs',
-                    ]"
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+                    :class="getRoleMeta(currentUser?.role).avatar"
                 >
                     {{ currentUserInitials }}
                 </div>
@@ -175,22 +186,20 @@ function submit() {
                 <div class="min-w-0 flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white">
                     <textarea
                         v-model="draft"
-                        :rows="compact ? 2 : 3"
-                        class="w-full resize-none border-0 px-3 py-2 text-slate-700 outline-none placeholder:text-slate-400"
-                        :class="compact ? 'text-xs' : 'text-sm'"
+                        rows="2"
+                        class="w-full resize-none border-0 px-3 py-2 text-sm text-slate-700 outline-none placeholder:text-slate-400"
                         :placeholder="placeholder"
                         :disabled="isPosting"
                         @keydown.ctrl.enter="submit"
                         @keydown.meta.enter="submit"
                     />
 
-                    <div class="flex justify-end border-t border-slate-100 px-3 py-2">
+                    <div class="flex justify-end border-t border-slate-100 px-2.5 py-1.5">
                         <button
                             type="submit"
-                            class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60"
-                            :class="[buttonClass, compact ? 'text-xs' : 'text-sm']"
+                            class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm"
+                            :class="buttonClass"
                             :disabled="!draft.trim() || isPosting"
-                            @click="submit"
                         >
                             <Loader2 v-if="isPosting" class="h-3.5 w-3.5 animate-spin" />
                             {{ isPosting ? 'Posting…' : submitLabel }}
@@ -200,9 +209,13 @@ function submit() {
             </form>
 
             <p v-if="postError" class="mt-2 text-xs text-red-500">{{ postError }}</p>
-        </div>
+        </footer>
 
-        <p v-else class="mt-4 border-t border-slate-100/80 pt-4 text-xs text-slate-400">
+        <p
+            v-else
+            class="mt-3 shrink-0 border-t border-slate-100/80 pt-3 text-xs text-slate-400"
+            :class="footerClass"
+        >
             Ticket closed — new messages disabled.
         </p>
     </section>

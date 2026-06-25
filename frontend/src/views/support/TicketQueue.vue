@@ -14,6 +14,8 @@ import {
     fetchAllTickets,
 } from '@api/tickets';
 import { fetchUsers } from '@api/users';
+import { isConsultantRole, isCustomerRole } from '@js/domain/auth/roles';
+import { isInternalTicket } from '@js/domain/tickets/ticketCatalog';
 import CreateTicketModal from '@/components/tickets/CreateTicketModal.vue';
 
 const router = useRouter();
@@ -111,10 +113,8 @@ async function loadData() {
         tickets.value = await fetchAllTickets();
         const usersData = await fetchUsers();
         allUsers.value = usersData;
-        customerUsers.value = usersData.filter((u) =>
-            String(u.role || '').trim().toLowerCase() === 'customer',
-        );
-        consultantUsers.value = usersData.filter((u) => u.role === 'Consultant');
+        customerUsers.value = usersData.filter((u) => isCustomerRole(u.role));
+        consultantUsers.value = usersData.filter((u) => isConsultantRole(u.role));
     } catch (e) {
         error.value = e.message;
     } finally {
@@ -217,6 +217,14 @@ function onTicketCreated() {
     showCreateModal.value = false;
     loadData();
 }
+
+function canAssignInternalTicket(ticket) {
+    if (!isInternalTicket(ticket) || ticket.assigneeId) {
+        return false;
+    }
+
+    return ['OPEN', 'ACCEPTED'].includes(String(ticket.status).toUpperCase());
+}
 </script>
 
 <template>
@@ -288,7 +296,7 @@ function onTicketCreated() {
                             </button>
 
                             <button
-                                v-if="String(ticket.status).toUpperCase() === 'OPEN'"
+                                v-if="!isInternalTicket(ticket) && String(ticket.status).toUpperCase() === 'OPEN'"
                                 type="button"
                                 class="rounded p-1.5 transition hover:bg-amber-100 hover:text-amber-600 disabled:opacity-50"
                                 title="Add to Review"
@@ -301,7 +309,7 @@ function onTicketCreated() {
                             </button>
 
                             <button
-                                v-if="String(ticket.status).toUpperCase() === 'ACCEPTED'"
+                                v-if="(!isInternalTicket(ticket) && String(ticket.status).toUpperCase() === 'ACCEPTED') || canAssignInternalTicket(ticket)"
                                 type="button"
                                 class="rounded p-1.5 transition hover:bg-blue-100 hover:text-blue-600"
                                 title="Assign"
@@ -313,7 +321,7 @@ function onTicketCreated() {
                             </button>
 
                             <button
-                                v-if="['OPEN', 'IN_REVIEW'].includes(String(ticket.status).toUpperCase())"
+                                v-if="!isInternalTicket(ticket) && ['OPEN', 'IN_REVIEW'].includes(String(ticket.status).toUpperCase())"
                                 type="button"
                                 class="rounded p-1.5 transition hover:bg-emerald-100 hover:text-emerald-600"
                                 title="Accept"
@@ -325,7 +333,7 @@ function onTicketCreated() {
                             </button>
 
                             <button
-                                v-if="['OPEN', 'IN_REVIEW', 'ACCEPTED'].includes(String(ticket.status).toUpperCase())"
+                                v-if="!isInternalTicket(ticket) && ['OPEN', 'IN_REVIEW', 'ACCEPTED'].includes(String(ticket.status).toUpperCase())"
                                 type="button"
                                 class="rounded p-1.5 transition hover:bg-red-100 hover:text-red-600"
                                 title="Deny"

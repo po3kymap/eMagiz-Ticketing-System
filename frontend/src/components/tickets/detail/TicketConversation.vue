@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { addTicketComment, fetchTicketComments } from '@api/tickets';
 import TicketChatPanel from '@/components/tickets/detail/TicketChatPanel.vue';
+import { isStaffRole, normalizeRole } from '@js/domain/auth/roles';
 
 const props = defineProps({
     ticketId: {
@@ -19,7 +20,7 @@ const props = defineProps({
     role: {
         type: String,
         default: 'customer',
-        validator: (v) => ['support', 'consultant', 'customer'].includes(v),
+        validator: (v) => ['support', 'consultant', 'customer'].includes(normalizeRole(v)),
     },
     internalOnly: {
         type: Boolean,
@@ -37,7 +38,7 @@ const isPostingInternal = ref(false);
 const publicPostError = ref('');
 const internalPostError = ref('');
 
-const isStaff = computed(() => ['support', 'consultant'].includes(props.role));
+const isStaff = computed(() => isStaffRole(props.role));
 
 const canPost = computed(() =>
     !['CLOSED', 'DENIED'].includes(String(props.ticketStatus || '').toUpperCase()),
@@ -127,14 +128,15 @@ watch(() => props.ticketId, () => {
             placeholder="Note for the team…"
             submit-label="Post Note"
             variant="internal"
+            pin-form
             @post="handleInternalPost"
         />
     </div>
 
     <div
         v-else
-        class="grid gap-4"
-        :class="isStaff ? 'lg:grid-cols-[minmax(0,1fr)_300px]' : ''"
+        class="grid items-stretch gap-4"
+        :class="isStaff ? 'lg:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]' : ''"
     >
         <TicketChatPanel
             v-model:draft="publicDraft"
@@ -147,6 +149,7 @@ watch(() => props.ticketId, () => {
             :post-error="publicPostError"
             placeholder="Add a comment or update…"
             variant="public"
+            matched-height
             @post="handlePublicPost"
         />
 
@@ -163,7 +166,7 @@ watch(() => props.ticketId, () => {
             placeholder="Note for the team…"
             submit-label="Post Note"
             variant="internal"
-            compact
+            matched-height
             @post="handleInternalPost"
         />
     </div>

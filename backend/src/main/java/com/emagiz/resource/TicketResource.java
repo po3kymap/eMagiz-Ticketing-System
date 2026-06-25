@@ -307,7 +307,7 @@ public class TicketResource {
 
     @POST
     @Path("/{ticketID}/comments")
-    @RolesAllowed({"SUPPORT", "CONSULTANT"})
+    @RolesAllowed({"SUPPORT", "CONSULTANT", "CUSTOMER"})
 
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

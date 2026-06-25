@@ -8,6 +8,26 @@ export function normalizeRole(role) {
     return String(role || '').trim().toLowerCase();
 }
 
+export function isCustomerRole(role) {
+    return normalizeRole(role) === ROLES.CUSTOMER;
+}
+
+export function isConsultantRole(role) {
+    return normalizeRole(role) === ROLES.CONSULTANT;
+}
+
+export function isSupportRole(role) {
+    return normalizeRole(role) === ROLES.SUPPORT;
+}
+
+export function isStaffRole(role) {
+    return isSupportRole(role) || isConsultantRole(role);
+}
+
+export function isKnownAppRole(role) {
+    return isCustomerRole(role) || isStaffRole(role);
+}
+
 export function roleCanAccessPath(role, path) {
     const normalizedRole = normalizeRole(role);
     const normalizedPath = String(path || '');

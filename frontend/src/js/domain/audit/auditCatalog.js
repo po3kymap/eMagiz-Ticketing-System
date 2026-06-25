@@ -140,6 +140,28 @@ const LIFECYCLE_ACTIONS = new Set([
 
 export const HIDDEN_AUDIT_ACTIONS = new Set(['STATUS_ASSIGNED']);
 
+const TICKET_LINKED_AUDIT_ACTIONS = new Set([
+    'TICKET_CREATED',
+    'TICKET_UPDATED',
+    'TICKET_STATUS_UPDATED',
+    'TICKET_PRIORITY_UPDATED',
+    'TICKET_ASSIGNED',
+    'TICKET_COMMENT_ADDED',
+    'COMMENT_ADDED',
+]);
+
+export function isTicketLinkedAuditAction(action) {
+    const key = String(action || '').toUpperCase();
+    if (TICKET_LINKED_AUDIT_ACTIONS.has(key)) {
+        return true;
+    }
+    return key.startsWith('STATUS_') && !HIDDEN_AUDIT_ACTIONS.has(key);
+}
+
+export function isClickableAuditLog(log) {
+    return Boolean(log?.ticketId) && isTicketLinkedAuditAction(log.action);
+}
+
 export function isHiddenAuditAction(action) {
     return HIDDEN_AUDIT_ACTIONS.has(String(action || '').toUpperCase());
 }

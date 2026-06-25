@@ -21,7 +21,7 @@ public class UserDAO {
             pstmt.setString(2, user.getEmail());
             String hashedEntry = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
             pstmt.setString(3, hashedEntry);
-            pstmt.setString(4, user.getRole());
+            pstmt.setString(4, user.getRole() == null ? null : user.getRole().trim().toUpperCase());
             pstmt.setString(5, user.getCompany());
 
             pstmt.executeUpdate();

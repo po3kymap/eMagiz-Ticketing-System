@@ -21,7 +21,7 @@ const newUser = ref({
   username: '',
   email: '',
   company: '',
-  role: 'Customer',
+  role: 'CUSTOMER',
   password: ''
 });
 
