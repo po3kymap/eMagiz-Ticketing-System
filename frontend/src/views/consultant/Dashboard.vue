@@ -66,14 +66,13 @@ onMounted(async () => {
                 </DashboardStatCard>
 
                 <DashboardStatCard
-                    label="Due Today"
-                    :value="loading ? '—' : stats.dueToday"
-                    tone="red"
+                    label="Internal"
+                    :value="loading ? '—' : stats.internal"
+                    tone="blue"
                 >
                     <template #icon>
                         <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                            <circle cx="12" cy="12" r="9" />
-                            <path stroke-linecap="round" d="M12 7v5l3 2" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                         </svg>
                     </template>
                 </DashboardStatCard>
@@ -103,7 +102,7 @@ onMounted(async () => {
                 </DashboardStatCard>
             </div>
             <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-                <ConsultantTicketsPanel :tickets="tickets" :loading="loading" :error="loadError" :limit="6" :show-view-all="false" />
+                <ConsultantTicketsPanel :tickets="tickets" :loading="loading" :error="loadError" :limit="6" />
                 <PriorityBreakdownChart :tickets="tickets" :loading="loading" class="max-h-[320px]">
                 </PriorityBreakdownChart>
             </div>

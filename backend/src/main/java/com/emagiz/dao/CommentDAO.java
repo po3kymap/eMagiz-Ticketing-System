@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommentDAO {
-    private AuditLogDAO auditLogDAO = new AuditLogDAO();
 
     public CommentResponse addComment(Long ticketID, Long userID, String text, Boolean isInternal) {
         String sql = """
@@ -26,14 +25,15 @@ public class CommentDAO {
             stmt.setBoolean(4, isInternal);
             stmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
 
-            try (ResultSet resultSet = stmt.executeQuery()) {
-                if (resultSet.next()) {
-                    auditLogDAO.saveLog(ticketID.intValue(), userID.intValue(), "COMMENT_ADDED");
+            stmt.execute();
+
+            try (ResultSet resultSet = stmt.getResultSet()) {
+                if (resultSet != null && resultSet.next()) {
                     return findById(resultSet.getLong("comment_id"));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to add comment", e);
+            throw new RuntimeException("Failed to add comment: " + e.getMessage(), e);
         }
         return null;
     }
@@ -44,7 +44,7 @@ public class CommentDAO {
                 SELECT c.comment_id, c.user_id, c.content, c.is_internal, c.created_at,
                        u.username, u.role
                 FROM comments c
-                JOIN users u ON c.user_id = u.id
+                LEFT JOIN users u ON c.user_id = u.id
                 WHERE c.ticket_id = ?
                 """ + (includeInternal ? "" : " AND c.is_internal = false ") + """
                 ORDER BY c.created_at ASC
@@ -60,7 +60,7 @@ public class CommentDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to load comments", e);
+            throw new RuntimeException("Failed to load comments: " + e.getMessage(), e);
         }
 
         return comments;
@@ -71,7 +71,7 @@ public class CommentDAO {
                 SELECT c.comment_id, c.user_id, c.content, c.is_internal, c.created_at,
                        u.username, u.role
                 FROM comments c
-                JOIN users u ON c.user_id = u.id
+                LEFT JOIN users u ON c.user_id = u.id
                 WHERE c.comment_id = ?
                 """;
 
@@ -85,18 +85,21 @@ public class CommentDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to load comment", e);
+            throw new RuntimeException("Failed to load comment: " + e.getMessage(), e);
         }
 
         return null;
     }
 
     private CommentResponse mapRow(ResultSet rs) throws SQLException {
+        String username = rs.getString("username");
+        String role = rs.getString("role");
+
         return new CommentResponse(
                 rs.getLong("comment_id"),
                 rs.getLong("user_id"),
-                rs.getString("username"),
-                rs.getString("role"),
+                username != null ? username : "Unknown",
+                role != null ? role : "System",
                 rs.getString("content"),
                 rs.getBoolean("is_internal"),
                 rs.getTimestamp("created_at")

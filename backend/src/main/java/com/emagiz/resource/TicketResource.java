@@ -30,16 +30,55 @@ public class TicketResource {
 
     @Context
     private ContainerRequestContext requestContext;
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({"CUSTOMER", "SUPPORT"})
     public Response createTicket(Ticket ticket){
-        Long userId =
-                (Long) requestContext.getProperty("userId");
+        Long userId = (Long) requestContext.getProperty("userId");
+        String userRole = (String) requestContext.getProperty("userRole");
 
-        ticket.setCreatorId(userId);
-        if (ticket.getType() == null) {
-            ticket.setType(TicketType.INCIDENT);
+        if (isCustomerRole(userRole)) {
+            if (ticket.getType() == TicketType.INTERNAL) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(new ApiError("Customers cannot create internal tickets"))
+                        .build();
+            }
+            ticket.setCreatorId(userId);
+            if (ticket.getType() == null) {
+                ticket.setType(TicketType.INCIDENT);
+            }
+        } else if (isSupportRole(userRole)) {
+            if (ticket.getType() == TicketType.INTERNAL) {
+                ticket.setCreatorId(userId);
+            } else {
+                Long creatorId = ticket.getCreatorId();
+                if (creatorId == null) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity(new ApiError("Customer is required for customer tickets"))
+                            .build();
+                }
+                User customer = userDAO.findById(creatorId);
+                if (customer == null || !isCustomerRole(customer.getRole())) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity(new ApiError("Invalid customer selected"))
+                            .build();
+                }
+                if (ticket.getType() == null) {
+                    ticket.setType(TicketType.INCIDENT);
+                }
+            }
+        } else {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity(new ApiError("You don't have permission to create tickets"))
+                    .build();
+        }
+
+        if (ticket.getStatus() == null) {
+            ticket.setStatus(TicketStatus.OPEN);
+        }
+        if (ticket.getPriority() == null) {
+            ticket.setPriority(TicketPriority.MEDIUM);
         }
 
         Ticket savedTicket = ticketDAO.save(ticket);
@@ -47,6 +86,7 @@ public class TicketResource {
 
         return Response.status(Response.Status.CREATED).entity(savedTicket).build();
     }
+
     @RolesAllowed("SUPPORT")
     @GET
     public Response getAllTickets(){
@@ -68,6 +108,10 @@ public class TicketResource {
     public Response UpdateTicket(@PathParam("ticketId") Long id, Ticket ticket){
         try {
             Long userId = (Long) requestContext.getProperty("userId");
+            Response denied = denyCustomerInternalAccess(id);
+            if (denied != null) {
+                return denied;
+            }
 
             ticketDAO.updateTicket(id, ticket);
             auditLogDAO.saveLog(id.intValue(), userId.intValue(), "TICKET_UPDATED");
@@ -88,6 +132,11 @@ public class TicketResource {
             StatusUpdateRequest request) {
 
         try {
+            Response denied = denyCustomerInternalAccess(id);
+            if (denied != null) {
+                return denied;
+            }
+
             TicketStatus newStatus = TicketStatus.valueOf(request.getStatus());
             Long userId = (Long) requestContext.getProperty("userId");
 
@@ -119,6 +168,11 @@ public class TicketResource {
         }
 
         try {
+            Response denied = denyCustomerInternalAccess(id);
+            if (denied != null) {
+                return denied;
+            }
+
             TicketPriority newPriority = TicketPriority.valueOf(request.getPriority().trim().toUpperCase());
             Long userId = (Long) requestContext.getProperty("userId");
 
@@ -182,6 +236,10 @@ public class TicketResource {
 
         try {
             Ticket t = ticketDAO.findById(id);
+            Response denied = denyCustomerInternalAccess(t);
+            if (denied != null) {
+                return denied;
+            }
             return Response.ok(t).build();
 
         } catch (TicketNotFoundException e) {
@@ -228,16 +286,21 @@ public class TicketResource {
 
     public Response getTicketComments(@PathParam("ticketID") Long ticketID,
                                         @Context ContainerRequestContext containerRequestContext) {
-        Long userId = (Long) containerRequestContext.getProperty("userId");
-        User user = userDAO.findById(userId);
-        boolean includeInternal = user != null && !"Customer".equalsIgnoreCase(user.getRole());
+        String userRole = (String) containerRequestContext.getProperty("userRole");
+        boolean includeInternal = !isCustomerRole(userRole);
 
         try {
+            Response denied = denyCustomerInternalAccess(ticketID);
+            if (denied != null) {
+                return denied;
+            }
+
             List<CommentResponse> comments = commentDAO.findByTicketId(ticketID, includeInternal);
             return Response.ok(comments).build();
         } catch (Exception e) {
+            e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(new ApiError("Failed to load comments"))
+                    .entity(new ApiError("Failed to load comments: " + e.getMessage()))
                     .build();
         }
     }
@@ -251,6 +314,7 @@ public class TicketResource {
     public Response addCommentToTicket(@PathParam("ticketID") Long ticketID, CommentDTO commentDTO,
                                        @Context ContainerRequestContext containerRequestContext) {
         Long userId = (Long) containerRequestContext.getProperty("userId");
+        String userRole = (String) containerRequestContext.getProperty("userRole");
 
         if (commentDTO == null
                 || commentDTO.getContent() == null
@@ -260,15 +324,24 @@ public class TicketResource {
                     .build();
         }
 
-        User user = userDAO.findById(userId);
-        if (commentDTO.isInternal()
-                && (user == null || "Customer".equalsIgnoreCase(user.getRole()))) {
+        if (userId == null) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(new ApiError("Missing or invalid token"))
+                    .build();
+        }
+
+        if (commentDTO.isInternal() && isCustomerRole(userRole)) {
             return Response.status(Response.Status.FORBIDDEN)
                     .entity(new ApiError("Only staff can post internal notes"))
                     .build();
         }
 
         try {
+            Response denied = denyCustomerInternalAccess(ticketID);
+            if (denied != null) {
+                return denied;
+            }
+
             CommentResponse responseDTO = commentDAO.addComment(
                     ticketID, userId, commentDTO.getContent().trim(), commentDTO.isInternal()
             );
@@ -285,10 +358,40 @@ public class TicketResource {
                     .entity(responseDTO)
                     .build();
         } catch (Exception e) {
+            e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(new ApiError("Failed to add comment"))
+                    .entity(new ApiError("Failed to add comment: " + e.getMessage()))
                     .build();
         }
+    }
+
+    private boolean isCustomerRole(String role) {
+        return role != null && "CUSTOMER".equalsIgnoreCase(role.trim());
+    }
+
+    private boolean isSupportRole(String role) {
+        return role != null && "SUPPORT".equalsIgnoreCase(role.trim());
+    }
+
+    private Response denyCustomerInternalAccess(Long ticketId) {
+        try {
+            Ticket ticket = ticketDAO.findById(ticketId);
+            return denyCustomerInternalAccess(ticket);
+        } catch (TicketNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ApiError("Ticket not found"))
+                    .build();
+        }
+    }
+
+    private Response denyCustomerInternalAccess(Ticket ticket) {
+        String userRole = (String) requestContext.getProperty("userRole");
+        if (isCustomerRole(userRole) && ticket.getType() == TicketType.INTERNAL) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity(new ApiError("You don't have permission to access this ticket"))
+                    .build();
+        }
+        return null;
     }
 
 }

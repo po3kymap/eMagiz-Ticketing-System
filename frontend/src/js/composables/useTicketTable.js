@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue';
-import { TICKET_TYPES } from '@js/domain/tickets/ticketCatalog';
+import { TICKET_TYPES, TICKET_PRIORITY_ORDER, TICKET_STATUS_ORDER, compareTicketPriority, compareTicketStatus } from '@js/domain/tickets/ticketCatalog';
 
 export function formatTicketDate(val) {
     if (!val) {
@@ -18,8 +18,8 @@ export function formatFilterLabel(value) {
 export function useTicketTable(tickets, options = {}) {
     const {
         pageSize = 15,
-        statusOptions = ['OPEN', 'IN_REVIEW', 'ACCEPTED', 'ASSIGNED', 'RESOLVED', 'DENIED', 'CLOSED'],
-        priorityOptions = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'],
+        statusOptions = TICKET_STATUS_ORDER,
+        priorityOptions = TICKET_PRIORITY_ORDER,
         typeOptions = Object.keys(TICKET_TYPES),
         matchSearch = null,
     } = options;
@@ -56,9 +56,14 @@ export function useTicketTable(tickets, options = {}) {
 
     const sorted = computed(() =>
         [...searched.value].sort((a, b) => {
-            const valA = a[sortKey.value] ?? '';
-            const valB = b[sortKey.value] ?? '';
-            const cmp = String(valA).localeCompare(String(valB));
+            const key = sortKey.value;
+            const valA = a[key] ?? '';
+            const valB = b[key] ?? '';
+            const cmp = key === 'priority'
+                ? compareTicketPriority(valA, valB)
+                : key === 'status'
+                    ? compareTicketStatus(valA, valB)
+                    : String(valA).localeCompare(String(valB));
             return sortDir.value === 'asc' ? cmp : -cmp;
         }),
     );

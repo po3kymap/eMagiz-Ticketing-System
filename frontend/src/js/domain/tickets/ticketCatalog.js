@@ -17,7 +17,21 @@ export const TICKET_TYPES = {
         badgeClass: 'bg-violet-50 text-violet-700 ring-violet-100',
         chartColor: '#8b5cf6',
     },
+    INTERNAL: {
+        key: 'INTERNAL',
+        label: 'Internal',
+        badgeClass: 'bg-slate-100 text-slate-700 ring-slate-200',
+        chartColor: '#64748b',
+        staffOnly: true,
+    },
 };
+
+/** Types customers can submit; INTERNAL is staff-only */
+export const CUSTOMER_TICKET_TYPE_KEYS = ['INCIDENT', 'RFC', 'OTHER'];
+
+export function isInternalTicket(ticket) {
+    return String(ticket?.type || '').trim().toUpperCase() === 'INTERNAL';
+}
 
 export const TICKET_PRIORITIES = {
     LOW: {
@@ -45,6 +59,16 @@ export const TICKET_PRIORITIES = {
         dotClass: 'bg-red-500',
     },
 };
+
+export const TICKET_PRIORITY_ORDER = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
+
+export function compareTicketPriority(a, b) {
+    const indexA = TICKET_PRIORITY_ORDER.indexOf(String(a || '').trim().toUpperCase());
+    const indexB = TICKET_PRIORITY_ORDER.indexOf(String(b || '').trim().toUpperCase());
+    const rankA = indexA === -1 ? TICKET_PRIORITY_ORDER.length : indexA;
+    const rankB = indexB === -1 ? TICKET_PRIORITY_ORDER.length : indexB;
+    return rankA - rankB;
+}
 
 export const TICKET_STATUSES = {
     OPEN: {
@@ -79,13 +103,24 @@ export const TICKET_STATUSES = {
     },
 };
 
+export const TICKET_STATUS_ORDER = ['OPEN', 'IN_REVIEW', 'ACCEPTED', 'ASSIGNED', 'DENIED', 'CLOSED'];
+
+export function compareTicketStatus(a, b) {
+    const indexA = TICKET_STATUS_ORDER.indexOf(String(a || '').trim().toUpperCase());
+    const indexB = TICKET_STATUS_ORDER.indexOf(String(b || '').trim().toUpperCase());
+    const rankA = indexA === -1 ? TICKET_STATUS_ORDER.length : indexA;
+    const rankB = indexB === -1 ? TICKET_STATUS_ORDER.length : indexB;
+    return rankA - rankB;
+}
+
 const UNKNOWN_BADGE = {
     badgeClass: 'bg-slate-100 text-slate-600 ring-slate-200',
     dotClass: 'bg-slate-400',
 };
 
 export function getTicketTypeMeta(type) {
-    return TICKET_TYPES[type] ?? { key: type, label: type || 'Unknown', ...UNKNOWN_BADGE };
+    const key = String(type || '').trim().toUpperCase();
+    return TICKET_TYPES[key] ?? { key: type, label: type || 'Unknown', ...UNKNOWN_BADGE };
 }
 
 export function getTicketPriorityMeta(priority) {
@@ -107,6 +142,9 @@ export function formatTicketNumber(id) {
 }
 
 export function getTicketCompanyLabel(ticket) {
+    if (isInternalTicket(ticket)) {
+        return 'Internal';
+    }
     const company = String(ticket?.company || '').trim();
     return company || '—';
 }

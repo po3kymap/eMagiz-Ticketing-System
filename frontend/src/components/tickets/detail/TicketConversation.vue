@@ -21,6 +21,10 @@ const props = defineProps({
         default: 'customer',
         validator: (v) => ['support', 'consultant', 'customer'].includes(v),
     },
+    internalOnly: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const comments = ref([]);
@@ -64,8 +68,8 @@ async function loadComments() {
 }
 
 async function postComment(content, isInternal) {
-    const created = await addTicketComment(props.ticketId, content, isInternal);
-    comments.value = [...comments.value, created];
+    await addTicketComment(props.ticketId, content, isInternal);
+    await loadComments();
 }
 
 async function handlePublicPost(content) {
@@ -106,6 +110,25 @@ watch(() => props.ticketId, () => {
 
     <div v-else-if="error" class="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-500 shadow-sm">
         {{ error }}
+    </div>
+
+    <div
+        v-else-if="internalOnly && isStaff"
+    >
+        <TicketChatPanel
+            v-model:draft="internalDraft"
+            title="Team Notes"
+            subtitle="Internal — Support & Consultant only"
+            :comments="internalComments"
+            :current-user="currentUser"
+            :can-post="canPost"
+            :is-posting="isPostingInternal"
+            :post-error="internalPostError"
+            placeholder="Note for the team…"
+            submit-label="Post Note"
+            variant="internal"
+            @post="handleInternalPost"
+        />
     </div>
 
     <div

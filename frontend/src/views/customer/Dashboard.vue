@@ -42,7 +42,7 @@ export default {
           return {
             openTickets: this.tickets.filter(t => t.status === 'OPEN').length,
             waitingForSupport: this.tickets.filter((t) =>
-                ['OPEN', 'IN_REVIEW', 'ACCEPTED'].includes(t.status),
+                ['IN_REVIEW', 'ACCEPTED'].includes(t.status),
             ).length,
             resolvedThisMonth: computeResolvedThisMonthCount({
                 tickets: this.tickets,
@@ -154,7 +154,7 @@ export default {
                     :tickets="tickets"
                     :loading="loadingTickets"
                     :error="ticketsError"
-                    :limit="3"
+                    :limit="7"
                 />
 
                 <RecentActivityPanel

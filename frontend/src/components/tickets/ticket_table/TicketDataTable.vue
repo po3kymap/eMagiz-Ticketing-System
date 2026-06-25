@@ -48,8 +48,9 @@ function cellText(ticket, key) {
                     <th
                         v-for="col in columns"
                         :key="col.key"
-                        class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400 cursor-pointer select-none whitespace-nowrap hover:text-slate-600"
-                        @click="$emit('sort', col.key)"
+                        class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400 whitespace-nowrap"
+                        :class="col.sortable !== false ? 'cursor-pointer select-none hover:text-slate-600' : ''"
+                        @click="col.sortable !== false && $emit('sort', col.key)"
                     >
                         {{ col.label }}
                         <span v-if="sortKey === col.key" class="ml-0.5">

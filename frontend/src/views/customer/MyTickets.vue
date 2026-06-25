@@ -6,6 +6,7 @@ import TicketDataTable from '@/components/tickets/ticket_table/TicketDataTable.v
 import TicketTablePagination from '@/components/tickets/ticket_table/TicketTablePagination.vue';
 import TicketTableToolbar from '@/components/tickets/ticket_table/TicketTableToolbar.vue';
 import { useTicketTable } from '@js/composables/useTicketTable';
+import { CUSTOMER_TICKET_TYPE_KEYS } from '@js/domain/tickets/ticketCatalog';
 import { fetchMyTicketsForCurrentUser } from '@api/tickets';
 import { fetchUsers } from '@api/users';
 
@@ -47,7 +48,7 @@ const {
     onSearchInput,
     formatFilterLabel,
 } = useTicketTable(tickets, {
-    statusOptions: ['OPEN', 'IN_REVIEW', 'ACCEPTED', 'DENIED', 'ASSIGNED', 'RESOLVED', 'CLOSED'],
+    typeOptions: CUSTOMER_TICKET_TYPE_KEYS,
 });
 
 onMounted(async () => {

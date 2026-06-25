@@ -1,6 +1,6 @@
 # eMagiz Ticketing System
 
-**Team 04 · Design Project 2025/26 · University of Twente**
+**Team 04 · eMagiz4 · University of Twente**
 
 A full-stack support portal for [eMagiz](https://www.emagiz.com/) integration customers. Customers submit and track tickets; support triages the queue; consultants work assigned cases — all in one system with role-based access, audit logging, and real-time activity feeds.
 
@@ -221,8 +221,8 @@ Ticket
 └── createdAt, updatedAt
 
 Comment
-├── id, ticketId, userId, content, internal (team note flag)
-└── createdAt
+├── comment_id, ticket_id, user_id, content, is_internal (team note flag)
+└── created_at
 
 AuditLog
 ├── id, ticketId, userId, action, details
@@ -262,6 +262,10 @@ di26-04/
 ```
 
 ---
+## Login Credentials
+**Customer** - Username (demous), Password (demopass);
+**Consultant** - Username (democons), Password (demopass);
+**Support** - Username (demosup), Password (demopass);
 
 ## Frontend Routes
 
@@ -299,7 +303,3 @@ di26-04/
 - **GitLab:** [di26-04](https://gitlab.utwente.nl/s3536890/di26-04)
 
 ---
-
-## Team 04
-
-University of Twente · Design Project · 2025/26

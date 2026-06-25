@@ -5,6 +5,7 @@ import TicketTypeBadge from '@/components/tickets/ticket_components/TicketTypeBa
 import TicketPriorityBadge from '@/components/tickets/ticket_components/TicketPriorityBadge.vue';
 import TicketStatusBadge from '@/components/tickets/ticket_components/TicketStatusBadge.vue';
 import TicketConversation from '@/components/tickets/detail/TicketConversation.vue';
+import TicketSlaPanel from '@/components/tickets/detail/TicketSlaPanel.vue';
 import { getCurrentUser } from '@api/auth';
 import { fetchTicketAuditLogs } from '@js/api/auditLogs';
 import { getAuditTimelineColor, getAuditTimelineLabel, isLifecycleAction } from '@js/domain/audit/auditCatalog';
@@ -17,7 +18,7 @@ import {
     updateTicketPriority,
 } from '@api/tickets';
 import { fetchUsers } from '@api/users';
-import { getTicketCompanyLabel } from '@js/domain/tickets/ticketCatalog';
+import { getTicketCompanyLabel, isInternalTicket } from '@js/domain/tickets/ticketCatalog';
 import {
     Activity,
     ArrowLeft,
@@ -72,6 +73,8 @@ const priorityOptions = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
 
 const ticketStatus = computed(() => String(ticket.value?.status || '').toUpperCase());
 
+const isInternal = computed(() => isInternalTicket(ticket.value));
+
 const isAssignedToMe = computed(() =>
     ticket.value?.assigneeId != null
     && ticket.value?.assigneeId === currentUser.value?.userId,
@@ -110,6 +113,8 @@ const assigneeUser = computed(() =>
 
 const customerLabel = computed(() => getTicketCompanyLabel(ticket.value));
 
+const sourceLabel = computed(() => (isInternal.value ? 'Support' : 'Customer'));
+
 const lifecycleEvents = computed(() => {
     if (!ticket.value) {
         return [];
@@ -128,6 +133,7 @@ const lifecycleEvents = computed(() => {
                     user,
                     details: log.details,
                     userById,
+                    isInternal: isInternal.value,
                 }),
                 date: log.createdAt,
                 color: getAuditTimelineColor(log.action),
@@ -138,7 +144,7 @@ const lifecycleEvents = computed(() => {
     if (events.length === 0 && ticket.value.createdAt) {
         events.push({
             id: 'fallback-created',
-            label: 'Submitted by customer',
+            label: isInternal.value ? 'Created by support' : 'Submitted by customer',
             date: ticket.value.createdAt,
             color: 'bg-blue-500',
             done: true,
@@ -382,13 +388,13 @@ onUnmounted(() => {
                             <span class="mx-2 text-slate-300">·</span>
                             Created: {{ formatShortDate(ticket.createdAt) }}
                             <span class="mx-2 text-slate-300">·</span>
-                            Source: Customer
+                            Source: {{ sourceLabel }}
                         </p>
                     </div>
 
                     <div class="flex flex-wrap gap-2">
                         <button
-                            v-if="canChangePriority"
+                            v-if="canChangePriority && !(isSupport && isInternal)"
                             type="button"
                             class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                             @click="openPriorityModal"
@@ -397,7 +403,7 @@ onUnmounted(() => {
                             Priority
                         </button>
 
-                        <template v-if="isSupport">
+                        <template v-if="isSupport && !isInternal">
                             <button
                                 v-if="canAddToReview"
                                 type="button"
@@ -444,6 +450,17 @@ onUnmounted(() => {
                         </template>
 
                         <button
+                            v-if="isSupport && isInternal && canAssign"
+                            type="button"
+                            class="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 bg-white px-3 py-1.5 text-sm font-medium text-violet-600 transition hover:bg-violet-50 disabled:opacity-50"
+                            :disabled="isProcessing"
+                            @click="openAssignModal"
+                        >
+                            <UserPlus class="h-4 w-4" />
+                            Assign
+                        </button>
+
+                        <button
                             v-if="canClose"
                             type="button"
                             class="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
@@ -479,7 +496,7 @@ onUnmounted(() => {
                         </div>
                         <div>
                             <dt class="text-xs uppercase tracking-wide text-slate-400">Source</dt>
-                            <dd class="mt-1 text-slate-700">Customer</dd>
+                            <dd class="mt-1 text-slate-700">{{ sourceLabel }}</dd>
                         </div>
                         <div>
                             <dt class="text-xs uppercase tracking-wide text-slate-400">Created</dt>
@@ -516,10 +533,7 @@ onUnmounted(() => {
                         </div>
                     </section>
 
-                    <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <h2 class="text-sm font-semibold text-slate-700">SLA &amp; Due Date</h2>
-                        <p class="mt-3 text-sm text-slate-400">SLA tracking coming soon.</p>
-                    </section>
+                    <TicketSlaPanel :ticket="ticket" :audit-logs="auditLogs" />
 
                     <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                         <div class="flex items-center gap-2">
@@ -567,6 +581,7 @@ onUnmounted(() => {
                 :ticket-status="ticket.status"
                 :current-user="currentUser"
                 :role="role"
+                :internal-only="isInternal"
             />
         </template>
 

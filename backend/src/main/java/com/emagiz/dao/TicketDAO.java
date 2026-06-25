@@ -122,6 +122,7 @@ public class TicketDAO {
                 FROM tickets t
                 LEFT JOIN users u ON t.creator_id = u.id
                 WHERE t.creator_id = ?
+                  AND t.type <> 'INTERNAL'
                 ORDER BY t.id DESC
                 """;
         try (Connection conn = DatabaseConfig.getConnection();
@@ -201,7 +202,11 @@ public class TicketDAO {
         t.setAssigneeId(readNullableLong(rs, "assignee_id"));
         t.setCreatedAt(rs.getTimestamp("created_at"));
         t.setUpdatedAt(rs.getTimestamp("updated_at"));
-        t.setCompany(readOptionalString(rs, "company"));
+        if (t.getType() == TicketType.INTERNAL) {
+            t.setCompany(null);
+        } else {
+            t.setCompany(readOptionalString(rs, "company"));
+        }
         return t;
     }
 

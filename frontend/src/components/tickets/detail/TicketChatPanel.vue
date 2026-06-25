@@ -161,7 +161,7 @@ function submit() {
         </div>
 
         <div v-if="canPost" class="mt-4 border-t border-slate-100/80 pt-4">
-            <div class="flex gap-2">
+            <form class="flex gap-2" @submit.prevent="submit">
                 <div
                     class="flex shrink-0 items-center justify-center rounded-full font-semibold"
                     :class="[
@@ -186,7 +186,7 @@ function submit() {
 
                     <div class="flex justify-end border-t border-slate-100 px-3 py-2">
                         <button
-                            type="button"
+                            type="submit"
                             class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60"
                             :class="[buttonClass, compact ? 'text-xs' : 'text-sm']"
                             :disabled="!draft.trim() || isPosting"
@@ -197,7 +197,7 @@ function submit() {
                         </button>
                     </div>
                 </div>
-            </div>
+            </form>
 
             <p v-if="postError" class="mt-2 text-xs text-red-500">{{ postError }}</p>
         </div>

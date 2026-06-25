@@ -62,7 +62,7 @@ function priorityDotClass(priority) {
 </script>
 
 <template>
-  <div class="relative w-full max-w-xl mx-auto">
+  <div class="relative w-full">
     <div
       class="flex items-center gap-2 h-10 rounded-full border bg-white px-3 transition"
       :class="isFocused

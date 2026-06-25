@@ -1,39 +1,15 @@
 <script setup>
+import { SLA_OVERVIEW_ROWS } from '@js/domain/tickets/ticketSla';
+
 const tips = [
     'Include exact error messages or codes',
     'Specify the environment (production/staging)',
     'Mention when the issue started',
-    'Attach relevant log files or screenshots',
     'Describe the business impact clearly',
     'Include steps to reproduce if possible',
 ];
 
-const slaRows = [
-    {
-        label: 'Critical',
-        badgeClass: 'bg-red-100 text-red-700',
-        response: '1 hour',
-        resolve: '4 hours',
-    },
-    {
-        label: 'High',
-        badgeClass: 'bg-orange-100 text-orange-800',
-        response: '4 hours',
-        resolve: '1 day',
-    },
-    {
-        label: 'Medium',
-        badgeClass: 'bg-yellow-100 text-yellow-800',
-        response: '8 hours',
-        resolve: '3 days',
-    },
-    {
-        label: 'Low',
-        badgeClass: 'bg-slate-100 text-slate-600',
-        response: '1 day',
-        resolve: '5 days',
-    },
-];
+const slaRows = SLA_OVERVIEW_ROWS;
 </script>
 
 <template>

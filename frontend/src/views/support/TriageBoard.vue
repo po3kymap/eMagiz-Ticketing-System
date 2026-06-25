@@ -38,7 +38,7 @@ const COLUMN_TICKET_LIMIT = 4;
 const TRIAGE_COLUMNS = [
     {
         status: 'OPEN',
-        label: 'New',
+        label: 'Open',
         dotClass: 'bg-blue-500',
         headerClass: 'bg-blue-50/90',
         showAccept: false,
@@ -97,11 +97,7 @@ const ticketsByStatus = computed(() => {
     }
 
     for (const status of Object.keys(grouped)) {
-        grouped[status].sort((a, b) => {
-            const timeA = a.createdAt ? new Date(a.createdAt).getTime() : a.id;
-            const timeB = b.createdAt ? new Date(b.createdAt).getTime() : b.id;
-            return timeB - timeA;
-        });
+        grouped[status].sort((a, b) => Number(b.id) - Number(a.id));
     }
 
     return grouped;
