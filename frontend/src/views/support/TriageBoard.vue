@@ -4,7 +4,8 @@ import { useRouter } from 'vue-router';
 import SupportLayout from '@/layouts/SupportLayout.vue';
 import TriageBoardCard from '@/components/tickets/triage/TriageBoardCard.vue';
 import { formatTicketDate } from '@js/composables/useTicketTable';
-import { getTicketCompanyLabel } from '@js/domain/tickets/ticketCatalog';
+import { isConsultantRole } from '@js/domain/auth/roles';
+import { getTicketCompanyLabel, isInternalTicket } from '@js/domain/tickets/ticketCatalog';
 import {
     acceptTicket,
     assignTicket,
@@ -124,7 +125,7 @@ async function loadData() {
         tickets.value = await fetchAllTickets();
         const usersData = await fetchUsers();
         allUsers.value = usersData;
-        consultantUsers.value = usersData.filter((u) => u.role === 'Consultant');
+        consultantUsers.value = usersData.filter((u) => isConsultantRole(u.role));
     } catch (e) {
         error.value = e.message;
     } finally {
@@ -220,6 +221,28 @@ async function onAddToReview(ticket) {
         reviewingTicketId.value = null;
     }
 }
+
+function getCardActions(ticket, column) {
+    const isOpenInternal = column.status === 'OPEN'
+        && isInternalTicket(ticket)
+        && !ticket.assigneeId;
+
+    if (isOpenInternal) {
+        return {
+            showAccept: false,
+            showDeny: false,
+            showAssign: true,
+            showAddToReview: false,
+        };
+    }
+
+    return {
+        showAccept: column.showAccept,
+        showDeny: column.showDeny,
+        showAssign: column.showAssign,
+        showAddToReview: column.showAddToReview,
+    };
+}
 </script>
 
 <template>
@@ -279,10 +302,7 @@ async function onAddToReview(ticket) {
                             :ticket="ticket"
                             :company-label="getTicketCompanyLabel(ticket)"
                             :date-label="formatTicketDate(ticket.createdAt)"
-                            :show-accept="column.showAccept"
-                            :show-deny="column.showDeny"
-                            :show-assign="column.showAssign"
-                            :show-add-to-review="column.showAddToReview"
+                            v-bind="getCardActions(ticket, column)"
                             @view="onView"
                             @accept="onAccept"
                             @deny="onDeny"

@@ -18,6 +18,7 @@ import {
     updateTicketPriority,
 } from '@api/tickets';
 import { fetchUsers } from '@api/users';
+import { isConsultantRole, isCustomerRole, isSupportRole, normalizeRole } from '@js/domain/auth/roles';
 import { getTicketCompanyLabel, isInternalTicket } from '@js/domain/tickets/ticketCatalog';
 import {
     Activity,
@@ -37,7 +38,7 @@ const props = defineProps({
     role: {
         type: String,
         required: true,
-        validator: (v) => ['support', 'consultant', 'customer'].includes(v),
+        validator: (v) => ['support', 'consultant', 'customer'].includes(normalizeRole(v)),
     },
     backPath: {
         type: String,
@@ -80,8 +81,8 @@ const isAssignedToMe = computed(() =>
     && ticket.value?.assigneeId === currentUser.value?.userId,
 );
 
-const isSupport = computed(() => props.role === 'support');
-const isConsultant = computed(() => props.role === 'consultant');
+const isSupport = computed(() => isSupportRole(props.role));
+const isConsultant = computed(() => isConsultantRole(props.role));
 
 const canAddToReview = computed(() =>
     isSupport.value && ticketStatus.value === 'OPEN',
@@ -100,9 +101,15 @@ const canClose = computed(() =>
     && isAssignedToMe.value
     && !['CLOSED', 'DENIED'].includes(ticketStatus.value),
 );
-const canChangePriority = computed(() =>
-    !['CLOSED', 'DENIED'].includes(ticketStatus.value),
-);
+const showChangePriorityButton = computed(() => {
+    if (['CLOSED', 'DENIED'].includes(ticketStatus.value)) {
+        return false;
+    }
+    if (isCustomerRole(props.role)) {
+        return ticketStatus.value === 'OPEN';
+    }
+    return true;
+});
 
 const creatorUser = computed(() =>
     allUsers.value.find((u) => u.id === ticket.value?.creatorId),
@@ -218,7 +225,7 @@ async function loadData() {
         ]);
         ticket.value = fetchedTicket;
         allUsers.value = users;
-        consultantUsers.value = users.filter((u) => u.role === 'Consultant');
+        consultantUsers.value = users.filter((u) => isConsultantRole(u.role));
         currentUser.value = user;
         auditLogs.value = logs;
         selectedPriority.value = fetchedTicket.priority || 'MEDIUM';
@@ -394,7 +401,7 @@ onUnmounted(() => {
 
                     <div class="flex flex-wrap gap-2">
                         <button
-                            v-if="canChangePriority && !(isSupport && isInternal)"
+                            v-if="showChangePriorityButton"
                             type="button"
                             class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                             @click="openPriorityModal"

@@ -16,6 +16,7 @@ import {
     getAuditActionMeta,
     getAuditRoleBadgeClass,
     getUserInitials,
+    isClickableAuditLog,
     isHiddenAuditAction,
 } from '@js/domain/audit/auditCatalog';
 import { Shield, Search } from 'lucide-vue-next';
@@ -48,6 +49,7 @@ const enrichedLogs = computed(() => logs.value
         role: user?.role ?? 'System',
         actionLabel: actionMeta.label,
         actionFilterKey: actionMeta.filterKey,
+        isClickable: isClickableAuditLog(log),
     };
 }));
 
@@ -228,7 +230,11 @@ function openTicket(ticketId) {
                                 <tr
                                     v-for="log in paginatedLogs"
                                     :key="log.id"
-                                    class="hover:bg-slate-50/60"
+                                    class="transition"
+                                    :class="log.isClickable
+                                        ? 'cursor-pointer hover:bg-emerald-50/50'
+                                        : 'hover:bg-slate-50/60'"
+                                    @click="log.isClickable && openTicket(log.ticketId)"
                                 >
                                     <td class="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-slate-500">
                                         {{ formatAuditTimestamp(log.createdAt) }}
@@ -250,7 +256,20 @@ function openTicket(ticketId) {
                                         </span>
                                     </td>
                                     <td class="px-5 py-3.5">
-                                        <span class="font-medium" :class="getAuditActionClass(log.action)">
+                                        <button
+                                            v-if="log.isClickable"
+                                            type="button"
+                                            class="text-left font-medium underline-offset-2 transition hover:underline"
+                                            :class="getAuditActionClass(log.action)"
+                                            @click.stop="openTicket(log.ticketId)"
+                                        >
+                                            {{ log.actionLabel }}
+                                        </button>
+                                        <span
+                                            v-else
+                                            class="font-medium"
+                                            :class="getAuditActionClass(log.action)"
+                                        >
                                             {{ log.actionLabel }}
                                         </span>
                                     </td>
@@ -258,8 +277,8 @@ function openTicket(ticketId) {
                                         <button
                                             v-if="log.ticketId"
                                             type="button"
-                                            class="font-mono text-sm font-medium text-emerald-600 transition hover:text-emerald-700"
-                                            @click="openTicket(log.ticketId)"
+                                            class="font-mono text-sm font-medium text-emerald-600 underline-offset-2 transition hover:text-emerald-700 hover:underline"
+                                            @click.stop="openTicket(log.ticketId)"
                                         >
                                             {{ formatTicketNumber(log.ticketId) }}
                                         </button>

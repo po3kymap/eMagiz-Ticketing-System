@@ -28,6 +28,11 @@ export async function fetchUsers() {
 }
 
 export async function createUser(user) {
+    const payload = {
+        ...user,
+        role: String(user.role || '').trim().toUpperCase(),
+    };
+
     const response = await apiFetch('/api/users', {
         method: 'POST',
         headers: {
@@ -35,7 +40,7 @@ export async function createUser(user) {
             Accept: 'application/json',
             ...getAuthHeaders(),
         },
-        body: JSON.stringify(user),
+        body: JSON.stringify(payload),
     });
 
     const data = await response.json().catch(() => ({}));

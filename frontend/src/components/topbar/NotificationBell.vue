@@ -1,6 +1,8 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Bell, Loader2 } from 'lucide-vue-next';
+
+const VISIBLE_LIMIT = 3;
 
 const props = defineProps({
     unreadCount: {
@@ -28,6 +30,7 @@ const props = defineProps({
 const emit = defineEmits(['toggle', 'select', 'mark-all-read']);
 
 const rootRef = ref(null);
+const visibleItems = computed(() => props.items.slice(0, VISIBLE_LIMIT));
 
 function onClickOutside(event) {
     if (props.isOpen && rootRef.value && !rootRef.value.contains(event.target)) {
@@ -91,8 +94,8 @@ onUnmounted(() => {
                 No recent activity
             </div>
 
-            <ul v-else class="max-h-96 overflow-y-auto divide-y divide-slate-100">
-                <li v-for="item in items" :key="item.id">
+            <ul v-else class="divide-y divide-slate-100">
+                <li v-for="item in visibleItems" :key="item.id">
                     <button
                         type="button"
                         class="flex w-full gap-3 px-4 py-3 text-left transition hover:bg-slate-50"
