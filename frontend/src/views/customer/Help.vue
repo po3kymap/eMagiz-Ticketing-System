@@ -151,6 +151,9 @@ function toggleItem(sectionId, index) {
 function goToTickets() {
     router.push('/customer/tickets');
 }
+function goToSubmit() {
+    router.push('/customer/submit');
+}
 </script>
 
 <template>
