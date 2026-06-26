@@ -1,12 +1,12 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { getCurrentUser } from '@api/auth';
-import { fetchAuditLogs } from '@js/api/auditLogs';
+import { fetchAuditLogsForRole } from '@js/api/auditLogs';
 import {
     fetchAllTickets,
     fetchAssignedTicketsForCurrentUser,
     fetchMyTicketsForCurrentUser,
 } from '@api/tickets';
-import { fetchUsers } from '@api/users';
+import { fetchUsersForRole } from '@api/users';
 import { normalizeRole } from '@js/domain/auth/roles';
 import {
     buildActivityFeed,
@@ -51,8 +51,8 @@ export function useActivityNotifications() {
         try {
             const [tickets, auditLogs, users] = await Promise.all([
                 fetchTicketsForRole(currentUser.role),
-                fetchAuditLogs(),
-                fetchUsers(),
+                fetchAuditLogsForRole(currentUser.role),
+                fetchUsersForRole(currentUser.role),
             ]);
 
             const lastSeenAt = getLastSeenAt(currentUser.userId);

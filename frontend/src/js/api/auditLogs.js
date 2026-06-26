@@ -1,5 +1,6 @@
 import { getAuthHeaders } from '@api/auth';
 import { apiFetch } from '@js/api/http';
+import { isSupportRole } from '@js/domain/auth/roles';
 
 function mapAuditLog(raw) {
     return {
@@ -31,6 +32,34 @@ export async function fetchAuditLogs() {
     }
 
     return data.map(mapAuditLog);
+}
+
+export async function fetchAccessibleAuditLogs() {
+    const response = await apiFetch('/api/audit-logs/accessible', {
+        headers: {
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to load audit logs (${response.status})`);
+    }
+
+    if (!Array.isArray(data)) {
+        throw new Error('Unexpected audit log response from server');
+    }
+
+    return data.map(mapAuditLog);
+}
+
+export async function fetchAuditLogsForRole(role) {
+    if (isSupportRole(role)) {
+        return fetchAuditLogs();
+    }
+    return fetchAccessibleAuditLogs();
 }
 
 export async function fetchTicketAuditLogs(ticketId) {

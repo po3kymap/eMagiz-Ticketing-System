@@ -136,4 +136,63 @@ public class AuditLogDAO {
         }
         return logs;
     }
+
+    public List<AuditLog> getLogsForCustomerTickets(Long customerId) {
+        List<AuditLog> logs = new ArrayList<>();
+        String query = """
+                SELECT al.*
+                FROM audit_logs al
+                JOIN tickets t ON al.ticket_id = t.id
+                WHERE t.creator_id = ?
+                  AND t.type <> 'INTERNAL'
+                ORDER BY al.created_at DESC
+                """;
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, customerId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    AuditLog log = new AuditLog();
+                    mapRow(rs, log);
+                    logs.add(log);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error while getting customer audit logs: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return logs;
+    }
+
+    public List<AuditLog> getLogsForAssignedTickets(Long assigneeId) {
+        List<AuditLog> logs = new ArrayList<>();
+        String query = """
+                SELECT al.*
+                FROM audit_logs al
+                JOIN tickets t ON al.ticket_id = t.id
+                WHERE t.assignee_id = ?
+                ORDER BY al.created_at DESC
+                """;
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, assigneeId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    AuditLog log = new AuditLog();
+                    mapRow(rs, log);
+                    logs.add(log);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error while getting assignee audit logs: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return logs;
+    }
 }

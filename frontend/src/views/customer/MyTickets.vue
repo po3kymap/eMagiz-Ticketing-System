@@ -8,7 +8,7 @@ import TicketTableToolbar from '@/components/tickets/ticket_table/TicketTableToo
 import { useTicketTable } from '@js/composables/useTicketTable';
 import { CUSTOMER_TICKET_TYPE_KEYS } from '@js/domain/tickets/ticketCatalog';
 import { fetchMyTicketsForCurrentUser } from '@api/tickets';
-import { fetchUsers } from '@api/users';
+import { fetchUserDirectory } from '@api/users';
 
 const router = useRouter();
 const tickets = ref([]);
@@ -55,7 +55,7 @@ onMounted(async () => {
     try {
         const [fetchedTickets, users] = await Promise.all([
             fetchMyTicketsForCurrentUser(),
-            fetchUsers(),
+            fetchUserDirectory(),
         ]);
         tickets.value = fetchedTickets;
         usersMap.value = Object.fromEntries(

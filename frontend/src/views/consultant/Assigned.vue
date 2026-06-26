@@ -7,7 +7,7 @@ import TicketTablePagination from '@/components/tickets/ticket_table/TicketTable
 import TicketTableToolbar from '@/components/tickets/ticket_table/TicketTableToolbar.vue';
 import { useTicketTable } from '@js/composables/useTicketTable';
 import { fetchAssignedTicketsForCurrentUser } from '@api/tickets';
-import { fetchUsers } from '@api/users';
+import { fetchUserDirectory } from '@api/users';
 
 const router = useRouter();
 const tickets = ref([]);
@@ -53,7 +53,7 @@ onMounted(async () => {
     try {
         const [fetchedTickets, users] = await Promise.all([
             fetchAssignedTicketsForCurrentUser(),
-            fetchUsers(),
+            fetchUserDirectory(),
         ]);
         tickets.value = fetchedTickets;
         usersMap.value = Object.fromEntries(

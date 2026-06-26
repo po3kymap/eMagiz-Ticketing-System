@@ -6,9 +6,9 @@ import DashboardCtaBanner from '@/components/dashboard/DashboardCtaBanner.vue';
 import RecentActivityPanel from '@/components/dashboard/RecentActivityPanel.vue';
 import CustomerTicketsPanel from '@/components/tickets/panels/CustomerTicketsPanel.vue';
 import { getCurrentUser } from '@api/auth';
-import { fetchAuditLogs } from '@js/api/auditLogs';
+import { fetchAuditLogsForRole } from '@js/api/auditLogs';
 import { fetchMyTicketsForCurrentUser } from '@api/tickets';
-import { fetchUsers } from '@api/users';
+import { fetchUsersForRole } from '@api/users';
 import { computeRecentUpdatesCount, computeResolvedThisMonthCount } from '@js/domain/notifications/activityFeed';
 
 export default {
@@ -69,8 +69,8 @@ export default {
             try {
                 const [tickets, auditLogs, users] = await Promise.all([
                     fetchMyTicketsForCurrentUser(),
-                    fetchAuditLogs().catch(() => []),
-                    fetchUsers().catch(() => []),
+                    fetchAuditLogsForRole(this.user?.role),
+                    fetchUsersForRole(this.user?.role),
                 ]);
                 this.tickets = tickets;
                 this.auditLogs = auditLogs;

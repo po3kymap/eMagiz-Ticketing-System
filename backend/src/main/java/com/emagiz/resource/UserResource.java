@@ -62,6 +62,34 @@ public class UserResource {
     }
 
     /**
+     * Read-only user directory for assignee labels in customer/consultant views.
+     */
+    @GET
+    @Path("/directory")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"CUSTOMER", "CONSULTANT", "SUPPORT"})
+    public Response getUserDirectory() {
+        try {
+            List<User> userList = userDAO.findAll();
+            List<UserDirectoryEntry> directory = userList.stream()
+                    .map(user -> new UserDirectoryEntry(
+                            user.getId(),
+                            user.getUsername(),
+                            user.getRole(),
+                            user.getCompany()
+                    ))
+                    .toList();
+            return Response.ok(directory).build();
+        } catch (SQLException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ApiError("Error in db: " + e.getMessage()))
+                    .build();
+        }
+    }
+
+    record UserDirectoryEntry(Long id, String username, String role, String company) {}
+
+    /**
      * Soft-deletes a user. 400 if you're deleting yourself,
      * 404 if unknown, 409 if they still have active tickets.
      */

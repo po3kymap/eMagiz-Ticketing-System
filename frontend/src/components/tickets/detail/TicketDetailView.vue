@@ -17,7 +17,7 @@ import {
     fetchTicketById,
     updateTicketPriority,
 } from '@api/tickets';
-import { fetchUsers } from '@api/users';
+import { fetchUsers, fetchUserDirectory } from '@api/users';
 import { isConsultantRole, isCustomerRole, isSupportRole, normalizeRole } from '@js/domain/auth/roles';
 import { getTicketCompanyLabel, isInternalTicket } from '@js/domain/tickets/ticketCatalog';
 import {
@@ -217,9 +217,10 @@ async function loadData() {
     error.value = '';
     try {
         const id = route.params.id.replace('TKT-', '');
+        const usersRequest = isSupportRole(props.role) ? fetchUsers() : fetchUserDirectory();
         const [fetchedTicket, users, user, logs] = await Promise.all([
             fetchTicketById(id),
-            fetchUsers(),
+            usersRequest,
             getCurrentUser(),
             fetchTicketAuditLogs(id).catch(() => []),
         ]);

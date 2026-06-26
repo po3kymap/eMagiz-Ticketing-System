@@ -1,5 +1,6 @@
 import { getAuthHeaders, getCurrentUser, getStoredToken } from '@api/auth';
 import { apiFetch } from '@js/api/http';
+import { isSupportRole } from '@js/domain/auth/roles';
 
 function mapUser(raw) {
     return {
@@ -10,6 +11,7 @@ function mapUser(raw) {
         company: raw.company,
     };
 }
+
 export async function fetchUsers() {
     const response = await apiFetch('/api/users', {
         headers: {
@@ -25,6 +27,30 @@ export async function fetchUsers() {
     }
 
     return data.map(mapUser);
+}
+
+export async function fetchUserDirectory() {
+    const response = await apiFetch('/api/users/directory', {
+        headers: {
+            Accept: 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || `Failed to load user directory (${response.status})`);
+    }
+
+    return data.map(mapUser);
+}
+
+export async function fetchUsersForRole(role) {
+    if (isSupportRole(role)) {
+        return fetchUsers();
+    }
+    return fetchUserDirectory();
 }
 
 export async function createUser(user) {
