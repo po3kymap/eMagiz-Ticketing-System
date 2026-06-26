@@ -37,7 +37,6 @@ class AuditLogDAOTest {
         dbConfig.close();
     }
 
-    // ---------- saveLog ----------
 
     @Test
     void saveLogWithoutDetailsUsesThreeColumnInsert() throws SQLException {
@@ -101,7 +100,6 @@ class AuditLogDAOTest {
         verify(stmt).setString(3, "PASSWORD_UPDATED");
     }
 
-    // ---------- getAllLogs ----------
 
     @Test
     void getAllLogsReturnsListOfLogs() throws SQLException {
@@ -168,7 +166,6 @@ class AuditLogDAOTest {
         assertNull(logs.get(0).getTicketId());
     }
 
-    // ---------- getLogsByTicketId ----------
 
     @Test
     void getLogsByTicketIdBindsTicketIdAndReturnsRows() throws SQLException {
